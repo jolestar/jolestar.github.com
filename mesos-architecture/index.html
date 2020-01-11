@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+
+  
+
+
+ 
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Mesos 架构以及源码浅析</title>
+  <meta name="description" content="Mesos 按照官方的介绍，是分布式操作系统的内核。目标是 ”Program against your datacenter like it’s a single pool of resources”，即可以将整个数据中心当做一台电脑一样使用。可以说这个目标是所有宣称自己是DCOS的系统的共同目标，本文从架构和源...">
+
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="canonical" href="http://jolestar.com/mesos-architecture/">
+  <link rel="alternate" type="application/rss+xml" title="午夜咖啡" href="../feed.xml" />
+  <meta name="google-site-verification" content="kmm9IK4zVCvEFzsNDOyTkDdtkaMGQHtdgEXurVQizfc" />
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="../">午夜咖啡</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        <!-- 
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+          <a class="page-link" href="/sitemap.txt">Sitemap</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+         -->
+        <a class="page-link" href="../about/">About</a>
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Mesos 架构以及源码浅析</h1>
+    <p class="post-meta">Apr 5, 2016 • jolestar</p>
+  </header>
+
+  <article class="post-content">
+    <p><strong>Mesos</strong> 按照官方的介绍，是分布式操作系统的内核。目标是 ”Program against your datacenter like it’s a single pool of resources”，即可以将整个数据中心当做一台电脑一样使用。可以说这个目标是所有宣称自己是DCOS的系统的共同目标，本文从架构和源码层面分析Mesos以及周边框架，看看Mesos是如何实现这个目标的，当前距这个目标还有多大差距。最后比较了一下Mesos和Kubernetes这两个都受Google的Borg影响的系统的异同。</p>
+
+<p>阅读对象：对Mesos或者分布式系统感兴趣的技术人</p>
+
+<!--more-->
+
+<h3 id="设计理念以及架构">设计理念以及架构</h3>
+
+<hr />
+
+<p>引用Mesos paper里的一句话，来说明Mesos的设计理念：</p>
+
+<blockquote>
+  <p>define a minimal interface that enables efficient resource sharing across frameworks, and otherwise push control of task scheduling and execution to the frameworks</p>
+</blockquote>
+
+<p><strong>定义一个最小化的接口来支持跨框架的资源共享，其他的调度以及执行工作都委托给框架自己来控制。</strong></p>
+
+<p>这句话标志Mesos不试图作为一个一栈式解决问题的系统，而是以最小的成本来实现资源共享。先来看看官方提供的架构图：</p>
+
+<p><img src="http://mesos.apache.org/assets/img/documentation/architecture3.jpg" alt="" title="mesos architecture" /></p>
+
+<p>主要组件以及概念：</p>
+
+<ul>
+  <li>Zookeeper 主要用来实现Master的选举，支持Master的高可用。</li>
+  <li>Master Mesos的主节点，接收Slave和Framework scheduler的注册，分配资源。</li>
+  <li>Slave 从节点，接收master发来的task，调度executor去执行。</li>
+  <li>Framework 比如上图中的Hadoop，MPI就是Framework，包括scheduler，executor两部分。scheduler独立运行，启动后注册到master，接收master发送的Resource Offer消息，来决定是否接受。Executor是给slave调用的，执行framework的task。Mesos内置了CommandExecutor（直接调用shell）和DockerExecutor两种executor，其他的自定义Executor需要提供uri，供slave下载。</li>
+  <li>Task Mesos最主要的工作其实就是分配资源，然后询问scheduler是否可以利用该资源执行Task，scheduler将资源和Task绑定后交由Master发送给指定的Slave执行。Task可以是长生命周期的，也可以使用批量的短生命周期的。</li>
+</ul>
+
+<p>官方提供的另外一个资源分配的例子：
+<img src="http://mesos.apache.org/assets/img/documentation/architecture-example.jpg" alt="" title="framework architecture" /></p>
+
+<ol>
+  <li>Slave1 向 Master 报告，有4个CPU和4 GB内存可用</li>
+  <li>Master 发送一个 Resource Offer 给 Framework1 来描述 Slave1 有多少可用资源</li>
+  <li>FrameWork1 中的 FW Scheduler会答复 Master，我有两个 Task 需要运行在 Slave1，一个 Task 需要&lt;2个CPU，1 GB内存=””&gt;，另外一个Task需要&lt;1个CPU，2 GB内存=””&gt;</li>
+  <li>最后，Master 发送这些 Tasks 给 Slave1。然后，Slave1还有1个CPU和1 GB内存没有使用，所以分配模块可以把这些资源提供给 Framework2</li>
+</ol>
+
+<p>这个例子可以看出来，Mesos的核心工作其实很少，资源管理和分配以及task转发。调度由Framework实现，task的定义以及具体执行也由Framework实现，Mesos的资源分配粒度是按task的，但由于executor执行task可能在同一个进程中实现，所以资源限制只是一种流控的机制，并不能实际的控制到task这个粒度。</p>
+
+<p>看了上面官方的架构说明，大约应该明白了Mesos的大致架构，但具体Mesos为什么要做成这样，下面我们具体分析下。</p>
+
+<h3 id="历史演进">历史演进</h3>
+
+<hr />
+
+<p>我们把时间回退到Mesos发明的2009年，那时候Hadoop逐渐成熟，并广泛应用，正在吞噬着大家的服务器。Spark当时也在酝酿中。而服务器配置管理领域Puppet还没发布1.0，Chef才刚出现，『Configuration management Infrastructure as Code』的思想才慢慢被接受，Ansible/Salt还没出现。大家管理服务器还是静态划分的方式，购买服务器的时候就安排好了，这几台服务器上运行什么服务，应该配置多少CPU/内存/磁盘，安装维护还多用的是shell脚本。</p>
+
+<p>静态管理服务器，无论是用shell还是Puppet这种工具，一方面是比较浪费资源，另外一方面服务故障恢复，服务迁移都需要人工介入，因为这种工具都只在部署时进行管理，服务进程运行后就不归部署工具管理了。而Mesos则看到了这种方式的弊端，试图实现一个资源共享的平台，提高资源利用率，实现动态运维。</p>
+
+<p>按照这种方式就比较容易理解Mesos的做法，Mesos的master相当于Puppet/Salt的master，Mesos的slave相当于Puppet/Salt的agent，二者干的事情都是把指令通过master发送给slave/agent执行，区别是Puppet/Salt成功执行后就不关心了，而Mesos执行后会在Master维护task的状态，task挂掉后可以重启或者迁移。</p>
+
+<p>同时Mesos看到Hadoop等分布式系统都自己实现了scheduler以及executor，所以将scheduler以及executor的具体实现让出来，通过制定Framework标准，由第三方分布式框架自己实现，自己只负责转发task到slave，由slave调用Framework的executor去执行task。</p>
+
+<p>也就是说由于历史时机的问题，Mesos采用了一种保守的策略来进行演进。</p>
+
+<h3 id="资源冲突以及隔离机制">资源冲突以及隔离机制</h3>
+
+<hr />
+
+<p>资源共享导致的首要问题就是如何解决资源冲突问题：</p>
+
+<ol>
+  <li>cpu/mem 这个Mesos默认内置了一个Mesos Containerizer，可以通过cgroups和namespaces进行限制。</li>
+  <li>网络端口 Mesos默认会给每个task分配一个（可以分配多个端口）随机的未使用的端口，需要应用从环境变量中获取到这个端口进行使用，是一种约定的规则，并不强制限制。</li>
+  <li>文件系统 默认情况下Mesos的文件系统是多应用共享的，默认给每个task分配一个sandbox目录作为工作目录，sandbox在主机上的目录是和taskid相关的，不会冲突，生命周期和task绑定。另外也支持Persistent Volume，用于应用保存持久数据，也是通过目录映射的方式实现的。Persistent Volume的生命周期独立于task，由scheduler决定是否复用，也就是说Mesos将持久化数据和动态迁移之间的冲突问题交给了scheduler自己处理。另外可以选择使用Docker Containerizer，通过Docker的方式隔离文件系统。</li>
+  <li>服务发现以及负载均衡 Mesos默认不支持服务发现和负载均衡，需要用户自己实现。Mesos之上的Marathon Framework提供了一个<a href="https://github.com/mesosphere/marathon-lb">marathon-lb</a>，通过监听Marathon的event修改HAProxy，实现动态的负载均衡，不过只支持通过Marathon部署的应用。</li>
+  <li>容器的改进 Mesos内置的容器不是基于Image的，但Docker是基于Image的，带来的问题就是有些功能要通过两种方式实现（比如磁盘隔离等）。另外Docker本身的daemon机制让Mesos不好直接管理容器进程，所以Mesos也在计划改进内置的容器支持Image，兼容Docker/Appc的Image，不会把Docker作为默认的容器。具体参看：<a href="https://github.com/apache/mesos/blob/master/docs/container-image.md">https://github.com/apache/mesos/blob/master/docs/container-image.md</a>，<a href="https://issues.apache.org/jira/browse/MESOS-2840">MESOS-2840</a>。</li>
+</ol>
+
+<h3 id="源码架构分析">源码架构分析</h3>
+
+<hr />
+
+<p>Mesos的核心是用c++写的，主要使用了一个<a href="https://github.com/3rdparty/libprocess">libprocess</a>的库，这是一个c++的actor模型的库（不太了解actor模型的可以参看我的前一篇文章：<a href="http://jolestar.com/parallel-programming-model-thread-goroutine-actor/">并发之痛 Thread，Goroutine，Actor</a>，这个库顺带把Option,Nothing,Try, Future,Lambda,Defer这些都实现了，让我充分体会了c++的魔法）。libprocess基本是参考erlang的模式实现的，其中的actor都叫做process，每个process有一个独立的ID，我们这里为了方便理解，把其中的抽象都叫做actor，具体actor协作模式见下图：</p>
+
+<p><img src="http://jolestar.com/images/mesos/mesos-actor.jpg" alt="" /></p>
+
+<p>在Mesos的master节点中，每个Framework以及Slave都是一个远程的actor。而slave节点上，每个executor是一个actor，只不过内置的executor是在同一个进程中的，而其他自定义的executor是独立的进程，executor和slave之间通过进程间通信方式（网络端口）交互。</p>
+
+<p>Mesos通过actor模型，简化了分布式系统的调用以及并发编程的复杂度，actor之间都通过消息异步通信，只需要知道对方的ID即可，无需了解对方和自己是否在同一个节点上。libprocess封装的actor manager知道接收方是本地的actor还是远程的actor，如果是远程的则通过请求接口转发消息。libprocess也封装了网络层，传输层使用的是http协议，使用方对不同的消息注册不同的handler即可，也支持http的长轮询模式订阅事件。mesos为了提高消息传递解析效率，消息传递支持json和protobuf两种格式。</p>
+
+<p>这种架构的好处是Mesos省去了对消息队列的依赖。一般情况下这种分布式消息分发系统都需要消息队列或者中心存储的支持，比如Salt使用的是ZeroMQ，Kubenetes使用的是Etcd，而Mesos则不依赖外部的资源支持，只通过actor模型的容错机制来实现。而缺点也是actor本身的缺点，因为消息都是异步的，需要actor处理消息的丢失以及超时逻辑，Mesos不保证消息的可靠投递，提供的投递策略是 “at-most-once”，actor需要通过超时重试机制解决消息丢失的问题。不过任何需要远程调用的分布式系统需要处理的类似的问题吧。</p>
+
+<h3 id="framework的实现解析">Framework的实现解析</h3>
+
+<hr />
+
+<p>从上面的分析可以了解到，Framework在Mesos中扮演着重要的角色。如果你自己要开发一个分布式系统，打算运行在Mesos中，就需要考虑自己实现一个Framework。</p>
+
+<p>Mesos提供了一个Framework的基础库，第三方只需要实现scheduler，和executor两个接口即可。基础库是用c++实现了，通过jni提供了java版本，通过python的native方式提供了python版本。而golang的版本是独立开发的，没有依赖c++库，代码架构比较优雅，想用go实现actor的可以参考。这个Framework基础库（SchedulerDriver以及ExecutorDriver的实现）主要做的事情就是实现前面我们提到的actor模型，和master以及slave交互，收到消息后回调用户自定义的scheduler和executor。</p>
+
+<p>下面是java的Scheduler接口：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public interface Scheduler {
+
+  void registered(SchedulerDriver driver,
+  FrameworkID frameworkId,
+  MasterInfo masterInfo);
+
+  void reregistered(SchedulerDriver driver, MasterInfo masterInfo);
+
+  //这个是最主要的一个方法，当系统有空闲资源的时候，会询问Scheduler，
+  //是否接受或者拒绝该Offer。如果接受，则同时需要封装使用该Offer的task信息，调用driver去执行。
+  void resourceOffers(SchedulerDriver driver, List&lt;Offer&gt; offers);
+  //如果Offer被取消或者被别的Framework使用，则回调本方法
+  void offerRescinded(SchedulerDriver driver, OfferID offerId);
+  //该Framework启动的task状态变化时回调。
+  void statusUpdate(SchedulerDriver driver, TaskStatus status);
+  //自定义的框架消息
+  void frameworkMessage(SchedulerDriver driver,ExecutorID executorId,SlaveID slaveId,byte[]() data);
+
+  void disconnected(SchedulerDriver driver);
+
+  void slaveLost(SchedulerDriver driver, SlaveID slaveId);
+
+  void executorLost(SchedulerDriver driver,ExecutorID executorId,SlaveID slaveId,int status);
+
+  void error(SchedulerDriver driver, String message);
+}
+</code></pre></div></div>
+
+<p>Mesos的Framework是独立于Mesos系统的，具体的部署方式，以及高可用都需要Framework自己解决，所以要实现一个完备的，高可用的Framework，复杂度还是挺高的。另外Framwork的机制比较适合需要任务分发以及调度的分布式系统，比如Hadoop，Jenkins等。其他的分布式数据库比如Cassandra，Mesos做的事情是通过Scheduler调度CassandraExecutor部署和管理（包括节点上的维护操作，比如备份）Cassandra节点，详细可参看 <a href="https://github.com/mesosphere/cassandra-mesos">https://github.com/mesosphere/cassandra-mesos</a> 。</p>
+
+<p>另外Mesos Master本身没有持久化存储，所有数据都在内存，重启后数据会丢失。但活跃的Framework和Slave注册时会把自己当前的状态发送给Master，Master通过这种方式恢复数据。所以如果Framework需要持久化Task的执行记录，需要自己实现持久化存储。</p>
+
+<p>Mesos Slave提供了recovery的机制，用于实现Slave进程重启后的恢复。默认情况下，Slave进程重启后，和该进程相关的executor/task都会被杀掉，但如果Framework配置开启了checkpoint设置，则该Framework相关的executor/task信息会被持久化到磁盘上，用于重启后的recovery。</p>
+
+<h3 id="marathon">Marathon</h3>
+
+<hr />
+
+<p>Marathon按照官方的说法是个基于Mesos的私有PaaS。它实现了Mesos的Framework，支持通过shell命令和Docker部署应用，提供Web界面，支持cpu/mem，实例数等参数设置，支持单应用的scale，但不支持复杂的集群定义。</p>
+
+<p>Marathon本身是通过Scala实现的，也使用了actor模型。它提供了event bus接口，允许其他应用通过监听event bus来实现动态配置，比如前面提到的marathon-lb。</p>
+
+<p>Marathon由于是基于jvm的，做系统安装包分发略麻烦，结果人家为了方便直接分发了一个70多M的shell脚本。初看吓我一跳，70多M的shell得写多少行，结果打开一看，java的二进制jar的也嵌在里面。这倒也是个办法。</p>
+
+<h3 id="aurora">Aurora</h3>
+
+<hr />
+
+<p>Aurora试图用一种自定义的配置语言去定义Mesos之上的task以及顺序关系，解决各种环境的异构问题，降低用shell脚本的复杂度。可以理解为Mesos之上的一种粘合剂语言，地位类似于Salt/Ansible的yaml，只不过Mesos本身没支持类似的配置语言，于是Aurora通过Framework的方式来支持。</p>
+
+<h3 id="mesos和kubernetes比较">Mesos和Kubernetes比较</h3>
+
+<hr />
+
+<p>Mesos和Kubernetes虽然都借鉴了Borg的思想，终极目标类似，但解决方案是不同的。Mesos有点像联邦制，承认各邦（Framework）的主权，但各邦让渡一部分公用的机制出来由Mesos来实现，最大化的共享资源，提高资源利用率，Framework和Mesos是相对独立的关系。而Kubernetes有点像单一制，搭建一个通用的平台，尽量提供全面的能力（网络，磁盘，内存，cpu），制定一个集群应用的定义标准，任何复杂的应用都可以按照该标准定义并以最小的变更成本在上面部署运行，主要的变更需求也是因为想享受Kubernetes的动态伸缩能力带来的。所以Mesos尽量做的比较少，而Kubernetes尽量做的比较多。Mesos定义是DCOS的kernel，但OS的kernel具体应该承担哪些职责，相关争论也从来没停止过。</p>
+
+<p>相对来说Kubernetes使用要比较容易些，而Mesos更灵活些，需要做的定制开发工作也比较多。拿前面提到的cassandra来比较，<a href="https://github.com/mesosphere/cassandra-mesos">cassandra-mesos</a>的实现很复杂，而Kubernetes的<a href="https://github.com/kubernetes/kubernetes/blob/master/examples/cassandra">cassandra例子</a>则只有一个类，就是实现了KubernetesSeedProvider，通过Kubernetes的服务发现机制寻找cassandra的seed节点。当然Mesos上的cassandra可以通过Mesos发送备份等管理任务，而Kubernetes不提供任务转发的功能，这类需求用户可以通过kubectl的exec方法实现。从这个例子也大致能明白二者的差异点。</p>
+
+<p>Kubernetes下的<a href="http://kubernetes.io/docs/getting-started-guides/mesos/">Kubernetes on Mesos</a>项目的目的就是利用Mesos的这个特性，实现Kubernetes和Mesos上的其他Framework共享资源。如果想了解Kubernetes的更多资料可以看我去年写的<a href="http://jolestar.com/kubernetes-architecture/">Kubernetes 架构浅析</a>。</p>
+
+<p><img src="http://jolestar.com/images/weichat/qrcode_jolestar_blog2.png" alt="qrcode_jolestar_blog2" /></p>
+
+<p><strong>相关阅读</strong></p>
+
+<hr />
+
+<ol>
+  <li><a href="http://www.wired.com/2013/03/google-borg-twitter-mesos/">Return of the Borg: How Twitter Rebuilt Google’s Secret Weapon</a></li>
+  <li><a href="http://mesos.berkeley.edu/mesos_tech_report.pdf">Mesos: A Platform for Fine-Grained Resource Sharing in the Data Center</a></li>
+  <li><a href="http://www.infoq.com/cn/articles/analyse-mesos-part-01">Infoq 深入浅出Mesos系列</a></li>
+  <li><a href="https://github.com/3rdparty/libprocess">libprocess c++的actor模型库</a></li>
+  <li><a href="https://github.com/mesosphere/marathon-lb">marathon-lb 基于marathon的负载均衡器</a></li>
+  <li><a href="https://github.com/mesosphere/cassandra-mesos">cassandra-mesos</a></li>
+  <li><a href="https://github.com/kubernetes/kubernetes/blob/master/examples/cassandra">kubernetes cassandra example</a></li>
+  <li><a href="https://www.digitalocean.com/community/tutorials/how-to-configure-a-production-ready-mesosphere-cluster-on-ubuntu-14-04">Mesos的部署教程</a></li>
+</ol>
+
+
+  </article>
+  <div>
+  </div>
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">午夜咖啡</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>午夜咖啡</li>
+          <li><a href="mailto:jolestar@gmail.com">jolestar@gmail.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/jolestar">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/jolestar">
+              <span class="icon  icon--twitter">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809
+                  c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="http://weibo.com/jolestar">
+              <span class="icon  icon--weibo">
+                <svg viewBox="0 0 1000 1235">
+                  <path fill="#828282" d="M0 672q0-161 184-347 117-116 236-162 56-23 97-23 45 0 72 27 26 26 26 72 0 31-12 72-4 14 3 17.5t16 .5l10-4q96-40 170-40t106 42q15 22 15 52 0 31-16 71-7 10-2.5 17t8 9 14.5 5q62 19 106 62t44 107q0 59-41 120.5t-111.5 112.5-178 84-228.5 33q-131 0-247.5-38.5t-193.5-115-77-174.5zm125 48q10 101 125 161 92 49 209 49 29 0 60-3 153-15 255-97 92-75 92-165 0-9-1-18-10-100-125-160-93-49-210-49-29 0-59 3-101 10-183 51t-126 101q-38 53-38 109 0 9 1 18zm160 62q-13-29-13-59 0-35 18-70 31-64 104-96 45-20 91-20 27 0 54 7 76 20 109 82 17 32 17 66 0 32-15 65-31 71-109 104-44 19-88 19-34 0-67-11-73-23-101-87zm56-19q6 25 30 35 13 6 27 6 12 0 24-4 28-9 43-33 10-16 10-32 0-7-3-15-6-24-30-34-13-5-26-5-12 0-25 4-27 9-41 32-11 16-11 33 0 7 2 13zm141-79q3 9 13 13 5 2 9.5 2t9.5-2q11-4 16-13t2-18-12-13q-9-3-19.5.5t-15.5 12.5q-3 6-3 12l0 6zm321-621q-1-5-1-10 0-13 8-25 10-16 29-21 34-7 68-7 51 0 100 15 83 27 143 93t78 153q7 35 7 68 0 51-16 98l0 1q-6 18-23 27-11 5-22 5-7 0-15-2-19-6-27-23-5-11-5-21 0-8 2-15l0-1q11-34 11-70 0-23-4-48-13-62-56-109t-102-66q-35-10-70-10-24 0-49 5-5 1-10 1-14 0-26-8-16-11-20-30zm40 157q-1-5-1-10 0-10 6-21 9-14 26-18 19-4 37-4 67 0 115 53 29 33 38 75 3 17 3 33 0 24-8 48-5 16-20 23-9 5-18 5-7 0-13-2-16-5-24-20-4-9-4-18 0-7 2-13 4-14 4-26 0-28-21-50-22-26-54-26-10 0-20 2-5 1-9 1-11 0-21-7-14-9-18-25z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
+            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+        </div>
+        <script>
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+            ga('create', 'UA-1268034-7', 'auto');
+            ga('send', 'pageview');
+        </script>
+
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

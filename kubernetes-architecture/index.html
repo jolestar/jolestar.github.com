@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html>
+
+  
+
+
+ 
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Kubernetes 架构浅析</title>
+  <meta name="description" content="最近研究了一段时间的Kubernetes，将我们服务的测试环境服务部署到了Kubernetes上，上周末在团队中分享了下，顺便整理成文章。">
+
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="canonical" href="http://jolestar.com/kubernetes-architecture/">
+  <link rel="alternate" type="application/rss+xml" title="午夜咖啡" href="../feed.xml" />
+  <meta name="google-site-verification" content="kmm9IK4zVCvEFzsNDOyTkDdtkaMGQHtdgEXurVQizfc" />
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="../">午夜咖啡</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        <!-- 
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+          <a class="page-link" href="/sitemap.txt">Sitemap</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+         -->
+        <a class="page-link" href="../about/">About</a>
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Kubernetes 架构浅析</h1>
+    <p class="post-meta">Nov 24, 2015 • jolestar</p>
+  </header>
+
+  <article class="post-content">
+    <p>最近研究了一段时间的Kubernetes，将我们服务的测试环境服务部署到了Kubernetes上，上周末在团队中分享了下，顺便整理成文章。</p>
+
+<p>阅读对象：对Kubernetes尚未深入了解的同学</p>
+
+<!--more-->
+
+<p>首先，为什么要用Kubernetes?
+使用一个工具先要梳理下使用这个工具的目标，我们不是为了工具而用工具。</p>
+
+<p>Kubernetes的目标用一张被很多人引用过的图来说明最好：
+<img src="http://jolestar.com/images/ci/pets-vs-cattle.jpg" alt="" title="Kubernetes-pets-vs-cattle" /></p>
+
+<p>一句话，Kubernetes的目标是让你可以像管理牲畜一样管理你的服务，而不是像宠物一样，同时提高资源的利用率，让码农关注在应用开发本身，高可用的事情就交给Kubernetes吧。这个图本来是openstack提出的，但纯粹IaaS层的解决方案实现不了这个目标，于是有了Kubernetes。</p>
+
+<p>Kubernetes和Borg系出同门，基本是Borg的开源改进版本，引用Google Borg论文里的说法：</p>
+
+<blockquote>
+  <p>it (1) hides the details of resource management and failure handling so its users can focus on application development instead; (2) operates with very high reliability and availability, and supports applica- tions that do the same; and (3) lets us run workloads across tens of thousands of machines effectively</p>
+</blockquote>
+
+<p>我们如何验证是否达到这个目标了呢？</p>
+
+<ol>
+  <li>随机关掉一台机器，看你的服务能否正常</li>
+  <li>减少的应用实例能否自动迁移并恢复到其他节点</li>
+  <li>服务能否随着流量进行自动伸缩</li>
+</ol>
+
+<p>我们从一个简单的多层应用的架构改进来探讨下：
+<img src="http://jolestar.com/images/k8s/demo-cluster.jpg" alt="" /></p>
+
+<p>说明:</p>
+
+<ul>
+  <li>mysql应该是一主多从的架构，这里为了简单进行了省略</li>
+  <li>service后面也会依赖数据库等资源，这里为了简单进行了省略</li>
+  <li>箭头表示调用和依赖关系</li>
+</ul>
+
+<p>具体分析一下为了达到我们的目标，需要做到改进：</p>
+
+<ol>
+  <li>Loadbalancer要调用后端应用服务节点，后端应用服务节点挂了或者迁移增加节点，都要变更Loadbalancer的配置。这样明显达不到目标，于是计划将Loadbalancer改造成Smart Loadbalancer，通过服务发现机制，应用实例启动或者销毁时自动注册到一个配置中心（etcd/zookeeper），Loadbalancer监听应用配置的变化自动修改自己的配置。</li>
+  <li>Web应用对后端资源的依赖，比如Mysql和Memcached，对应资源的ip一般是写到配置文件的。资源节点变更或者增加都要变更应用配置。
+    <ul>
+      <li>Mysql计划该成域名访问方式，而不是ip。为了避免dns变更时的延迟问题，需要在内网架设私有dns。高可用采用<a href="https://github.com/yoshinorim/mha4mysql-manager">MHA</a>方案，然后配合服务发现机制自动修改dns。</li>
+      <li>Memcached计划参照couchbase的方式，通过服务发现机制，使用SmartClient，客户端应用监听配置中心的节点变化。难点可能在于对Memcached的改造（可以参考couchbase）。另外也可以通过增加一层代理的机制实现。</li>
+    </ul>
+  </li>
+  <li>应用节点迁移时依赖的系统和基础库不一样如何处理？部署方式不一样如何处理？磁盘路径，监听端口等冲突怎么办？这个可以通过Docker这样的容器技术，将应用部署运行的方式进行标准化，操作系统和基础库的依赖允许应用自定义，对磁盘路径以及端口的依赖通过Docker运行参数动态注入，而不需要变更应用配置。Docker的自定义变量以及参数，需要提供标准化的配置文件。</li>
+  <li>服务迁移问题 每种服务都需要一个master调度中心，来监控实例状态，确定要不要进行迁移，负责统一调度。并且每个服务器节点上要有个agent来执行具体的操作，监控该节点上的应用。另外还要提供接口以及工具去操作。</li>
+  <li>网络以及端口冲突的问题比较麻烦 需要引入类似SDN的解决方案。</li>
+  <li>内存,cpu,以及磁盘等硬件资源，原来的习惯是购买服务器的时候就根据服务器的上的应用类型进行规划，如果应用和硬件解耦，这种方式需要淘汰。但必须有一种调度机制让应用迁移的时候可进行筛选。</li>
+</ol>
+
+<p>总结一下，通过分析得出，要达到目标，关键是<strong>解耦</strong>，应用进程和资源（包括 cpu，内存，磁盘，网络）的解耦，服务依赖关系的解耦。</p>
+
+<p>我们上面的改造机制基本是按照个案进行设计，Kubernetes的则是要提供一套全面通用的机制。</p>
+
+<p>然后，我们看看Kubernetes对以上问题的解决方案：</p>
+
+<p>先上一张Kubernetes官方的架构图
+<img src="http://jolestar.com/images/k8s/architecture.png" alt="" /></p>
+
+<ol>
+  <li>调度中心master，主要有四个组件构成：
+    <ul>
+      <li>
+        <p><strong>etcd</strong> 作为配置中心和存储服务（架构图中的Distributed Watchable Storage），保存了所有组件的定义以及状态，Kubernetes的多个组件之间的互相交互也主要通过etcd。</p>
+
+        <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  Kubernetes etcd registry的目录结构 
+  etcdctl ls /registry
+  /registry/minions 保存node节点信息
+  /registry/namespaces 
+  /registry/pods 保存所有的pods信息
+  /registry/ranges
+  /registry/serviceaccounts
+  /registry/services
+  /registry/controllers
+  /registry/events Kubernetes组件的变更事件都会写到这个目录下
+</code></pre></div>        </div>
+      </li>
+      <li><strong>kube-apiserver</strong> 提供和外部交互的接口，提供安全机制，大多数接口都是直接读写etcd中的数据。</li>
+      <li>
+        <p><strong>kube-scheduler</strong> 调度器，主要干一件事情：监听etcd中的pod目录变更，然后通过调度算法分配node，最后调用apiserver的bind接口将分配的node和pod进行关联（修改pod节点中的nodeName属性）。scheduler在Kubernetes中是一个plugin，可以用其他的实现替换（比如mesos）。有不同的算法提供，算法接口如下:</p>
+
+        <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  type ScheduleAlgorithm interface {
+      Schedule(api.Pod, NodeLister) (selectedMachine string, err error)
+  }   
+</code></pre></div>        </div>
+      </li>
+      <li><strong>kube-controller-manager</strong>  承担了master的主要功能，比如和CloudProvider(IaaS)交互，管理node，pod，replication，service，namespace等。基本机制是监听etcd /registry/events下对应的事件，进行处理。具体的逻辑需要专门文章分析，此处不进行详解。</li>
+    </ul>
+  </li>
+  <li>节点上的agent，主要有两个组件：
+    <ul>
+      <li><strong>kubelet</strong> 主要包含容器管理，镜像管理，Volume管理等。同时kubelet也是一个rest服务，和pod相关的命令操作都是通过调用接口实现的。比如：查看pod日志，在pod上执行命令等。pod的启动以及销毁操作依然是通过监听etcd的变更进行操作的。但kubelet不直接和etcd交互，而是通过apiserver提供的watch机制，应该是出于安全的考虑。kubelet提供插件机制，用于支持Volume和Network的扩展。</li>
+      <li><strong>kube-proxy</strong> 主要用于实现Kubernetes的service机制。提供一部分SDN功能以及集群内部的智能LoadBalancer。前面我们也分析了，应用实例在多个服务器节点之间迁移的一个难题是网络和端口冲突问题。Kubernetes为每个service分配一个clusterIP（虚拟ip）。不同的service用不同的ip，所以端口也不会冲突。Kubernetes的虚拟ip是通过iptables机制实现的。每个service定义的端口，kube-proxy都会监听一个随机端口对应，然后通过iptables nat规则做转发。比如Kubernetes上有个dns服务，clusterIP:10.254.0.10，端口:53。应用对10.254.0.10:53的请求会被转发到该node的kube-proxy监听的随机端口上，然后再转发给对应的pod。如果该服务的pod不在当前node上，会先在kube-proxy之间进行转发。当前版本的kube-proxy是通过tcp代理实现的，性能损失比较大（具体参看后面的压测比较），1.2版本中已经计划将kube-proxy完全通过iptables实现(<a href="https://github.com/kubernetes/kubernetes/issues/3760">https://github.com/kubernetes/kubernetes/issues/3760</a>)</li>
+    </ul>
+  </li>
+  <li><strong>Pods</strong> Kubernetes将应用的具体实例抽象为pod。每个pod首先会启动一个google_containers/pause docker容器，然后再启动应用真正的docker容器。这样做的目的是为了可以将多个docker容器封装到一个pod中，共享网络地址。</li>
+  <li><strong>Replication Controller</strong> 控制pod的副本数量，高可用就靠它了。</li>
+  <li><strong>Services</strong> service是对一组pods的抽象，通过kube-proxy的智能LoadBalancer机制，pods的销毁迁移不会影响services的功能以及上层的调用方。Kubernetes对service的抽象可以将底层服务和上层服务的依赖关系解耦，同时实现了和Docker links类似的环境变量注入机制(<a href="https://github.com/kubernetes/kubernetes/blob/release-1.0/docs/user-guide/services.md#environment-variables">https://github.com/kubernetes/kubernetes/blob/release-1.0/docs/user-guide/services.md#environment-variables</a>)，但更灵活。如果配合dns的短域名解析机制，最终可实现完全解耦。</li>
+  <li><strong>Label</strong> key-value格式的标签，主要用于筛选，比如service和后端的pod是通过label进行筛选的，是弱关联的。</li>
+  <li><strong>Namespace</strong> Kubernetes中的namespace主要用来避免pod，service的名称冲突。同一个namespace内的pod，service的名称必须是唯一的。</li>
+  <li><strong>Kubectl</strong> Kubernetes的命令行工具，主要是通过调用apiserver来实现管理。</li>
+  <li><strong>Kube-dns</strong> dns是Kubernetes之上的应用，通过设置Pod的dns searchDomain（由kubelet启动pod时进行操作），可以实现同一个namespace中的service直接通过名称解析（这样带来的好处是开发测试正式环境可以共用同一套配置）。主要包含以下组件，这几个组件是打包到同一个pod中的。
+    <ul>
+      <li>etcd skydns依赖，用于存储dns数据</li>
+      <li>skydns 开源的dns服务</li>
+      <li>kube2sky 通过apiserver的接口监听kube内部变更，然后调用skydns的接口操作dns</li>
+    </ul>
+  </li>
+  <li><strong>Networking</strong> Kubernetes的理念里，pod之间是可以直接通讯的(<a href="http://kubernetes.io/v1.1/docs/admin/networking.html">http://kubernetes.io/v1.1/docs/admin/networking.html</a>)，但实际上并没有内置解决方案，需要用户自己选择解决方案: Flannel,OpenVSwitch,Weave 等。我们测试用的是Flannel,比较简单。</li>
+  <li><strong>配置文件</strong> Kubernetes 支持yaml和json格式的配置文件，主要用来定义pod,replication controller,service,namespace等。</li>
+</ol>
+
+<h3 id="kubernates-可能带来的改变">Kubernates 可能带来的改变</h3>
+<ol>
+  <li><strong>降低分布式应用开发运维的复杂度</strong> 纵观当前的各种分布式架构，hadoop，storm等，都是master-workers模式，框架很大一部分功能在节点的管理，处理程序的调度上，如果基于Kubernetes来实现类似功能，这些基本都可以交给Kubernetes完成，框架只需要负责核心数据的流转以及收集逻辑。当然，当前Kubernetes的pod还未像Borg一样直接支持batch job，但按照Kubernetes和Borg的关系，将来应该会支持(<a href="http://blog.kubernetes.io/2015/04/borg-predecessor-to-kubernetes.html">http://blog.kubernetes.io/2015/04/borg-predecessor-to-kubernetes.html</a>)。</li>
+  <li><strong>更完备的CI/CD(持续集成/持续交付)工具</strong> CI是code-deploy的关键工具，但当前由于受限于部署环境的不一致，CI可做的事情有限，大多数还依赖用户的自定义脚本。有了Kubernetes这样的标准环境后，以后此类工具可以覆盖测试环境部署，集成测试，上线部署等环节，实现标准化的交付工作流。</li>
+  <li><strong>Kubernetes之上的分布式存储</strong> Kubernetes官方提供了一个在<a href="https://github.com/kubernetes/kubernetes/tree/master/examples/cassandra">Kubernetes上部署cassandra</a>的例子，只需要重写一个基于Kubernetes apiserver的SeedProvider，就可以避免静态配置seed ip，享受Kubernetes带来的scale-out能力。再如前面我们提到的memcached的高可用例子，如果基于Kubernetes实现一个memcached的smart client，只需要改下客户端即可，非常简单。个人认为以后在Kubernetes上的支持多租户的分布式存储会更加流行。只要解决了存储服务的scale-out问题，应用的scale-out一般不会有太大问题。<a href="https://github.com/hyperhq/hypernetes">Hypernetes</a>就是一个实现了多租户的Kubernetes版本。</li>
+  <li><strong>企业应用的分发</strong> 当前SaaS(on-demand)比较流行的一个很大的原因是原来的on-premise应用的部署运维成本太高，如果Kubernetes等分布式操作系统得到广泛应用，on-premise的成本降低，on-premise以及托管云模式对SaaS的格局也会带来影响。这也是我们这样的创业公司关注Kubernetes的原因之一。</li>
+  <li><strong>对IaaS的影响</strong> 当前的IaaS平台的组件逐渐有闭源的趋势，比如AWS尝试用Aurora替代Mysql，阿里云用KVStore替换Redis。用户主要关心的是服务的可靠性，自己运维的时候可能会倾向于开源方案，但如果使用云厂商的服务，就不太关心。按照这样的趋势，随着IaaS的普及，会对整个开源的生态产生影响。但有了Kubernetes这样的平台，IaaS厂商主要为Kubernetes提供运行的基础环境，Kubernetes接管上面的应用和服务，这样在IaaS厂商之间迁移也很容易。</li>
+  <li><strong>微服务</strong> 微服务最近很热，但这个概念其实不新。主要一直受限于运维的复杂度，没有普及。如果运维系统跟不上，服务拆太细，很容易出现某个服务器的角落里部署着一个很古老的不常更新的服务，后来大家竟然忘记了，最后服务器迁移的时候给丢了，用户投诉才发现。而随着Docker以及Kubernetes这样的工具和平台逐渐成熟，微服务的时代也到来了。 在Kubernetes上的微服务治理框架可以一揽子解决微服务的rpc，监控，容灾问题，个人觉得可以期待。</li>
+</ol>
+
+<h3 id="遇到的一些问题">遇到的一些问题</h3>
+<p>最后总结一下我遇到的一些问题</p>
+
+<ol>
+  <li>墙 gcr.io已被墙，如果在本地用脚本在虚拟机安装，请全程翻墙。如果在服务器上就自己想办法下载，然后在配置文件中指定镜像地址。</li>
+  <li>并发拉取镜像导致镜像文件破坏（<a href="https://github.com/kubernetes/kubernetes/issues/10623">https://github.com/kubernetes/kubernetes/issues/10623</a>） 这个和docker也相关，建议先用脚本在各node上pull镜像再部署。</li>
+  <li>同一个pod内的多个容器启动顺序问题 同一个pod的多个容器定义中没有优先级，启动顺序不能保证。比如kube-dns中，etcd要先启动，然后skydns连接etcd创建基本的目录，最后kube2sky启动，将kube中已经定义的数据同步到dns中。如果顺序不对dns数据就不正常。如果遇到这种问题按顺序重启一下对应的容器即可。这种问题当前需要应用自己通过重试机制解决。</li>
+  <li>容器内访问外部网络 如果使用了Flannel方案，但容器内无法访问公网(node可以的情况)，一般是iptables被搞坏了(<a href="https://github.com/coreos/flannel/issues/115">https://github.com/coreos/flannel/issues/115</a>)。</li>
+  <li>当前的Kubernetes没有应用的概念，我们的应用包含4个自己开发的服务组件，还有一些依赖（mysql,redis,mongodb等），定义下来一共要20多个yaml。要实现一键安装或者更新，还需要做不少工作。</li>
+  <li>Kubernetes的公网负载均衡的解决方案依赖IaaS的实现，不够灵活。</li>
+  <li>
+    <p>kube-proxy的性能问题，简单的压测结果如下: 10.254.2.99:80是service地址，后面有两个pod。11.1.16.15:3000是其中一个pod。代码是golang官方网站首页的那个helloword。
+     ab -c 50 -n 100000 http://10.254.2.99:80/</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> Server Hostname:        10.254.2.99
+ Server Port:            80
+	
+ Document Path:        /
+ Document Length:        43 bytes
+	
+ Concurrency Level:    50
+ Time taken for tests:   346.442 seconds
+ Complete requests:    100000
+ Failed requests:        0
+ Write errors:          0
+ Total transferred:    16000000 bytes
+ HTML transferred:      4300000 bytes
+ Requests per second:    288.65 [#/sec] (mean)
+ Time per request:      173.221 [ms] (mean)
+ Time per request:      3.464 [ms] (mean, across all concurrent requests)
+ Transfer rate:        45.10 [Kbytes/sec] received
+	
+ Connection Times (ms)
+               min  mean[+/-sd] median   max
+ Connect:        0   1  39.9   0 7015
+ Processing:  1  173 437.7    22 5026
+ Waiting:        1  172 437.7     22 5026
+ Total:        3  173 440.4   22   10070
+	
+ Percentage of the requests served within a certain time (ms)
+   50%    22
+   66%    23
+   75%    24
+   80%    26
+   90%   1022
+   95%   1023
+   98%   1031
+   99%   2024
+  100%  10070 (longest request)
+	
+ ab -c 50 -n 100000 http://11.1.16.15:3000/
+	
+ Server Hostname:        11.1.16.15
+ Server Port:            3000
+	
+ Document Path:        /
+ Document Length:        43 bytes
+	
+ Concurrency Level:    50
+ Time taken for tests:   15.992 seconds
+ Complete requests:    100000
+ Failed requests:        0
+ Write errors:          0
+ Total transferred:    16000000 bytes
+ HTML transferred:      4300000 bytes
+ Requests per second:    6253.24 [#/sec] (mean)
+ Time per request:      7.996 [ms] (mean)
+ Time per request:      0.160 [ms] (mean, across all concurrent requests)
+ Transfer rate:        977.07 [Kbytes/sec] received
+	
+ Connection Times (ms)
+               min  mean[+/-sd] median   max
+ Connect:        0   0   0.0   0    2
+ Processing:  0  8   1.3   7   25
+ Waiting:        0   8   1.3   7   24
+ Total:        1 8   1.3   7   25
+	
+ Percentage of the requests served within a certain time (ms)
+   50%     7
+   66%     8
+   75%     8
+   80%     8
+   90%    11
+   95%    11
+   98%    11
+   99%    11
+  100%    25 (longest request)
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+
+  </article>
+  <div>
+  </div>
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">午夜咖啡</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>午夜咖啡</li>
+          <li><a href="mailto:jolestar@gmail.com">jolestar@gmail.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/jolestar">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/jolestar">
+              <span class="icon  icon--twitter">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809
+                  c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="http://weibo.com/jolestar">
+              <span class="icon  icon--weibo">
+                <svg viewBox="0 0 1000 1235">
+                  <path fill="#828282" d="M0 672q0-161 184-347 117-116 236-162 56-23 97-23 45 0 72 27 26 26 26 72 0 31-12 72-4 14 3 17.5t16 .5l10-4q96-40 170-40t106 42q15 22 15 52 0 31-16 71-7 10-2.5 17t8 9 14.5 5q62 19 106 62t44 107q0 59-41 120.5t-111.5 112.5-178 84-228.5 33q-131 0-247.5-38.5t-193.5-115-77-174.5zm125 48q10 101 125 161 92 49 209 49 29 0 60-3 153-15 255-97 92-75 92-165 0-9-1-18-10-100-125-160-93-49-210-49-29 0-59 3-101 10-183 51t-126 101q-38 53-38 109 0 9 1 18zm160 62q-13-29-13-59 0-35 18-70 31-64 104-96 45-20 91-20 27 0 54 7 76 20 109 82 17 32 17 66 0 32-15 65-31 71-109 104-44 19-88 19-34 0-67-11-73-23-101-87zm56-19q6 25 30 35 13 6 27 6 12 0 24-4 28-9 43-33 10-16 10-32 0-7-3-15-6-24-30-34-13-5-26-5-12 0-25 4-27 9-41 32-11 16-11 33 0 7 2 13zm141-79q3 9 13 13 5 2 9.5 2t9.5-2q11-4 16-13t2-18-12-13q-9-3-19.5.5t-15.5 12.5q-3 6-3 12l0 6zm321-621q-1-5-1-10 0-13 8-25 10-16 29-21 34-7 68-7 51 0 100 15 83 27 143 93t78 153q7 35 7 68 0 51-16 98l0 1q-6 18-23 27-11 5-22 5-7 0-15-2-19-6-27-23-5-11-5-21 0-8 2-15l0-1q11-34 11-70 0-23-4-48-13-62-56-109t-102-66q-35-10-70-10-24 0-49 5-5 1-10 1-14 0-26-8-16-11-20-30zm40 157q-1-5-1-10 0-10 6-21 9-14 26-18 19-4 37-4 67 0 115 53 29 33 38 75 3 17 3 33 0 24-8 48-5 16-20 23-9 5-18 5-7 0-13-2-16-5-24-20-4-9-4-18 0-7 2-13 4-14 4-26 0-28-21-50-22-26-54-26-10 0-20 2-5 1-9 1-11 0-21-7-14-9-18-25z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
+            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+        </div>
+        <script>
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+            ga('create', 'UA-1268034-7', 'auto');
+            ga('send', 'pageview');
+        </script>
+
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

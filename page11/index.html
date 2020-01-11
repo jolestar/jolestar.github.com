@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html>
+
+  
+
+
+ 
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>午夜咖啡</title>
+  <meta name="description" content="Jolestar 的个人博客，微信公众号 午夜咖啡 jolestar-blog，工具 架构 成长 思考
+">
+
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="canonical" href="http://jolestar.com/page11/">
+  <link rel="alternate" type="application/rss+xml" title="午夜咖啡" href="../feed.xml" />
+  <meta name="google-site-verification" content="kmm9IK4zVCvEFzsNDOyTkDdtkaMGQHtdgEXurVQizfc" />
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="../">午夜咖啡</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        <!-- 
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+          <a class="page-link" href="/sitemap.txt">Sitemap</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+         -->
+        <a class="page-link" href="../about/">About</a>
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        
+
+
+
+<div class="home">
+
+  <ul class="post-list">
+    
+        
+      <li>
+        <span class="post-meta">Jul 20, 2010</span>
+        <h2>
+            <a class="post-link" href="../1279394700000/">WebRebuild-重构人生 北京站年会 总结</a>
+        </h2>
+        <div class="post_at_index">
+            <p>今天去参加了一下WebRebuild-重构人生 北京站 年会。</p>
+
+<p><a href="http://twitter.com/webrebuild">@webrebuild</a></p>
+
+
+        <a href="../1279394700000/" rel="nofollow">Read more...</a>
+        </div>
+      </li>
+    
+        
+      <li>
+        <span class="post-meta">Jul 6, 2010</span>
+        <h2>
+            <a class="post-link" href="../1278186111012/">如何整理和分享A片？</a>
+        </h2>
+        <div class="post_at_index">
+            <p>        我有一堆A片（用堆这个量词似乎不合适，但找不到更合适的能表现数量足够多但又不透露太多细节的量词了），太多了，不好找，我要归类一下。于是我建立了一个树形目录，先按照地域归类，欧美，日韩，华语，其他啥的。然后下面按照主演归类，xxx、xxx、xxxx….啥的。然后发现一个问题，光这样归类还不行，比方还需要个标志，说明是有码的还是无码的。于是我在文件名前面加上了这个标志。后来又发现，还有许多信息需要标明，比方是否有暴力呀，是单人还是多人呀，有剧情还是无剧情呀….似乎还需要个评分功能，标志下好看不好看，以及重要性，最好再能附加上<br />
+一段观后感… 于是难住我了。</p>
+
+
+        <a href="../1278186111012/" rel="nofollow">Read more...</a>
+        </div>
+      </li>
+    
+        
+      <li>
+        <span class="post-meta">Jul 4, 2010</span>
+        <h2>
+            <a class="post-link" href="../1278227820000/">反模式之流失监听者泄露(Lapsed Listener Leak)</a>
+        </h2>
+        <div class="post_at_index">
+            <p>有这样一段代码:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public class LapsedListenerTest {
+
+    public static class A{
+        private List listeners = new CopyOnWriteArrayList();
+        private String name;
+        public A(String name) {
+            this.name = name;
+        }
+        public void addListener(PropertyChangeListener listener) {
+            listeners.add(listener);
+        }
+        private void fire(String property,Object oldValue,Object newValue) {
+            for(PropertyChangeListener listener:listeners) {
+                    listener.propertyChange(new PropertyChangeEvent(this, property, oldValue, newValue));
+            }
+        }
+        public void setName(String name) {
+            String oldName = this.name;
+            this.name = name;
+            fire("name", oldName, name);
+        }
+    }
+
+    public static class B implements PropertyChangeListener{
+        private int id;
+        private A a;
+        //占用内存
+        private byte[] bt= new byte[1024*1024];
+        public B(A a,int id) {
+            this.id = id;
+            this.a = a;
+            this.a.addListener(this);
+        }
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            System.out.println("on B-" B.this.id "(" evt.getPropertyName() "," evt.getOldValue() "," evt.getNewValue() ")");
+        }
+    }
+
+    /**
+     * @param args
+     * @throws InterruptedException
+     */
+     public static void main(String[] args) throws InterruptedException {
+        A a = new A("A");
+        int j = 0;
+        while(true) {
+            B b = new B(a,j);
+            //do some thing with b
+            a.setName("A" j);
+            b.dispose();
+            j  ;
+            System.gc();
+            Thread.sleep(20);
+        }
+    }
+
+} 
+</code></pre></div></div>
+
+<p> </p>
+
+<p>代码片段1</p>
+
+<p>A类的对象生命周期都比较长，而B类的对象生命周期都比较短，它需要监听A类的属性变化而进行一些操作。这个程序运行一下，很快就内存溢出了。</p>
+
+<p>这里明显存在一个反模式：流失监听者泄露（Lapsed Listener Leak）。 由于B类的对象的生命周期比较短，如果在系统运行过程中，大量生成B类的对象，而B的构造函数中有将自己作为监听器加入A的监听器列表中，导致B类的对象无法被垃圾回收器回收。在这里，B自己作为监听器，错误看起来比较明显，但如果用内部匿名类的实现方式：</p>
+
+<p> </p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public B(A a,int id) {
+            this.id = id;
+            this.a = a;
+            this.a.addListener(new PropertyChangeListener() {
+                @Override
+                public void propertyChange(PropertyChangeEvent evt) {
+                    System.out.println("on B-" B.this.id "(" evt.getPropertyName() "," evt.getOldValue() "," evt.getNewValue() ")");
+                }
+            });
+        }
+</code></pre></div></div>
+
+<p> </p>
+
+<p>代码片段2</p>
+
+<p>看起来虽然没那么明显，但效果是一样的。因为匿名类的对象会引用自己的父对象。</p>
+
+<p> </p>
+
+<p>这个反模式在Java用户界面框架（AWT,Swing)使用的过程中出现的比较多，但没出现问题的原因主要有两个：1.桌面软件的运行时间一般不会太长，很少有需要7X24运行的。2.桌面类软件中的组件数目有限，一般也不会导致内存溢出。但如果是服务器端的程序就没这么幸运了。</p>
+
+<p>《Bitter Java》中给出了三种解决方案:</p>
+
+<p>1.显式的删除监听者</p>
+
+<p>在A中增加removeListener接口，当B的生命周期结束后，将其从A的监听器列表里删除。</p>
+
+<p>2.缩短锚的生命周期</p>
+
+<p>确保A类对象的生命周期不要太长，A类的对象如果能尽快被垃圾回收器回收，内存泄露也就不会发生了。</p>
+
+<p>3.弱化引用</p>
+
+<p>用弱引用（<a href="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/ref/WeakReference.html">WeakReference</a>）关联监听器。弱引用的好处是，如果垃圾回收器检测到一个对象当前只有弱引用，就认为该对象可以被回收了。下面是用弱引用重构后的实例代码:</p>
+
+<p> </p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public class LapsedListenerTest2 {
+
+    public static class A{
+        private List listeners = new CopyOnWriteArrayList();
+        private String name;
+        public A(String name) {
+            this.name = name;
+        }
+        public void addListener(PropertyChangeListener listener) {
+            listeners.add(new WeakReference(listener));
+        }
+        private void fire(String property,Object oldValue,Object newValue) {
+            for(WeakReference listenerRef:listeners) {
+                PropertyChangeListener listener = listenerRef.get();
+                if(listener != null) {
+                    listenerRef.get().propertyChange(new PropertyChangeEvent(this, property, oldValue, newValue));
+                }else {
+                    listeners.remove(listenerRef);
+                }
+            }
+        }
+        public void setName(String name) {
+            String oldName = this.name;
+            this.name = name;
+            fire("name", oldName, name);
+        }
+    }
+
+    public static class B implements PropertyChangeListener{
+        private int id;
+        private A a;
+        private byte[] bt= new byte[1024*1024];
+
+        public B(A a,int id) {
+            this.id = id;
+            this.a = a;
+            this.a.addListener(this);
+        }
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            System.out.println("on B-" B.this.id "(" evt.getPropertyName() "," evt.getOldValue() "," evt.getNewValue() ")");
+        }
+        @Override
+        protected void finalize() throws Throwable {
+            System.out.println("finalize:" id);
+        }
+    }
+
+    /**
+     * @param args
+     * @throws InterruptedException
+     */
+    public static void main(String[] args) throws InterruptedException {
+        A a = new A("A");
+        int j = 0;
+        B first = null;
+        while(true) {
+            B b = new B(a,j);
+            if(first == null) {
+                first = b;
+            }
+            //do some thing with b
+            a.setName("A" j);
+            j  ;
+            System.gc();
+            Thread.sleep(20);
+        }
+    }
+}
+</code></pre></div></div>
+
+<p> </p>
+
+<p>代码片段3</p>
+
+<p> 运行后可以看出：</p>
+
+<p>由于first引用了第一个B对象，致使该对象一直存活，而其他的B对象都被很快的回收了。是不是一个完美的解决方案？别着急，这儿还有个问题。如果B类采用匿名类监听器的情况呢？(代码片段2的情况)</p>
+
+<p>这样的情况下，所有的监听器都只有弱引用，导致监听器会很快被垃圾回收器回收，即便是B类的对象存活(first)的情况下！所以这种方式要求监听器在A类外部必须还有个引用，并且该引用的生命周期与B一致(B自己或者B的属性)。</p>
+
+<p>综合看来，还是方案1比较可靠，虽然要考手动操作。按照方案1的重构:</p>
+
+<p> </p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public class LapsedListenerTest {
+
+    public static class A{
+        private List listeners = new CopyOnWriteArrayList();
+        private String name;
+        public A(String name) {
+            this.name = name;
+        }
+        public void addListener(PropertyChangeListener listener) {
+            listeners.add(listener);
+        }
+        public void removeListener(PropertyChangeListener listener) {
+            listeners.remove(listener);
+        }
+        private void fire(String property,Object oldValue,Object newValue) {
+            for(PropertyChangeListener listener:listeners) {
+                    listener.propertyChange(new PropertyChangeEvent(this, property, oldValue, newValue));
+            }
+        }
+        public void setName(String name) {
+            String oldName = this.name;
+            this.name = name;
+            fire("name", oldName, name);
+        }
+    }
+
+    public static class B implements PropertyChangeListener{
+        private int id;
+        private A a;
+        //占用内存
+        private byte[] bt= new byte[1024*1024];
+        public B(A a,int id) {
+            this.id = id;
+            this.a = a;
+            this.a.addListener(this);
+        }
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            System.out.println("on B-" B.this.id "(" evt.getPropertyName() "," evt.getOldValue() "," evt.getNewValue() ")");
+        }
+
+        public void dispose() {
+            this.a.removeListener(this);
+        }
+
+    }
+
+    /**
+     * @param args
+     * @throws InterruptedException
+     */
+    public static void main(String[] args) throws InterruptedException {
+        A a = new A("A");
+        int j = 0;
+        while(true) {
+            B b = new B(a,j);
+            //do some thing with b
+            a.setName("A" j);
+            b.dispose();
+            j  ;
+            System.gc();
+            Thread.sleep(20);
+        }
+    }
+
+}
+</code></pre></div></div>
+
+<p> </p>
+
+<p> </p>
+
+<p>代码片段4</p>
+
+<p> </p>
+
+<p>本方案的缺点就是必须显式调用下b.dispose()进行销毁。</p>
+
+<p>不知道还有没有其他的更好的解决方案？</p>
+
+<p> </p>
+
+        
+        </div>
+      </li>
+    
+        
+      <li>
+        <span class="post-meta">Jul 4, 2010</span>
+        <h2>
+            <a class="post-link" href="../1278185678455/">linux kde 声音问题</a>
+        </h2>
+        <div class="post_at_index">
+            <p>升级了一下kde，然后系统声音就时好时坏，老出现 “phonon 回放设备不工作 “的提示,很是郁闷。</p>
+
+<p>查了下网上，说是要设置下 多媒体的回放设备</p>
+
+<p>但点击 系统设置-&gt;多媒体(System Setting-&gt;Multimedia)，设置窗口立刻崩溃(crash).</p>
+
+<p>显示错误: kcm_phonon.so: undefined symbol: _ZNK6Phonon12GlobalConfig19hideAdvancedDevicesEv</p>
+
+<p>amarok不能播放音乐。</p>
+
+<p>网上查了一下，应该是<em>Phonon</em>的问题<em>。</em></p>
+
+<p><em>Phonon</em>是什么？Qt从4.4版本开始提供的一套多媒体框架，提供多媒体<em>回放</em>的功能。（phonon的图解说明:<a href="http://c-home.appspot.com/2009/03/2/phonon_pic.html" title="http://c-home.appspot.com/2009/03/2/phonon_pic.html">http://c-home.appspot.com/2009/03/2/phonon_pic.html</a>）</p>
+
+<p>检查了下系统 <em>Phonon  *的版本，发现 Phonon的版本与kde不兼容。升级了下phonon，这个问题就不存在了。</em><br />
+*</p>
+
+<p>如果声音还有问题，根据下面这篇文档设置下ALSA：</p>
+
+<p><a href="http://wiki.archlinux.org/index.php/Advanced_Linux_Sound_Architecture" title="http://wiki.archlinux.org/index.php/Advanced_Linux_Sound_Architecture">http://wiki.archlinux.org/index.php/Advanced_Linux_Sound_Architecture</a></p>
+
+<p>最后还有一个问题：flash没有声音，无论用什么浏览器。</p>
+
+<p>搜索了一下，是PulseAudio的问题。</p>
+
+<p><strong><em>PulseAudio</em></strong> is a sound server for POSIX and Win32 systems</p>
+
+<p>参考下面两篇文档的设置：</p>
+
+<p><a href="http://developer.novell.com/wiki/index.php/Feisty/HOWTO:_PulseAudio" title="http://developer.novell.com/wiki/index.php/Feisty/HOWTO:_PulseAudio">http://developer.novell.com/wiki/index.php/Feisty/HOWTO:_PulseAudio</a></p>
+
+<p><a href="http://ubuntuforums.org/showthread.php?t=789578" title="http://ubuntuforums.org/showthread.php?t=789578">http://ubuntuforums.org/showthread.php?t=789578</a></p>
+
+
+        
+        </div>
+      </li>
+    
+        
+      <li>
+        <span class="post-meta">Apr 5, 2010</span>
+        <h2>
+            <a class="post-link" href="../1241883360000/">终于在网上建了个家</a>
+        </h2>
+        <div class="post_at_index">
+            <p>记得我刚开始学网页就是一个简单的想法，给自己弄个个人站。</p>
+
+<p>于是开始学习<br />
+html，css，photoshop,dreamweaver,javascript,flash。然后又知道用静态html做出来的<br />
+网站很难维护，最好是用程序做成动态的。于是又学习asp，php，数据库,java，linux。结果这一下误入歧途，回不来了。法律专业也不搞了，转行写程序了。几年来给别人也做了好些网站程序，但自己最初的那个想法还没实现。本来是想抽空自己写个简单的个人博客用的，但这个想法一直处于构想当中。最<br />
+后还是找个现成的单用户blog程序吧。既然喜欢java，那也应该找个java的。找来找去，就找到了这个blog程序—pebble,官方网站<br />
+– 。咱买不起房子，但在网上给自己搭个家还行吧。</p>
+
+<p>pebble的数据采用xml方式储存，没有用数据库，搭建方便，功能也不错。</p>
+
+<p>对中文支持完全没问题。刚搭建之后，发现查询中文tag的时候会有乱码问题,它的url路径里出现中文了:http://jolestar.com/tags/开源项目/.但后来才发现那是我的mod_jk的配置问题。应该加上</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>JkOptions  ForwardURICompatUnparsed  ForwardDirectories
+</code></pre></div></div>
+
+<p>这两项。第一项是让apache不要解码，把url提交给tomcat处理。第二项是让apache把目录直接提交给tomcat处理。</p>
+
+<p>这样就没问题了。</p>
+
+<p>好了，开始转我的博客吧。但刚一转就发现，编辑器少个功能：插入代码。pebble默认是用FCKEditor编辑器，弄了一下，发现FCKEditor的插件体系不好，网上找到的FCKEditor的代码插入插件都不太好用，很多是直接把代码格式化成html的格式高亮。这种方式不好，因为这样格式化，用户复制代码的时候会很不方便，会复制上冗余的东西，以后编辑也不方便。好的方式就是用js动态实现高亮，而不是直接用html格式化。看了一下javaeye的代码插入功能，觉得不错。javaeye的编辑器用的是tiny_mce，于是就把博客的编辑器替换成了tiny_mce，又把javaeye的tiny_mce的代码插入插件搬了过来。嘿，还挺好用。在此感谢javaeye。</p>
+
+<p>代码插件有了，然后就是代码高亮。javaeye用的是SyntaxHighlighter, <a href="http://alexgorbatchev.com/">http://alexgorbatchev.com</a> ，但它好像用的是旧版本，或者是它的修改版本，不太好用。于是下载了最新的SyntaxHighlighter，实验了一下，嘿，效果不错。但又发现一个问题。新版本的SyntaxHighlighter把每种语言的高亮js都放在单独文件里，必须提前把需要用到的需要高亮的语言的js都加载进来。但页面模板里没法知道博客的内容会插入那些语言的代码，如果把所有的语言的js都加载进来，会严重影响页面加载速度。于是又写了个动态加载语言js的脚本。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var syntaxhighlighter_url = "/scripts/syntaxhighlighter/";
+  var brushLibs = {js:"JScript",jscript:"JScript",javascript:"JScript",
+		  bash:"Bash",shell:"Bash",css:"Css",actionscript3:"AS3",as3:"AS3",cpp:"Cpp",c:"Cpp",
+		  csharp:"CSharp",groovy:"Groovy",java:"Java",javafx:"JavaFX",jfx:"JavaFX",
+		  perl:"Perl",pl:"Perl",php:"Php",text:"Plain",plain:"Plain",
+                 py:"Python",python:"Python",
+		  ruby:"Ruby",ror:"Ruby",rails:"Ruby",scala:"Scala",sql:"Sql",xml:"Xml",html:"Xml",
+                 xhtml:"Xml",xslt:"Xml"
+		  };
+  function loadBrushLibs(){
+	  var pres = document.getElementsByTagName("pre");
+	  for(var i=0;i
+</code></pre></div></div>
+
+        
+        </div>
+      </li>
+    
+        
+      <li>
+        <span class="post-meta">Mar 28, 2010</span>
+        <h2>
+            <a class="post-link" href="../1269736980000/">第一次烫头发，谷歌搬家了，脑袋烧坏了，西游记还可以这样读等若干流水帐
+</a>
+        </h2>
+        <div class="post_at_index">
+            <p>上周日，在女朋友的逼迫下去理发。结果理发师说我这脑袋，上窄下宽，咋剪都不好看，要烫一下，让头发蓬起来，就均衡了，于是被忽悠了。由于是第一次烫头发，当那个锅盘一样的东西在脑袋上面转悠并且让脑袋发热的时候，我就担心这东西会不会把我的脑袋给烧坏了？</p>
+
+<p>周一，下班时分，脑袋有点痛。真的烧坏了？</p>
+
+<p>周二，上班路上就收到短信说谷歌搬家了！上网一看，门户网站的评论和社区上的言论对比明显，两极分化严重，脑袋有点痛，没想明白咋回事，突然灵光一动，我用屁股想明白了。</p>
+
+<p>有人拿出“规则说”批评谷歌：各国的法律不同，规则不同，进入不同的国家就要遵守不同的法律和规则。似乎阮次山大叔批评谷歌的时候就持这一论调。其实遵守规则这说法我同意，但前提是规则必须是规则。什么是规则？这个概念要定义下估计也能写篇论文，在这里就类推一下，拿交通规则来比较下，我们立刻可以简单的概括出规则的两个基本特征：</p>
+
+<ol>
+  <li>规则要有明文公示。没有一个国家会把交通规则藏起来不让大家知道吧？</li>
+  <li>规则要有一定的稳定性。没有一个国家会三天两头改交通规则吧？要是早上弄个绿灯行红灯停，下午就该成红灯行绿灯停，谁受的了？用着两个基本特征来检验下中国的网络审查规则，有公示么？哪个官方网站公布过滤规则？或者叫敏感词汇？有稳定性么？这个更不用说了。</li>
+</ol>
+
+<p>周三，凌晨时分，发烧严重，吃了退烧药。早上起来，不烧了，但脑袋还是痛，请了假去医院。挂号的时候问挂哪个科？我说脑袋痛，于是就到了神经内科。大夫问明情况后说我应该去发热门诊。我说我不发热了，就是头痛，并且发热不要紧，别让我头疼就行。大夫说头痛是发热引起了，要治头疼就得先治发热。于是开药回来吃。</p>
+
+<p>周四，发烧到39.5，头痛欲裂。再去医院，这次到发热门诊。还是开药回来吃。</p>
+
+<p>周五，情况好转。</p>
+
+<p>周六，看了篇帖子。算是对西游记的一种另类解读吧。作者用逻辑推理的方式，论证了唐僧其实是那个杀了他爹的强盗的儿子，唐僧后来报仇，其实结果是弑父。唐僧肉其实早已经被吃过，金蝉子转世十次其实是把自己的肉奉献给众菩萨罗汉吃了。红孩儿是太上老君和铁扇公主的私生子。等等等等。虽然解读的确实也有点另类，但作者的推理逻辑还是比较严密的，只不过他的大前提条件是西游记这本书的作者写这本书的时候是通过严密的逻辑推理写出来的，许多表面上不符合逻辑的内容其实是作者有意留下的破绽，让后人来解密。不过我觉得作者这个大前提是有问题的，因为中国自古以来对逻辑这东西不是很感兴趣。战国的时候，还有几个对逻辑感兴趣的（名家），其实也只能算是诡辩术，搞了几个著名的诡辩悖论题目:”坚白论”，”白马非马论”等等。结果中国的“君子”认为这种用偷换概念或者混淆法等语言技巧进行的辩论会让人迷惑，无益于”大道”，于是后世基本也没有了传人。其实这种诡辩是逻辑学之母，如古希腊的智者学派也喜欢弄诡辩。虽然智者学派后来也消亡了，但逻辑学在西方成长起来了。似乎扯远了，我是想说明，在没有逻辑学文化传统的中国文化里要孕育出一本非常有逻辑性的小说似乎是不可能的，也就是作者的大前提似乎错了。</p>
+
+<p>总结一下，先后关系和因果关系是不同的。这个道理虽然很浅显，但似乎不易懂。中国查封互联网色情内容的主要一个理由就是色情内容会引导青少年进行性犯罪。经常看到的报道就是抓住了一个强奸犯，然后问他是不是看过色情内容，他回答是，然后就推理出色情网站的危害。不过我觉得应该问他吃过饭了没，他肯定说吃过了，保暖思淫欲么。那是不是也应该禁饭？</p>
+
+        
+        </div>
+      </li>
+    
+  </ul>
+ 
+<div class="pagination pagination-centered">
+    <ul>
+    
+        <li class="prev">
+        <a href="../page10">&larr; Previous</a>
+        
+        </li>
+    
+
+    
+        <li><a href="../">1</a></li>
+        
+
+        
+            <li><a href="../page2">2</a></li>
+            
+        
+            <li><a href="../page3">3</a></li>
+            
+        
+            <li><a href="../page4">4</a></li>
+            
+        
+            <li><a href="../page5">5</a></li>
+            
+        
+            <li><a href="../page6">6</a></li>
+            
+        
+            <li><a href="../page7">7</a></li>
+            
+        
+            <li><a href="../page8">8</a></li>
+            
+        
+            <li><a href="../page9">9</a></li>
+            
+        
+            <li><a href="../page10">10</a></li>
+            
+        
+            <li class="disabled"><a>11</a></li>
+            
+        
+            <li><a href="../page12">12</a></li>
+            
+        
+            <li><a href="../page13">13</a></li>
+            
+        
+            <li><a href="../page14">14</a></li>
+            
+        
+            <li><a href="../page15">15</a></li>
+            
+        
+            <li><a href="../page16">16</a></li>
+            
+        
+            <li><a href="../page17">17</a></li>
+            
+        
+            <li><a href="../page18">18</a></li>
+            
+        
+            <li><a href="../page19">19</a></li>
+            
+        
+    
+
+    
+        <li class="next"><a href="../page12">Next &rarr;</a></li>
+    
+    </ul>
+</div>
+
+
+ <p class="rss-subscribe">subscribe <a href="../feed.xml">via RSS</a></p>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">午夜咖啡</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>午夜咖啡</li>
+          <li><a href="mailto:jolestar@gmail.com">jolestar@gmail.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/jolestar">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/jolestar">
+              <span class="icon  icon--twitter">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809
+                  c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="http://weibo.com/jolestar">
+              <span class="icon  icon--weibo">
+                <svg viewBox="0 0 1000 1235">
+                  <path fill="#828282" d="M0 672q0-161 184-347 117-116 236-162 56-23 97-23 45 0 72 27 26 26 26 72 0 31-12 72-4 14 3 17.5t16 .5l10-4q96-40 170-40t106 42q15 22 15 52 0 31-16 71-7 10-2.5 17t8 9 14.5 5q62 19 106 62t44 107q0 59-41 120.5t-111.5 112.5-178 84-228.5 33q-131 0-247.5-38.5t-193.5-115-77-174.5zm125 48q10 101 125 161 92 49 209 49 29 0 60-3 153-15 255-97 92-75 92-165 0-9-1-18-10-100-125-160-93-49-210-49-29 0-59 3-101 10-183 51t-126 101q-38 53-38 109 0 9 1 18zm160 62q-13-29-13-59 0-35 18-70 31-64 104-96 45-20 91-20 27 0 54 7 76 20 109 82 17 32 17 66 0 32-15 65-31 71-109 104-44 19-88 19-34 0-67-11-73-23-101-87zm56-19q6 25 30 35 13 6 27 6 12 0 24-4 28-9 43-33 10-16 10-32 0-7-3-15-6-24-30-34-13-5-26-5-12 0-25 4-27 9-41 32-11 16-11 33 0 7 2 13zm141-79q3 9 13 13 5 2 9.5 2t9.5-2q11-4 16-13t2-18-12-13q-9-3-19.5.5t-15.5 12.5q-3 6-3 12l0 6zm321-621q-1-5-1-10 0-13 8-25 10-16 29-21 34-7 68-7 51 0 100 15 83 27 143 93t78 153q7 35 7 68 0 51-16 98l0 1q-6 18-23 27-11 5-22 5-7 0-15-2-19-6-27-23-5-11-5-21 0-8 2-15l0-1q11-34 11-70 0-23-4-48-13-62-56-109t-102-66q-35-10-70-10-24 0-49 5-5 1-10 1-14 0-26-8-16-11-20-30zm40 157q-1-5-1-10 0-10 6-21 9-14 26-18 19-4 37-4 67 0 115 53 29 33 38 75 3 17 3 33 0 24-8 48-5 16-20 23-9 5-18 5-7 0-13-2-16-5-24-20-4-9-4-18 0-7 2-13 4-14 4-26 0-28-21-50-22-26-54-26-10 0-20 2-5 1-9 1-11 0-21-7-14-9-18-25z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
+            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+        </div>
+        <script>
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+            ga('create', 'UA-1268034-7', 'auto');
+            ga('send', 'pageview');
+        </script>
+
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

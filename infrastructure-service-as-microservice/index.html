@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html>
+
+  
+
+
+ 
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>基础设施服务的微服务化</title>
+  <meta name="description" content="这篇文章是根据我在SFDC(SegmentFault Developer Conference)大会上的分享整理而成。">
+
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="canonical" href="http://jolestar.com/infrastructure-service-as-microservice/">
+  <link rel="alternate" type="application/rss+xml" title="午夜咖啡" href="../feed.xml" />
+  <meta name="google-site-verification" content="kmm9IK4zVCvEFzsNDOyTkDdtkaMGQHtdgEXurVQizfc" />
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="../">午夜咖啡</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        <!-- 
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+          <a class="page-link" href="/sitemap.txt">Sitemap</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+         -->
+        <a class="page-link" href="../about/">About</a>
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">基础设施服务的微服务化</h1>
+    <p class="post-meta">Dec 10, 2016 • jolestar</p>
+  </header>
+
+  <article class="post-content">
+    <p>这篇文章是根据我在SFDC(SegmentFault Developer Conference)大会上的分享整理而成。</p>
+
+<!--more-->
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.001.jpeg" alt="1" /></p>
+
+<p>今天我给大家分享的题目是『基础设施服务的微服务化』。微服务这一两年非常火，今天的服务器端的分享主题应该至少90%和微服务相关。同时你会发现，云，容器等技术的发展都是在给微服务铺路，因为用户本质上需要的是服务，不是资源。但大多数和微服务相关的讨论都是分析业务应用如何微服务化，如何远程调用，如何服务治理，谈论基础设施服务的却很少，我们今天来聊聊这个。</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.003.jpeg" alt="3" /></p>
+
+<p>讨论微服务，遇到的第一个问题就是多微的服务才能叫微服务呢？是否有个标准，比如多少行代码，多少个方法，多少个接口？</p>
+
+<p>我们来看看微服务这个概念的最早定义：</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.004.jpeg" alt="4" /></p>
+
+<p>我们不用全部仔细看完，只需看看我标出来的几个关键词：</p>
+
+<ol>
+  <li><strong>small service</strong> 这个好理解，就是微服务就是小服务。</li>
+  <li><strong>independently deployable</strong> 可独立部署。微服务就是将原来的共享库的依赖方式，改为远程调用的依赖方式，每个微服务都是独立部署的服务。</li>
+  <li><strong>fully automated deployment</strong> 完全的自动化部署。这点往往被大家忽略，为什么微服务就要完全的自动化部署呢？因为以前的几个服务，被拆分为成百上千的服务，如果没有完全的自动化部署，基本上是不可维护的。当然，你可以说『我就是不差钱，我就招上千个人来管这些服务』：）就不叫微服务了？也能行，但这也违背了我们搞微服务的目标吧。</li>
+</ol>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.005.jpeg" alt="5" /></p>
+
+<p>所以我们再回归到微服务这个概念。我个人认为微服务化本身包含两层意思，一层是拆，这个大家提到的多，将大的服务拆成小的服务粒度，通过远程调用解决依赖。但同时它也有另外一层意思，就是合，就是整个系统的微服务的所有组件之间应该是一个整体的分布式系统，按集群化的方式来设计，服务之间能互相感知，进行自动化协作。</p>
+
+<p>我们来看一个微服务的一个例子。</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.006.jpeg" alt="6" /></p>
+
+<p>这里面有ABCD四个服务，每个服务都依赖数据库以及缓存，对外的服务有负载均衡器，服务之间互相依赖，异步交互通过队列进行。通过这样一个简单的微服务例子，我们可以看出基础设施都有哪些。</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.007.jpeg" alt="7" /></p>
+
+<p>那我们的问题就来了 — 基础设施服务是否需要微服务化？</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.008.jpeg" alt="8" /></p>
+
+<p>要解答这个问题，我们先看看当前的基础设施服务的主要解决方案：</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.009.jpeg" alt="9" /></p>
+
+<p>第一种是大的互联网公司普遍使用的一种方案。基础设施服务托管给基础设施部门，基础设施部门包含运维，DBA 等。比如开发人员需要一套 mysql 服务的时候，提出申请，基础设施部门负责搭建和运维，开发人员只需要连接 mysql 的 IP 进行使用即可。另外一种方式是托管给云厂商，是使用当前云的基础设施服务。比如QingCloud，AWS，还有阿里云等，都提供基础设施服务，比如需要一套 mysql，在控制台即可创建，然后获取到连接 IP ，这样可以省去运维基础设施服务的成本。</p>
+
+<p>但是这两种方式都有一些问题：</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.010.jpeg" alt="10" /></p>
+
+<ol>
+  <li>开发测试流程中的基础设施服务如何部署，如何自动化？这个没法委托给基础设施部门，需要开发人员自己动手搞。但开发人员一方面也没有精力搞一套完整的自动化工具，但即便是搞了，也解决不了开发环境和线上环境异构的问题。前面有位讲师的分享也说到了这个问题，异构问题总会导致故障，没出现故障也是时候没到。</li>
+  <li>另外一个问题就是基础设施服务迁移、伸缩、故障恢复时应用如何感知？比如有个 mysql 集群，当前数据库请求量太大，扩容了从库，应用如何自动感知到这个变化，从而使用新的从库？</li>
+</ol>
+
+<p>我们再回顾下微服务的要求：</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.011.jpeg" alt="11" /></p>
+
+<p>当前的基础设施服务的解决方案，不能满足微服务的集群化，自动化这两点要求。我们可以得出结论：</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.012.jpeg" alt="12" /></p>
+
+<p>基础设施服务属于微服务系统中的一部分，需要和业务服务互相感知，需要被微服务化。</p>
+
+<p>这就引出了我们的另外一个问题：</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.013.jpeg" alt="13" /></p>
+
+<p>基础设施服务如何微服务化？这个主要有以下难点：</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.014.jpeg" alt="14" /></p>
+
+<p>基础设施服务种类多样。比如前面那个简单的微服务系统，就用到了很多基础设施服务，各种服务的有各种不同的配置方式。同时，这些服务的集群机制也是多种多样的。我们举几个例子来说明下。</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.015.jpeg" alt="15" /></p>
+
+<p>Zookeeper 的主要配置文件是 zoo.cfg，这个配置文件中需要列出整个集群中的所有节点，以及对应的server id。另外，每个节点还有一个独立的 myid 配置文件，这个文件中写了当前节点的 server id。比如要把这个集群扩展到5个节点，首先要要算出新的节点的 server id 号，生成新的节点的myid 配置文件，同时需要变更每个节点的 zoo.cfg 配置文件，把新节点的 server id 和 IP 都写进去，然后重启服务。</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.016.jpeg" alt="16" /></p>
+
+<p>HAproxy 的配置文件中的每个 backend 后会配置一个 server 列表。如果后端服务伸缩，就需要变更这个 server 列表。</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.017.jpeg" alt="17" /></p>
+
+<p>Redis Cluster 的这个例子我只是想说明下， redis 并不是通过配置文件来维护集群信息的，而是通过动态命令。创建集群，增删节点，都需要调用命令进行。</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.018.jpeg" alt="18" /></p>
+
+<p>Kafka 是通过 Zookeeper 来做服务发现的，所以如果 Zookeeper 集群变更，就需要变更它的配置文件中的 zookeeper.connect 配置项。</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.019.jpeg" alt="19" /></p>
+
+<p>粗略的看了以上的几个例子，大家对基础设施服务的配置和集群的多样性有了初步的体验。既然要微服务化，就需要设计服务的注册发现以及配置变更方案。微服务理想中的方案是应用内部自发现，监听配置中心，自动进配置变更。但现实的状况我们前面的例子也看到了，我们也不可能等待这么多的服务逐渐都改造升级了再用，所以唯一可行的办法就是通过非侵入的方式，进行第三方的服务注册，以及配置变更。</p>
+
+<p>下面我介绍一下我们 QingCloud 应用调度系统的一些实践。</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.020.jpeg" alt="21" /></p>
+
+<p>我们在 IaaS 调度系统之上构建了应用集群的调度系统，它知道集群里的 vm 节点的变化，然后将集群的基础信息注册到我们的元信息服务 metad 中。每个 vm 节点里面都运行一个 confd 进程，监听 metad 的元信息，一旦发生变化，则变更本地的配置和服务。比如左图的这个例子，应用集群依赖一个 zookeeper 集群，二者都关联在 metad 中。如果 zookeeper 集群的节点发生变化，应用集群是可以通过 metad 感知到变化，并且通过 confd 进行配置变更。下面我分别简单介绍一下使用到的一些组件。</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.021.jpeg" alt="22" /></p>
+
+<p>Etcd 是一个开源的分布式的一致性 kv 存储，提供元信息的持久化，同时它支持 watch 机制，可以实现变更推送。</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.022.jpeg" alt="23" /></p>
+
+<p>Metad 是我们自己研发的一个开源的元信息服务。它的后端对接 etcd ，和 etcd 实时同步数据。我们前面也说了，当前我们的方案是通过调度系统进行服务注册。这种注册方式有一个问题就是，节点启动的时候，它不清楚自己所处的角色，也就是不知道『我是谁』。人生哲学的头一个难题就是回答『我是谁』，服务器也有这个困境。所以我们在 metad 中保存了 IP 到元信息之间的映射关系，客户端请求一个固定的接口 /self 就可以拿到自己本节点的信息，当前节点所处的集群的信息，以及当前集群依赖的其他集群的信息。它也支持 watch 机制，实现变更推送。</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.023.jpeg" alt="24" /></p>
+
+<p>Confd 是一个开源的配置变更工具，我们在其基础上进行了二次开发，后端对接 metad。它通过监听 metad 的变更通知，同步元信息到本地缓存，然后根据模板渲染配置文件，如果发现配置不一样，则进行应用的配置变更，同时触发脚本让应用程序重新加载配置（reload 或者 restart）。下面我们通过一个例子来说明下。</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.024.jpeg" alt="25" /></p>
+
+<p>还是一个 zookeeper 的例子，我们首先有个集群的编排配置文件，定义了其中每个节点的镜像，cpu，内存，磁盘，节点数量，以及启动，停止等 service 脚本。</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.025.jpeg" alt="26" /></p>
+
+<p>我们给 zoo.cfg 定义了一个配置文件模板，这个模板是给 confd 用来渲染配置文件的。模板的语法是 go template 语法，如果不熟悉这个模板语法也没关系，大家可以看出这段脚本是在循环配置中心的 hosts 列表，然后生成 server id 和 IP 之间的映射配置。</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.026.jpeg" alt="27" /></p>
+
+<p>这是那个 myid 配置文件的模板，这个很简单，我们给集群的每个几点都会分配一个 sid，这种情况，直接吧 sid 写到 myid 配置文件就好。</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.027.jpeg" alt="28" /></p>
+
+<p>同时，我们的集群编排支持 kvm 和 docker 两种镜像，这样就可以实现 kvm 和 docker 的混排。如果应用有特殊需求 docker 镜像不能满足，比如 kernel 版本，则可以使用 kvm 镜像。当然我们这里的 docker 镜像不是标准的 docker 镜像方式，镜像默认启动的进程，也就是 init 进程必须是 confd，然后应用通过 confd 来启动。这个方式和 大家用 docker 的习惯不一样，比如 zookeeper 的镜像，习惯启动的第一个进程就是 zookeeper 服务。</p>
+
+<p>那我们为什么不用 docker 默认的方式呢？</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.028.jpeg" alt="29" /></p>
+
+<p>这也是一个理想和现实妥协的方案。理想中的 docker 应用配置，应该是静态配置通过环境变量，动态的通过配置中心。比如 jvm 的启动内存设置就是静态配置，通过环境变量传递，如果应用需要变更内存设置，直接销毁旧的容器实例，重新启动新的并传递新的环境变量即可。但现实的状况，我们前面也举了好几个例子，大多数应用的配置还都是通过配置文件，无论动态还是静态。我们为了变更应用的配置文件，就需要通过 confd，所以我们的 docker 镜像默认先启动 confd。</p>
+
+<p>以上就是我们当前的实践方案。下面我们和业界的其他一些方案做一些比较。</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.029.jpeg" alt="30" /></p>
+
+<p>Ansible/Puppet/Salt/Chef 这一系列配置变更以及自动化工具，本质上都是纯静态的配置变更工具。它们是把变量通过模板渲染成配置文件，这里的静态指的是这些变量在编写配置规则时就是确定的，所以它们的复用机制不够通用。比如有人写了一个自动部署 zookeeper 集群的 ansible 模块，但当你想用这个模块部署自己的服务的时候，会发现需要有许多变量需要修改，比如网络，等等。它们的静态模式导致的另外一个问题就是服务的依赖变更不好解决，比如前面 HAProxy 那个例子，当后端服务伸缩的时候，要变更 HAProxy 配置，还是得手动修改变量，然后重新执行配置变更脚本。所以它们只能是半人工半自动化工具，对动态的故障迁移以及伸缩，容灾也没有好的办法。</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.030.jpeg" alt="31" /></p>
+
+<p>Kubernetes 的目标是通用的容器编排系统，做了很多通用的抽象，试图通过 DNS，虚拟 IP 这样的通用机制来解决服务间的依赖问题。比如前面那个 mysql 的例子，mysql 从库伸缩后应用如何感知？它的解决方案是 mysql slave 可以作为一个独立的服务，会分配一个 DNS name，以及一个 虚拟 IP。应用连接的时候通过 DNS 以及虚拟 IP 进行，并不需要知道后面的每个从库节点 IP。但这种方式的问题就是有些场景满足不了，比如前面的 zookeeper，集群中的每个节点都需要能和其他节点直接通信，类似的还有 elasticsearch。Kubernetes 的 elasticsearch 解决方案是给 elasticsearch 写一个插件，通过 kubernetes 提供的注册中心的接口来发现集群中的其他节点。但如果应用不支持插件就比较麻烦，比如 redis cluster，文末有个 redis cluster 运行在 k8s 上的案例，做法是把每个节点都作为一个 service，如果要扩展节点的话，必须新增 k8s 的 service 配置文件，然后节点运行之后再通过手动调用命令进行初始化。它支持全局的配置文件映射，但只是纯静态配置，不支持变更。</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.031.jpeg" alt="32" /></p>
+
+<p>Mesos 的目标是通用的资源调度和分配系统，如果把应用要放到 Mesos 之上，应用需要通过扩展 framework 来实现，开发成本比较高。如果用通用的容器方式，也有和k8s类似的问题。</p>
+
+<p>所以当前看来，我们的方案是相对可行度比较高，容易实践，对各种不同的集群应用的包容性也比较高的方案。</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.032.jpeg" alt="33" /></p>
+
+<p>最后再介绍一下我们的新应用中心。主要基于前面的应用调度系统，给企业提供应用标准化开发平台，可以快速将应用云化，实现应用的秒级部署和弹性伸缩。同时提供计费服务以及客服平台，让企业应用快速实现商业化。当前还在邀请内测阶段。</p>
+
+<p><img src="http://jolestar.com/images/sfdc2016/sfdc_qingcloud_jolestar.033.jpeg" alt="34" /></p>
+
+<p>那这个对我们开发者有什么意义呢？一方面我觉得可能会带来基础研发运维部门在企业中的角色转换。因为当前基础研发运维部门在企业中属于业务支撑的部门，基本上是成本部门，并不是直接生产利润的部门。但如果有了这样的平台，基础研发运维部门可以通过企业应用市场将自己的基础组件共享出来，进行售卖。比如每个大一点的互联网公司都会搞一套 mysql 的分布式的集群方案，进行自动的分库分表，如果能在应用市场中找到这样的工具，中小企业肯定也是愿意买单的。所以也可以说服务器端研发人员的春天到了。以前我们很羡慕搞客户端开发的人，自己做个 app 就可以放到应用市场去售卖，现在服务器端开发也可以了。我这里不是说我们一家就能把这个春天带来，而是说服务器端的应用标准化，已经是大势所趋，大家都在做这方面的尝试。可以做个预测，2017年，各容器编排集群，各云厂商，都会推出自己的类似的解决方案，可以期待。</p>
+
+<p>我的分享就这里。</p>
+
+<p><img src="http://jolestar.com/images/weichat/qrcode_jolestar_blog2.png" alt="qrcode_jolestar_blog2" /></p>
+
+<p><strong>相关链接</strong></p>
+
+<hr />
+
+<ol>
+  <li><a href="http://jolestar.com/etcd-architecture/">Etcd 架构与实现解析</a>  本人的一篇关于 etcd 的文章，想深入了解 etcd 的可以看看。</li>
+  <li><a href="http://jolestar.com/kubernetes-architecture/">Kubernetes 架构浅析</a>  本人的一篇关于 k8s 的文章，想深入了解 k8s 的可以看看。</li>
+  <li><a href="http://jolestar.com/mesos-architecture/">Mesos 架构以及源码浅析</a>  本人的一篇关于 mesos 的文章，想深入了解 mesos 的可以看看。</li>
+  <li><a href="https://github.com/fabric8io/elasticsearch-cloud-kubernetes">kubernetes cloud plugin for elasticsearch</a> 文中提到的通过k8s api 进行节点发现的 elasticsearch 插件</li>
+  <li><a href="https://github.com/kelseyhightower/kubernetes-redis-cluster/">kubernetes 上运行 redis cluster 的例子</a></li>
+  <li><a href="https://github.com/yunify/confd">confd</a> 我们修改版的confd仓库地址。</li>
+  <li><a href="https://github.com/yunify/metad">metad</a> 仓库地址。</li>
+</ol>
+
+
+  </article>
+  <div>
+  </div>
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">午夜咖啡</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>午夜咖啡</li>
+          <li><a href="mailto:jolestar@gmail.com">jolestar@gmail.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/jolestar">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/jolestar">
+              <span class="icon  icon--twitter">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809
+                  c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="http://weibo.com/jolestar">
+              <span class="icon  icon--weibo">
+                <svg viewBox="0 0 1000 1235">
+                  <path fill="#828282" d="M0 672q0-161 184-347 117-116 236-162 56-23 97-23 45 0 72 27 26 26 26 72 0 31-12 72-4 14 3 17.5t16 .5l10-4q96-40 170-40t106 42q15 22 15 52 0 31-16 71-7 10-2.5 17t8 9 14.5 5q62 19 106 62t44 107q0 59-41 120.5t-111.5 112.5-178 84-228.5 33q-131 0-247.5-38.5t-193.5-115-77-174.5zm125 48q10 101 125 161 92 49 209 49 29 0 60-3 153-15 255-97 92-75 92-165 0-9-1-18-10-100-125-160-93-49-210-49-29 0-59 3-101 10-183 51t-126 101q-38 53-38 109 0 9 1 18zm160 62q-13-29-13-59 0-35 18-70 31-64 104-96 45-20 91-20 27 0 54 7 76 20 109 82 17 32 17 66 0 32-15 65-31 71-109 104-44 19-88 19-34 0-67-11-73-23-101-87zm56-19q6 25 30 35 13 6 27 6 12 0 24-4 28-9 43-33 10-16 10-32 0-7-3-15-6-24-30-34-13-5-26-5-12 0-25 4-27 9-41 32-11 16-11 33 0 7 2 13zm141-79q3 9 13 13 5 2 9.5 2t9.5-2q11-4 16-13t2-18-12-13q-9-3-19.5.5t-15.5 12.5q-3 6-3 12l0 6zm321-621q-1-5-1-10 0-13 8-25 10-16 29-21 34-7 68-7 51 0 100 15 83 27 143 93t78 153q7 35 7 68 0 51-16 98l0 1q-6 18-23 27-11 5-22 5-7 0-15-2-19-6-27-23-5-11-5-21 0-8 2-15l0-1q11-34 11-70 0-23-4-48-13-62-56-109t-102-66q-35-10-70-10-24 0-49 5-5 1-10 1-14 0-26-8-16-11-20-30zm40 157q-1-5-1-10 0-10 6-21 9-14 26-18 19-4 37-4 67 0 115 53 29 33 38 75 3 17 3 33 0 24-8 48-5 16-20 23-9 5-18 5-7 0-13-2-16-5-24-20-4-9-4-18 0-7 2-13 4-14 4-26 0-28-21-50-22-26-54-26-10 0-20 2-5 1-9 1-11 0-21-7-14-9-18-25z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
+            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+        </div>
+        <script>
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+            ga('create', 'UA-1268034-7', 'auto');
+            ga('send', 'pageview');
+        </script>
+
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

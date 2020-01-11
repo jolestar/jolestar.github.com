@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html>
+
+  
+
+
+ 
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Serverless/FaaS 的现状和未来</title>
+  <meta name="description" content="FaaS 是一种新兴的技术平台，个人认为 2018 年即将迎来 FaaS 的崛起。本文给大家提供一个 Serverless/FaaS 的现状与未来的报告，也作为自己的年度技术总结。本文首发 gitchat。">
+
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="canonical" href="http://jolestar.com/serverless-faas-current-status-and-future/">
+  <link rel="alternate" type="application/rss+xml" title="午夜咖啡" href="../feed.xml" />
+  <meta name="google-site-verification" content="kmm9IK4zVCvEFzsNDOyTkDdtkaMGQHtdgEXurVQizfc" />
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="../">午夜咖啡</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        <!-- 
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+          <a class="page-link" href="/sitemap.txt">Sitemap</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+         -->
+        <a class="page-link" href="../about/">About</a>
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Serverless/FaaS 的现状和未来</h1>
+    <p class="post-meta">Jan 8, 2018 • jolestar</p>
+  </header>
+
+  <article class="post-content">
+    <p>FaaS 是一种新兴的技术平台，个人认为 2018 年即将迎来 FaaS 的崛起。本文给大家提供一个 Serverless/FaaS 的现状与未来的报告，也作为自己的年度技术总结。本文首发 gitchat。</p>
+
+<!--more-->
+
+<h2 id="什么是-serverlessfaas">什么是 Serverless/FaaS</h2>
+
+<p>Serverless（无服务器）这个概念存在已经很久了，最早指不需要服务器端的软件，比如纯客户端软件以及 peer-to-peer   (P2P) 软件，在云时代，这个概念才表示不需要关心服务器端的相关技术，比如按量计费的 PaaS 服务（比如 FaunaDB serverless，Aurora Serverless，  对象存储等），BaaS （Backend as a Service），以及 Google App Engine 这样的托管 Application PaaS 也可包含在内。</p>
+
+<p>但传统的 Application PaaS 平台，开发者对服务运行的实例还是有感的，即便是没有调用，也依然需要占用资源，并对资源付费，并不是完全的 Serverless，直到 FaaS 出现。FaaS 全称 Function-as-a-Service，可以理解成给 Function 提供运行环境和调度的服务。Function 可以理解为一个代码功能块，这个功能块具体包含多少功能，无法明确给出定义，但有一个明确的指标：冷启动时间需要在毫秒数量级。因为 FaaS 的本质上是以程序的快速启动来实现正真的按需运行，按需伸缩，以及高可用。Function 配合调度系统，就可以完全做到开发者对服务运行的实例无感，真 Serverless。</p>
+
+<p>也就是说，从外延来看，Serverless 比 FaaS 的外延要广，FaaS 主要解决的是用户自定义的代码逻辑如何做到 Serverless，可以叫做 Serverless Compute，同时它也是事件驱动架构的一种，从一张图可以看出二者区别。</p>
+
+<p><img src="http://jolestar.com/images/faas/serverless-faas.png" alt="serverless-faas" /></p>
+
+<p><sub> 图片来源：Status of Serverless Computing and Function-as-a-Service(FaaS) in Industry and Research </sub></p>
+
+<p>另外 AWS 的 lambda 文档页面有一个演示，我录制成动画，非常形象的介绍了 FaaS 的工作机制。</p>
+
+<p><img src="http://jolestar.com/images/faas/lambda.gif" alt="lambda" /></p>
+
+<p>动画中通过点击鼠标模拟事件，事件越多，lambda 的实例也越多，当没有新的事件的时候，lambda 实例自动销毁。</p>
+
+<h2 id="从技术的演进来看-faas">从技术的演进来看 FaaS</h2>
+
+<p>没有互联网的时候，应用程序多是单机命令行软件。当互联网出现的时候，有了将应用程序通过网络给其他人提供服务的需求。于是出现了 CGI (Common Gateway Interface)，就是把命令行软件执行的结果通过网络输出。当时的应用程序的架构比较简单，启个 web 服务器监听网络端口，然后根据请求调用 CGI 程序，同时把请求数据传递给 CGI 程序，等待程序执行后把输出结果通过网络端口返回给客户端（一般是浏览器）。这种架构下，只有 web 服务器是常驻运行的，后面的 CGI 程序都是按需运行的，运行后就释放资源。于是诞生了一批支持 CGI 协议的脚本语言，比如 perl，php，asp，一方面脚本语言可以粘结 web 服务器和应用程序，另外一方面它本身也可以包含逻辑，于是逐渐出现专门针对 web 的用脚本编写的应用。</p>
+
+<p>这种方式的优势很明显，按需运算，没有调用就几乎没有资源占用，一台机器就能托管大量的中小网站，运维成本也小，只需限制下 CGI 进程的执行时长和内存占用量就行，不用担心有人写了个死循环把整个服务器搞挂。所以最早的 php/asp 等脚本代码托管服务是按照空间计费的，可以理解成早期的『云』计算。</p>
+
+<p>但缺点也很明显，每次调用都独立运行一个进程，如果并发量大，进程管理的资源浪费严重，随着互联网的发展出现了叫做 FastCGI 的技术。这种技术的思路是执行逻辑的进程不再是按需运行，而是常驻方式，web 服务器和 FastCGI 服务之间通过 unix socket 或者 tcp 进行交互。以 php-fpm（FastCGI Process Manager） 为例，php-fpm 启动一个常驻的进程池，每个请求分配给一个进程，进程调用 php 脚本执行后释放资源。当然这种方式带来的另外一个问题是常驻进程很容易产生内存泄露等问题，于是 php-fpm 提供一个选项可以设置执行多少次后重启进程。</p>
+
+<p>如果单纯为了性能考虑，直接把应用程序打包到 web 服务器里，通过 web 服务器调用应该性能更好。但这样更新应用就需要同时更新 web 服务器，开发和维护成本比较高，而 web 服务器和应用程序一般是不同的提供方提供，多个应用程序共享同一台机器也会导致端口冲突。</p>
+
+<p>同时期出现的技术还有 Java EE，提供了另外一种解决思路。Java EE 提供了一种叫做应用服务器或者 web container 的服务器软件，提供 web 服务器的功能，应用按照 Java EE 的规范暴露入口方法，然后打包成独立的发布包，部署到应用服务器中。应用服务器动态将应用加载到内存，相当于以动态方式把 web 服务器和应用程序合并成同一个程序，同时通过多线程而不是多进程来解决并发问题。这种方式兼顾了性能和应用独立发布的需求，同时依托应用服务器可以支持更多特性，所以 Java EE 能广泛占据企业端的市场。</p>
+
+<p>于是 Java EE 厂商坐着火车吃着火锅，一路奔向应用标准化的未来。接连推出各种应用规范，想把应用功能通过规范沉淀到 Java EE 应用服务器中。但这时候互联网服务公司异军突起，打破了企业厂商的盛宴。互联网服务的特点是一个服务给全球人使用，对可移植性和标准化并没那么热衷，但对并发以及性能的要求极高，Java EE 中的特性也没几个能满足这种需求，于是宁愿从头打造工具和组件。</p>
+
+<p>互联网高速发展了 10 多年后，大家开始思考，有没有一种应用的架构方式，即可以满足初期的快速研发需求，也可以承载后期的用户规模，还可以将应用的标准化功能沉淀到平台上独立提供？于是有了微服务，于是有了 FaaS。</p>
+
+<h2 id="从云的发展来看-faas">从云的发展来看 FaaS</h2>
+
+<p>第一阶段的云主要解决硬件资源（网络，计算，存储）的运维和供给问题，也就是 IaaS 云，可以理解成基于硬件资源的共享经济。IaaS 云的交付的主要是资源，接口以及控制台也是面向资源的，尽量以模拟物理机房环境来降低应用的迁移成本。而云发展到当前阶段来看，出现了两种需求：</p>
+
+<ol>
+  <li>
+    <p><strong>正真的按需计算</strong> 原来云的按需计算只是虚拟机维度的，按时间计费以及弹性伸缩，并不能正真做到按需计算，计算和内存资源都是预申请规划的，和服务的请求并发数并没有明确的关系，哪怕一段时间一个请求没有，资源还是依然占用。而 FaaS 可以做到按请求计费，不需要为等待付费，可以做到更高效的资源利用率。</p>
+  </li>
+  <li>
+    <p><strong>面向应用</strong> 本质上用户对云的期望是应用的运行环境，并且最好是只让用户关心业务逻辑，而不需要关心，或者尽量少关心技术逻辑（比如监控，性能，弹性，高可用，日志追踪等）。这也是云原生应用（Cloud Native Application）这个概念提出的背景。</p>
+
+    <p>到底什么样的应用叫做云原生应用？这个当前没有一个准确的标准，但我在一次大会上的演讲中下了一个定义，这里再引用一下：</p>
+
+    <blockquote>
+      <p>云原生应用就是让渡一部分功能给云，以实现弹性，高可用，故障恢复，降低研发运维成本的应用</p>
+    </blockquote>
+
+    <p>也就是说，云原生应用的关键是『让渡』，但具体如何让渡，让渡哪些功能？理论上，只要和业务逻辑无关的功能都应该让渡出去，但如何做到？从持续交付到日志监控追踪，这些非业务功能都一直没能标准化，也很难标准化，如何让应用开发者逐渐接受这些标准？看起来似乎是个无解的问题。</p>
+
+    <p>但 FaaS 给出来一个方案。就是应用只需要把包含自己业务逻辑的 Function 提交给云，其他的事情由云来完成。这样，云相当于直接接管了业务逻辑模块，然后其他的技术功能直接由云来提供，不依赖开发者在自己应用中引入标准化框架来实现。</p>
+  </li>
+</ol>
+
+<h2 id="faas-的现状">FaaS 的现状</h2>
+
+<p>FaaS 最开始是 2014 年一个叫做 hook.io 的网站提供的，顾名思义，这个网站最早的功能是托管 webhook Function。Webhook 这种场景，按调用次数付费是最易于理解的。之后大厂看到价值迅速跟进，AWS 同年推出 Lambda，2016 年 Google，Microsoft Azure 推出自己的 Cloud Function 服务，2017 年国内云厂商腾讯云，阿里云也跟进。</p>
+
+<h3 id="云厂商-faas-比较">云厂商 FaaS 比较</h3>
+
+<p>在公有 IaaS 云上支持 FaaS，可以从以下角度分析：</p>
+
+<ol>
+  <li>支持的语言以及 Function 标准。</li>
+  <li>触发器支持，也就是和 IaaS 上其他系统的整合。</li>
+  <li>伸缩和调度策略。这个虽然对用户是个黑盒子，但通过文档和自己的一些实验可以做一定程度的分析。</li>
+  <li>FaaS 和私有 VPC 资源的交互。FaaS 本身是一个全局的公共池子，如果用户的 Function 要请求自己 VPC 的内网资源，就会遇到问题。</li>
+  <li>FaaS 之上更高级的应用支持。</li>
+</ol>
+
+<p>本文选取了以下公有云的 FaaS 做比较，精力有限，没能选取全部的公有云：AWS Lambda，Google Cloud Function，Azure Function，阿里云函数计算，腾讯云 Serverless Cloud Function，华为云 FunctionStage。本位为了统一描述，把各家的实现都统称为 Function。 另外如果有描述不准确的地方，还请反馈。</p>
+
+<h5 id="语言支持以文章撰写时间为准">语言支持(以文章撰写时间为准)</h5>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>AWS</th>
+      <th>Google</th>
+      <th>Azure</th>
+      <th>阿里云</th>
+      <th>腾讯云</th>
+      <th>华为云</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>NodeJs</td>
+      <td>√</td>
+      <td>√</td>
+      <td>√</td>
+      <td>√</td>
+      <td>√</td>
+      <td>√</td>
+    </tr>
+    <tr>
+      <td>Java</td>
+      <td>√</td>
+      <td> </td>
+      <td>√</td>
+      <td>√</td>
+      <td> </td>
+      <td>√</td>
+    </tr>
+    <tr>
+      <td>C#</td>
+      <td>√</td>
+      <td> </td>
+      <td>√</td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Python</td>
+      <td>√</td>
+      <td> </td>
+      <td> </td>
+      <td>√</td>
+      <td>√</td>
+      <td>√</td>
+    </tr>
+    <tr>
+      <td>Go</td>
+      <td>√*</td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+      <td>√</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>其中 Azure 的 Function 有两个版本，第一版本支持的语言较多，Python/Php/Bash/PowerShell 等都支持，但部分语言的实现机制上有问题，是以每次请求都启动进程的方式实现的，伸缩性上有问题，所以第二版放弃了部分语言。</p>
+
+<p>Go 语言，AWS 官方尚未支持，但社区做了一个支持，后面的开源部分有提到。</p>
+
+<h5 id="语言规范">语言规范</h5>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">exports</span><span class="p">.</span><span class="nx">handler</span> <span class="o">=</span> <span class="p">(</span><span class="nx">event</span><span class="p">,</span> <span class="nx">context</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">'</span><span class="s1">Received event:</span><span class="dl">'</span><span class="p">,</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">event</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="mi">2</span><span class="p">));</span>
+    <span class="kd">var</span> <span class="nx">resp</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="na">statusCode</span><span class="p">:</span> <span class="dl">'</span><span class="s1">200</span><span class="dl">'</span><span class="p">,</span>
+        <span class="na">body</span><span class="p">:</span> <span class="dl">'</span><span class="s1">{"msg":"hello"}</span><span class="dl">'</span><span class="p">,</span>
+        <span class="na">headers</span><span class="p">:</span> <span class="p">{</span>
+            <span class="dl">'</span><span class="s1">Content-Type</span><span class="dl">'</span><span class="p">:</span> <span class="dl">'</span><span class="s1">application/json</span><span class="dl">'</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="dl">"</span><span class="s2">isBase64Encoded</span><span class="dl">"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="nx">callback</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="nx">resp</span><span class="p">);</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<p>上面是 AWS 的 Javascript 的支持， 各家大体上长差不多。返回的格式上，如果要挂在 API Gateway （AWS，阿里云）后面，对输出结果的格式有要求。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="n">example</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">com.amazonaws.services.lambda.runtime.RequestHandler</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.amazonaws.services.lambda.runtime.Context</span><span class="o">;</span> 
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Hello</span> <span class="kd">implements</span> <span class="nc">RequestHandler</span><span class="o">&lt;</span><span class="nc">Request</span><span class="o">,</span> <span class="nc">Response</span><span class="o">&gt;</span> <span class="o">{</span>
+    
+    <span class="kd">public</span> <span class="nc">Response</span> <span class="nf">handleRequest</span><span class="o">(</span><span class="nc">Request</span> <span class="n">request</span><span class="o">,</span> <span class="nc">Context</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">String</span> <span class="n">greetingString</span> <span class="o">=</span> <span class="nc">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">"Hello %s %s."</span><span class="o">,</span> <span class="n">request</span><span class="o">.</span><span class="na">firstName</span><span class="o">,</span> <span class="n">request</span><span class="o">.</span><span class="na">lastName</span><span class="o">);</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nf">Response</span><span class="o">(</span><span class="n">greetingString</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>上面是 AWS 对 Java 的支持，Java 的支持做的事情多些，可以自定义 request 和 response 对象，由框架进行序列化和反序列化。如果想要更高级的输入输出自定义，还支持 StreamHandler，直接处理 InputStream/OutputStream。看到这里是不是觉得和 serverlet 规范有点像了？</p>
+
+<p>Azure 对 Java 的支持更有特点一些，在 Function 的定义中支持了 Java Annotation，用来标记参数以及认证之类的，也就是说可以直接在代码中定义 FaaS 系统的设置了。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Function</span> <span class="o">{</span>
+    <span class="nd">@FunctionName</span><span class="o">(</span><span class="s">"hello"</span><span class="o">)</span>
+    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">hello</span><span class="o">(</span><span class="nd">@HttpTrigger</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"req"</span><span class="o">,</span> <span class="n">methods</span> <span class="o">=</span> <span class="o">{</span><span class="s">"get"</span><span class="o">,</span> <span class="s">"post"</span><span class="o">},</span> <span class="n">authLevel</span> <span class="o">=</span> <span class="nc">AuthorizationLevel</span><span class="o">.</span><span class="na">ANONYMOUS</span><span class="o">)</span> <span class="nc">String</span> <span class="n">req</span><span class="o">,</span>
+                        <span class="nc">ExecutionContext</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="nc">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">"Hello, %s!"</span><span class="o">,</span> <span class="n">req</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Azure 的另外一个有意思的实现是支持代码中 Input/Output 绑定。</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyClass</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="nc">String</span> <span class="nf">echo</span><span class="o">(</span><span class="nc">String</span> <span class="n">body</span><span class="o">,</span> 
+    <span class="nd">@QueueOutput</span><span class="o">(</span><span class="n">queueName</span> <span class="o">=</span> <span class="s">"messages"</span><span class="o">,</span> <span class="n">connection</span> <span class="o">=</span> <span class="s">"AzureWebJobsStorage"</span><span class="o">,</span> <span class="n">name</span> <span class="o">=</span> <span class="s">"queue"</span><span class="o">)</span> <span class="nc">OutputBinding</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">queue</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">String</span> <span class="n">result</span> <span class="o">=</span> <span class="s">"Hello, "</span> <span class="o">+</span> <span class="n">body</span> <span class="o">+</span> <span class="s">"."</span><span class="o">;</span>
+        <span class="n">queue</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>比如以上 Function，绑定了 Output queue。收到消息后，先写到 QueueOutput 里，同时返回结果，而真正的写入 Queue 的操作是平台代理的。这样就很容易和其他系统做整合，否则就得在代码里专门引用相应的 queue sdk，创建连接，写入消息，还要处理认证相关的问题，相当于一种资源注入机制。</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">func</span> <span class="n">Handler</span><span class="p">(</span><span class="n">payload</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">,</span> <span class="n">ctx</span> <span class="n">context</span><span class="o">.</span><span class="n">RuntimeContext</span><span class="p">)</span> <span class="p">(</span><span class="k">interface</span><span class="p">{},</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">logger</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">GetLogger</span><span class="p">()</span>
+
+    <span class="k">var</span> <span class="n">greeting</span> <span class="n">Greeting</span>
+    <span class="n">err</span> <span class="o">:=</span> <span class="n">json</span><span class="o">.</span><span class="n">Unmarshal</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">greeting</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">err</span> <span class="o">!=</span> <span class="no">nil</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="s">""</span><span class="p">,</span> <span class="n">fmt</span><span class="o">.</span><span class="n">Errorf</span><span class="p">(</span><span class="s">"invalid request payload"</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">Logf</span><span class="p">(</span><span class="s">"hello %s."</span><span class="p">,</span> <span class="n">greeting</span><span class="o">.</span><span class="n">Name</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">Logf</span><span class="p">(</span><span class="s">"RequestId: %s"</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">GetRequestID</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">fmt</span><span class="o">.</span><span class="n">Sprintf</span><span class="p">(</span><span class="s">"hello %s"</span><span class="p">,</span> <span class="n">greeting</span><span class="o">.</span><span class="n">Name</span><span class="p">),</span> <span class="no">nil</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>上面是华为云对 Go 语言的支持。Go 语言需要用到 1.8 的 plugin 技术，用户需要将 Function build 成 so 动态库，然后上传。</p>
+
+<h5 id="触发器支持以文章撰写时间为准">触发器支持(以文章撰写时间为准)</h5>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>AWS</th>
+      <th>Google</th>
+      <th>Azure</th>
+      <th>阿里云</th>
+      <th>腾讯云</th>
+      <th>华为云</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>HTTP</td>
+      <td>API Gateway</td>
+      <td>√</td>
+      <td>√</td>
+      <td>API Gateway</td>
+      <td> </td>
+      <td>API Gateway</td>
+    </tr>
+    <tr>
+      <td>定时</td>
+      <td>CloudWatch 定时</td>
+      <td> </td>
+      <td>√</td>
+      <td> </td>
+      <td>√</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>对象存储</td>
+      <td>S3</td>
+      <td>Cloud storage</td>
+      <td>Blob storage</td>
+      <td>OSS</td>
+      <td>COS</td>
+      <td>OBS</td>
+    </tr>
+    <tr>
+      <td>消息队列</td>
+      <td>SNS</td>
+      <td>Pub/Sub topic</td>
+      <td>Queue storage</td>
+      <td> </td>
+      <td>CMQ</td>
+      <td>SMN/ DMS</td>
+    </tr>
+    <tr>
+      <td>日志服务</td>
+      <td>CloudWatch Logs</td>
+      <td> </td>
+      <td> </td>
+      <td>√</td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>数据库</td>
+      <td>DynamoDB</td>
+      <td>Firestore</td>
+      <td>Cosmos DB</td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>流式计算</td>
+      <td>Kinesis</td>
+      <td>Firebase Realtime DB</td>
+      <td> </td>
+      <td>Datahub</td>
+      <td> </td>
+      <td>DIS</td>
+    </tr>
+    <tr>
+      <td>IoT</td>
+      <td>Alexa/IoT 按钮</td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>边缘计算</td>
+      <td>CloudFront</td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>其他</td>
+      <td>Email/Lex/Cognito</td>
+      <td>Crashlytics/Analytics</td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+  </tbody>
+</table>
+
+<p>FaaS 是一种事件驱动架构，所以事件源很重要。这一方面 AWS 做的最全面，几乎将 FaaS 所有可能支持的事件类型都囊括了，并且探索 FaaS 在边缘计算和 IoT 上的场景。这个表格中并没有把 AWS 支持的事件类型全列出来。</p>
+
+<p>Google 的 Firebase/Firestore 的支持其实是 Firebase 本身提供的，并不是标准的 Google Cloud Function 的 trigger，开发的界面以及语言标准都不一样，Crashlytics/Analytics 也是通过 Firebase 支持的，应该是最早的 Cloud Function 只是 Firebase 中的一个功能子集，Google 当前正在整合中。</p>
+
+<p>微服务场景下，AWS，阿里云，华为云的做法都是通过 API Gateway 配置规则，将请求转发给 Function，Google 和 Azure 是直接提供 http trigger 地址。前者的好处是可以复用 API Gateway 的其他功能，但使用起来略复杂，后者简单易用。</p>
+
+<h5 id="其他维度">其他维度</h5>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>AWS</th>
+      <th>Google</th>
+      <th>Azure</th>
+      <th>阿里云</th>
+      <th>腾讯云</th>
+      <th>华为云</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>自动伸缩</td>
+      <td>自动伸缩+预留并发</td>
+      <td>自动伸缩</td>
+      <td>手动或自动</td>
+      <td>自动</td>
+      <td>自动</td>
+      <td>自动</td>
+    </tr>
+    <tr>
+      <td>IAM绑定</td>
+      <td>√</td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>VPC连通</td>
+      <td>√</td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>高级编排</td>
+      <td>AWS Step Functions</td>
+      <td> </td>
+      <td>Azure Logic Apps</td>
+      <td> </td>
+      <td> </td>
+      <td>FunctionGraph</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>自动伸缩的实现机制上，各云基本上都是按需运行，然后会常驻一段时间，如果没有新的请求就会销毁实例。并发多的时候会启动多个实例。这个我通过代码中增加一个计数器来探测。本计划做一个性能比较，但由于公网访问的网络问题，暂时放弃。这里有个问题就是并发数的控制机制，AWS 默认的自动伸缩并发数是 1000，如果要更高需要购买预留。而 Azure 分 App Service Plan/Consumption Plan，前者相当于预留实例，Function 是运行在 VPC 内的服务器上的，可以手动干预实例数，后者是公用池。阿里当前则有个不透明的限制，如果调用次数过多就会屏蔽（可能很同一台客户端机器相关）。</p>
+
+<p>IAM 的绑定主要是解决 Function 中调用其他服务的授权问题，如果允许绑定 IAM 身份，从 Function 中访问其他服务就不需要在代码中包含认证密钥之类的身份标志。这个 Google 有 ServiceAccount 机制，但当前尚未支持 Function。Azure 则是通过前面描述的 Input/Output 绑定机制来解决。</p>
+
+<p>VPC 连通的需求是为了解决用户的 Function 中调用自己 VPC 内网资源的问题，因为 Function 开始一般是当前系统的补充，所以需要和现有系统交互。这个 AWS 做的最完备，可以给 FaaS 平台提供一个自己 VPC 的内网网段，这样 Function 实例的 IP 就是 VPC 的内网 IP 了。</p>
+
+<p>更高级的应用上，AWS 支持了 Step Function，提供一种 JSON 的状态机描述语言，将多个 Function 编排在一起，作为一个工作流。Azure 的  Logic Apps 可以理解成一种可视化的逻辑工作流定义，有点像 IFTTT 这样的工具，把许多服务通过逻辑串联在一起，然后关联到 Function 作为自定义 Action。华为云的 FunctionGraph 的工作流描述和 AWS 的 Step Function 类似，不过提供了高级的图形化编排功能。</p>
+
+<h5 id="小结">小结</h5>
+
+<p>整体看来，公有云的 FaaS 还都处于起步阶段，主要着力于和 IaaS 已有的系统整合以及新语言的支持。跟已有系统整合上，大致有两种方式。一种是 AWS ，FaaS 只是 Function 的运行平台，触发器在各系统配置，FaaS 是对其他系统自定义需求的补充。另外一种是 Azure 这种，围绕着 Function 定义触发器以及输入输出和其他系统整合，Function 是中心，其他系统是支撑。</p>
+
+<h3 id="开源-faas-比较">开源 FaaS 比较</h3>
+
+<p>和公有云上的 FaaS 一起逐渐进入开发者视野的还有众多开源的 FaaS 项目。公有云的 FaaS 只能通过试用，以及文档进行分析，而开源的 FaaS 则可以通过源码进行更深入的分析。主要通过以下角度分析：</p>
+
+<ol>
+  <li>Function 的调用和执行方式。一般有两种机制，一种是完全按需，每个请求由独立的进程（容器）完成，一种是保持一种常驻的运行环境。前者我们称为 Exec 模式，后者我们成为 Runtime 模式。</li>
+  <li>调度和伸缩策略</li>
+  <li>编程和语言规范</li>
+  <li>概念和抽象</li>
+  <li>更高级的应用</li>
+</ol>
+
+<p>本文主要选取了以下 FaaS 实现进行分析：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>开发语言</th>
+      <th>创建时间</th>
+      <th>支持厂商</th>
+      <th>运行平台</th>
+      <th>执行机制</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="http://openwhisk.incubator.apache.org/">openwhisk</a></td>
+      <td>Scala</td>
+      <td>2016-2</td>
+      <td>Apache/IBM</td>
+      <td>Docker</td>
+      <td>Runtime</td>
+    </tr>
+    <tr>
+      <td><a href="http://fnproject.io/">fnproject</a></td>
+      <td>Go</td>
+      <td>2012-12*</td>
+      <td>Oracle</td>
+      <td>Docker</td>
+      <td>Exec</td>
+    </tr>
+    <tr>
+      <td><a href="https://funktion.fabric8.io/">funktion</a></td>
+      <td>Go</td>
+      <td>2016-12</td>
+      <td>Redhat*</td>
+      <td>Kubernetes</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td><a href="http://fission.io/">fission</a></td>
+      <td>Go</td>
+      <td>2016-8</td>
+      <td>Platform9</td>
+      <td>Kubernetes</td>
+      <td>Runtime</td>
+    </tr>
+    <tr>
+      <td><a href="http://kubeless.io/">kubeless</a></td>
+      <td>Go</td>
+      <td>2016-11</td>
+      <td>Bitnami</td>
+      <td>Kubernetes</td>
+      <td>Runtime</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/openfaas/faas">openfaas</a></td>
+      <td>Go</td>
+      <td>2016-11</td>
+      <td>个人(Alex Ellis)</td>
+      <td>Docker/Kubernetes</td>
+      <td>Exec</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/openstack/qinling">qinling</a></td>
+      <td>Python</td>
+      <td>2017-4</td>
+      <td>个人(LingxianKong)</td>
+      <td>Openstack/Docker</td>
+      <td>Runtime</td>
+    </tr>
+    <tr>
+      <td><a href="https://github.com/funcatron/funcatron">funcatron</a></td>
+      <td>Java/Clojure</td>
+      <td>2016-8</td>
+      <td>个人(dpp)</td>
+      <td>Docker/Mesos</td>
+      <td>Runtime</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>创建时间是通过 git commit log 的最早时间统计的，有的项目是内部开发完成后一次性导过来的，有的保存了最早的历史，所以时间不一定准确。</p>
+
+<p><strong>Openwisk</strong> 是 IBM 捐献给 Apache 的项目，当前还在孵化中。IBM 同时在自己的 Bluemix 上提供了 Openwisk 服务。它的架构是基于 Akka 的 actor 模型（不熟悉 actor 模型的可以参看本人的文章《<a href="http://jolestar.com/parallel-programming-model-thread-goroutine-actor/">并发之痛 Thread，Goroutine，Actor</a>》）构建，中间以 Kafka 作为消息中间件。OpenWhisk 的抽象概念考虑的场景比较多。它的 Trigger 是可以独立定义的，而不是系统中确定的几种。然后通过 Rule 把 Trigger 和 Action（相当于 Function） 关联起来。有 Package 的概念，相当于可以把多个 Function 打包成同一个 Package，然后进行分发。另外它又抽象了一种 Feed 的概念，相当于一个事件流，可以做一些流式处理上的逻辑。同时它支持 Chain 的机制，把多个 Action 串起来进行 Pipeline 调用。</p>
+
+<p><strong>Fnproject</strong> 是 Oracle 收购了 iron.io 后，从 iron-io/function 这个项目直接改造过来的。iron function 创建于 2012 年，2013 项目中断，2015年重新启动，2017 年被 Oracle 收购。它的架构比较简单，Function 的交付结果是容器镜像，每次请求都运行一个 Docker 容器，然后从标准输出获取结果输出，再销毁容器。所以它基本上只需要一个 API Gateway 做路由，然后后面挂一个容器运行环境就行，单机或者容器编排引擎都行。Fnproject 在 FaaS 之上发布了一个叫做 flow 的项目，一种工作流引擎，特点是基于编程语言来调度，而不是编排文件或者自定义描述语言，对开发者友好，并且容易编写复杂的工作流逻辑。</p>
+
+<p><strong>Funktion</strong> 最近已经停止更新，提示 Redhat 停止赞助这个项目。看相关公告，Redhat 当前试图整合 openwhisk 以及 fission，还有公有云的 aws lambda 到 openshift，重心应该还是在 openshift，主要是做整合，不再试图创造新的 FaaS 平台。</p>
+
+<p><strong>Fission</strong> 是基于 Kubernetes 构建，它的 Function 是 Kubernetes 中的对象，每种语言环境维护一个 Pod 池子，用 Deployment 控制数量，然后自己的调度器把 Function 分配给合适的 Pod 运行。前面有一层 API Gateway，创建 Function 后需要设置路由，通过 HTTP 触发。Fission 在 FaaS 之上也构建了一个工作流引擎，叫做 fission-workflows。通过 yaml 描述语言描述，编排多个 Function 作为工作流。它的工作流本质上也是一种 Function，不过运行在叫做 workflow 的环境中。</p>
+
+<p><strong>Kubeless</strong> 也是基于 Kubernetes，但更 Native ，它充分利用了 Kubernetes 的 CRD 特性，将 Function 作为 Kubernetes 中的一种在 Pod 之上的对象，每个 Function 实际上会创建出一个 Deployment，同时暴露一个 Service。自动伸缩机制直接沿用 Kubernetes 的 autoscale 机制，只需要输出自定义的监控数据给自动伸缩组件即可。没有独立的 API 服务，直接复用 Kubernetes 的 API。</p>
+
+<p><strong>Openfaas</strong> 的机制和 Fnproject 有点像，只是 Openfaas 并不是直接抓取容器的标准输出，而是写一个 Function Watchdog 作为容器的启动进程，暴露 http 服务，用于和调度系统交互，然后直接调用进程运行 Function 获取输出。</p>
+
+<p><strong>Qinling</strong> 的定位是 Openstack 上的 FaaS，特性是和 Openstack 上的对象存储等系统整合。</p>
+
+<p><strong>Funcatron</strong> 的特点是和 Swagger 整合，编程规范试图弥合异步和同步事件的差异，以及复用已有的框架，比如 Java SpringBoot。</p>
+
+<h5 id="编程和语言规范">编程和语言规范</h5>
+
+<p>开源项目中我没有专门把编程语言支持作为一项特性进行比较，主要是因为不同的调用和执行方式对语言支持的成本不一样。如果是 Exec 方式的支持，实际上是把任何语言的 Function 都当做命令行程序执行，执行完就释放，配合容器平台，相当于一种分布式的 CGI 程序，所以很容易支持所有的编程语言，并且不需要制定编程规范。而如果是 Runtime 的方式，进程是长期运行的，就需要考虑 Function 的动态加载以及隔离机制。比如 Java 的 ClassLoader 隔离机制，Nodejs 的 VM 沙箱机制等。当然，Runtime 的方式也可以支持一种 Binary 或者 Bash 的 Function 支持，理论上也就支持了所有的编程语言。</p>
+
+<p>从语言规范上来看，开源的各家大体上和前面公有云的例子差不多。</p>
+
+<h5 id="其他的开源项目">其他的开源项目</h5>
+
+<p>有一些 FaaS 相关的开源项目，并不是提供 FaaS 平台运行环境，所以上面没有列出来。</p>
+
+<ol>
+  <li><a href="https://github.com/lambci/lambci">LambCI</a>: 基于 AWS Lambda 的持续集成工具。</li>
+  <li><a href="https://serverless.com/">Serverless</a>：纯开发工具，和云平台以及开源的 FaaS 平台整合，方便开发者把自己的 Function 部署到不同的云平台。目的是通过代码框架来弥合不同的 FaaS 提供方的差异。</li>
+  <li><a href="https://github.com/eawsy/aws-lambda-go-shim">aws-lambda-go-shim</a>: 让 AWS Lambda 支持 go function。思路是通过  c 给 python 写个扩展，然后通过 cgo 和 go 整合起来。</li>
+  <li><a href="https://github.com/apex/apex">Apex</a>: 打包部署和管理 AWS Lambda。</li>
+  <li><a href="https://stackstorm.com/">StackStorm</a> 准确的说它不是 FaaS，而是事件驱动的自动化运维工具。但本质上二者的目标是一致的。</li>
+  <li><a href="https://github.com/leveros/leveros">Leveros</a> 目标是通过 Docker 打造一个面向 serverless 微服务的云平台，并且试图将服务间的 RPC 调用透明化。</li>
+  <li><a href="https://github.com/stdlib/lib">Stdlib</a> 试图打造基于 FaaS 微服务的标准库，并提供一个 Function 的注册仓库。</li>
+</ol>
+
+<h5 id="小结-1">小结</h5>
+<p>整体上，开源的 FaaS 平台成熟度还不足，和公有云上提供的还有差距，周边整合的系统也不足。但从开发和调试的友好性上来说，已近比公有云有优势，大多支持从源码的直接交付，命令行工具也比较友好。</p>
+
+<h3 id="faas-的技术问题">FaaS 的技术问题</h3>
+
+<ol>
+  <li>调用和执行方式。Exec 模式虽然开发成本比较小，但运行效率上有差距，本质上是把所有的语言都当做脚本语言对待，等于放弃了各种语言这么多年性能的优化成果。如果是比较重的事件处理，还可以承受，但如果要承载高并发任务就比较困难，这也是为什么 Azure 后来放弃自己的第一版 Function 实现的原因。当前看来，如果要做通用的 FaaS 兼顾性能和效率，还是要通过 Runtime 的方式。但 Runtime 的方式带来的一个问题是依赖的管理和隔离，如果 Runtime 没有很好的机制隔离用户代码和 Runtime 的代码，二者的依赖就有耦合，导致用户的 Function 的依赖选择上受限于 Runtime 的平台。</li>
+  <li>Function 之间的调用。Function 之间如何调用？当前各平台的实现尚未完美解决这个问题。比如 AWS 可以通过自己的 cloud sdk 来调用，但调用和认证机制和直接从外部调用 Function 没有区别，使用略复杂，同时担心有效率问题，尚无直接从内部调用 Function 的机制。理论上同一个应用的 Function 应该有内部服务直接调用的机制，这样便于应用的分层拆解。当然 Function 之间的调用带来的另外一个问题是死循环问题，如果不小心陷入死循环，平台要有能力追踪并中断，避免引起调用风暴，浪费大量资源。</li>
+  <li>自动伸缩判断标准。如果是 Exec 模式，每个进程都只负责一个请求，请求数直接就作为伸缩标准，但如果是 Runtime 的机制，每个 Runtime 环境能否承载并发请求？如果可以，如何判断伸缩标准？比较重的事件（比如视频转换）和轻事件（比如 IoT 事件）处理逻辑上是否可以统一？异步事件和同步调用的处理逻辑上是否可以统一？如果引入 Function 之间的调用之后，这个机制会更复杂。</li>
+  <li>Function 输入输出的标准化。Function 的输入输出能否标准化？当前各云也是在探索。比如 Function 如果要对接 API Gateway，它的输入输出要求就和对接队列事件不同，这种有没有一种通用的标准化的方式？如果有了这种标准化的方式，在 Function 之上，封装 <a href="http://graphql.org/">GraphQL</a> 这种就很容易了。</li>
+  <li>Function 中如何依赖其他的有状态资源，比如数据库？如果用户在 Function 内部初始化数据库连接，那就没法使用连接池等技术。这个问题 Azure 的解决方案是一种思路，另外 J2EE 的 jndi 或者 serverlet 规范的思路也可以借鉴。</li>
+  <li>Function 中能不能直接 fork 新的 Function 实例？类似于启动新的线程或者进程？相当于把调度也让开发者通过代码控制。或者说 Function 中的并发机制是如何的？用户启动新的线程是否有意义？这种机制如果配合 Actor 模型，相当于把 FaaS 变成了一种分布式的 Actor 开发平台。</li>
+  <li>DevOps 以及升级机制。当前公有云的 FaaS 基本只有脚本语言支持在线编辑，编译型的语言都需要用户自己构建打包，调试只能靠日志，如何平滑升级当前也没有很好的方案。未来应该是可以构建统一的 WebIDE + 源码仓库 + CI/CD 交付流。</li>
+</ol>
+
+<h2 id="faas-和-paas-的关系和区别">FaaS 和 PaaS 的关系和区别</h2>
+
+<p>从目标来说，二者有相似之处。这里的 PaaS 单指 aPaaS，application platform as a service。PaaS 的目标也是给用户的自定义应用提供一种标准化的运行环境。但当前的以 GAE 以及 Cloud Foundry 为代表的 PaaS 解决方案，无论是公有云还是私有云，都一直处于一种不温不火的状态。这一方面是因为时机问题，早期的云用户主要关注的还是资源交付，不是应用交付，另外一方面 PaaS 如果试图要实现应用标准化，必须对应用有侵入和约束，同时 PaaS 接管的还是应用，开发者也是按应用交付的，也就是说，这种约束还需要应用开发者自己在应用中引入框架和 PaaS 平台交互实现。同时当前的 PaaS 并没有彻底屏蔽资源，没有实现按需运行和按需伸缩，很难做到以同一种架构应对用户规模的增长。</p>
+
+<p>而 FaaS 的解决方案就比较彻底，用户交付的不再是应用，而是具体的业务逻辑模块，应用的组装定义由 FaaS 平台或者更高层的应用平台来定义。给 Function 提供标准化运行环境的难度要小于给应用提供标准化运行环境，同时 FaaS 平台的接管能力要大于 PaaS ，可能实现以同一种架构应对不同用户规模。</p>
+
+<p>所以随着 FaaS 的成熟，PaaS 会逐渐放弃托管用户自定义的应用，而蜕变成给 FaaS 提供事件源以及状态存储的平台，比如数据库，消息队列，API GateWay 等标准化服务，而 FaaS 变成托管用户自定义逻辑的平台。</p>
+
+<p>在公有云上，无论上面提供的这些标准化服务是否运行在统一的 PaaS 平台上，对开发者来说，属于一种统一的平台。而在私有部署场景下，传统的 Cloud Foundry 这样的 PaaS 也只是托管用户自定义的应用，数据库这样的服务依然依赖外部平台提供，它只是负责整合。而随着容器和 Kubernetes 的成熟，基于 Kubernetes 构建的 PaaS 平台，可称之为 Generic PaaS，基本可以托管任何标准化的应用程序，有能力为 FaaS 提供这样的 PaaS 环境。</p>
+
+<p>所以二者有一定的替代关系，可以理解为 PaaS 扩展了自己的外延，而 FaaS 接管了一部分 PaaS 的功能。同时应用如果要实现真的弹性伸缩，需要二者紧密配合。</p>
+
+<h2 id="faas-的应用场景以及潜力">FaaS 的应用场景以及潜力</h2>
+
+<ol>
+  <li>
+    <p><strong>微服务</strong> 个人一直认为 FaaS 是微服务的终极演进结果。微服务一直没有一个明确的标准是拆到多细算是微服务，FaaS 给了一个标准：冷启动时间在毫秒量级，以及资源使用受系统上限约束。有人觉得全拆成 Function，是不是太细了？但实际上 Function 只是个抽象的概念，你也可以把整个应用的请求全部指向一个 Function，然后在内部做路由，只要能保证冷启动时间。另外微服务本质上还需要解决服务间的调用，追踪，熔断/重试等机制，这些在传统的方案里，都是通过应用内嵌框架来解决的，而微服务领域最近很火的 Service Mesh 的解决思路是在网络层处理，这样就可以独立交付，而 FaaS 可以说异曲同工，它直接从应用中剥离了一层出来，然后具体是内嵌框架还是通过 Service Mesh 实现，对用户来说没有区别。</p>
+  </li>
+  <li>
+    <p><strong>视频，图片以及流式事件处理</strong> 本质上是需要一种通用的，可自定义的，工作流应用。当前的工作流一般都是针对具体场景的，尚无支持自定义逻辑并且适用于各种类型事件的分布式工作流。而基于 FaaS 有可能诞生这样一种工作流。另外类似于 Storm 这样的流式大数据处理平台，也可以理解成一种基于特定语言的 FaaS 平台，FaaS 和流式数据处理平台的整合大有前景。</p>
+  </li>
+  <li>
+    <p><strong>事件驱动以及响应式架构</strong> 这个场景和前一个场景有相似之处，只不过前一个关注的是应用场景，这条单指技术架构场景。服务器端的事件驱动和响应式架构和客户端技术相比，一直缺少一种统一的体系解决方案，主要原因是服务器端缺少分布式系统级别的支持，纯开发框架的方式实现比较困难，如果调度系统和开发框架配合，实现这种架构就比较容易了。</p>
+  </li>
+  <li>
+    <p><strong>IoT</strong> 物联网场景实际上和前面的流式事件处理以及事件驱动架构都有关系。这里单独作为一条阐述，主要是物联网对应用开发带来的不仅仅是架构上的变化。互联网主要是信息技术，主要是面向人的应用，要求及时把信息展示给用户，所以应用多是 http 的请求响应模式，对延迟比较敏感（毫秒级）。而物联网场景下，多是事件触发，哪怕有人参与的场景，比如智能开关，也是触发事件后控制另外的设备，对延迟忍耐度较高（秒级），协议多也不是 http，而是物联网相关的消息协议。</p>
+  </li>
+  <li>
+    <p><strong>应用系统的自定义扩展需求</strong> 任何一个标准的系统，发展到一定程度都会有不同的自定义扩展需求。一种是提供内置扩展机制，比如 Java 的许多应用，可以允许在应用中增加扩展，应用自己通过 jvm 的隔离机制提供插件运行环境。另外一种是通过远程接口（无论是 http 还是其他远程协议），由用户按照协议实现自定义需求，然后整合，应用本身不提供扩展运行环境。前者对编程语言有约束，隔离性差，后者开发运维成本比较高。如果基于 FaaS 支持一种分布式的扩展运行环境，自动和应用整合，相当于兼有了二者的优势。可以预见，在未来几年里，大多数 SaaS 以及 API 服务都会提供类似 FaaS 的环境来托管用户的自定义扩展。如果私有环境中也有标品，私有部署的应用也会逐渐提供这种整合能力。</p>
+  </li>
+  <li>
+    <p><strong>跨云与混合云场景</strong> 当前大多数混合云解决方案都只能做到基础设施的混合，至于用户的应用要实现多云，则只能在用户自己的应用中处理，云平台能提供的帮助有限。但因为 FaaS 侵入了应用的架构，接管了应用的事件输入，乃至事件输出，所以它可以做的更多，也可能提供一种基于 FaaS 的混合云开发框架，用户按照架构模式实现逻辑就天然跨云。</p>
+  </li>
+  <li>
+    <p><strong>边缘计算</strong> 边缘计算当前的应用场景还没凸显出来，但可以预见的是：</p>
+
+    <ol>
+      <li>边缘的计算能力肯定不如云端，更小的资源使用粒度对边缘更友好。</li>
+      <li>边缘的具体资源要对用户透明。</li>
+    </ol>
+
+    <p>从这两点来看， FaaS 对边缘计算是天然友好的。同时，边缘计算要解决的很多问题和混合云场景类似。</p>
+  </li>
+</ol>
+
+<h2 id="国内的-faas-案例">国内的 FaaS 案例</h2>
+
+<ol>
+  <li>同程旅游首席架构师王晓波在 ArchSummit 2017 上发表《从微服务到 Serverless 架构：享受纯粹的编程乐趣》的演讲，通过 Serverless 提高交付效率，</li>
+  <li>VPGame CTO 俞圆圆在 GIAC 2017 大会上发表 《电竞数据的容器实践 — Serverless 的电竞数据计算平台》的演讲，通过 Serverless 提高资源利用率。</li>
+  <li>今日头条视频架构负责人侯爽在 GIAC 2017 大会上发表 《今日头条大规模视频处理的挑战与应对》，通过 FaaS 构建视频处理平台。</li>
+</ol>
+
+<p>以上是公开的大会上找到的案例分享，肯定还有一些尚未公开分享的实践，但可以看出，有的关注交付效率，有的关注资源利用效率，有的是 web 服务，有的是工作流应用，已经很具有代表性。国内对 Serverless/FaaS 的关注才刚刚兴起，但国内的互联网用户规模的优势，可能促使 FaaS 更快落地。</p>
+
+<h2 id="总结">总结</h2>
+
+<p>从前面的分析可以看出，FaaS 所使用的技术并没有非常的新，解决方案也不是新的，甚至有些『返祖』倒退，但放在当前云和分布式容器引擎成熟的场景下，确能发挥出极大的威力，是一种技术的螺旋式上升结果。FaaS 以及它之上的生态链尚未成熟，带来的变革也尚未完全凸显出来。但基于它的运行机制和提供的能力，可以做一些预测：</p>
+
+<ol>
+  <li>它的标准化和冷启动方式，一定程度抹平了程序库（lib）和服务之间的区别。以前程序库如果要变成服务，需要开发者自己把它包装成服务长期运行，而 FaaS 场景下，程序库可以包装成 FaaS 的 Function 标准，直接安装到 FaaS 平台中，按需激活运行。随着 FaaS 的逐渐成熟，肯定会出现 Function 仓库或者市场这样的平台，用于 Function 的分发以及商业化，这个会重构整个软件的交付机制。</li>
+  <li>以它对应用的组装方式上来看，可以逐渐演化出许多标准化的工作流或者叫业务流，更有利于标准化业务逻辑的沉淀，自定义的场景下只需要替代部分 Function 即可。</li>
+  <li>从它对应用的拆解方式上来看，由于它接管了业务逻辑的输入输出，所以可以提供一些更高级的应用框架。当前的应用框架完全包含到应用内部，而未来的应用框架会是 sdk 和平台的交互。</li>
+</ol>
+
+<p>可以从两个角度看 FaaS，一个是资源利用率，一个是开发效率。</p>
+
+<p>对公有云来说，最明显的特点是资源利用率，FaaS 的按需运行计费机制，貌似只是是帮用户省钱，用户如果将已有的应用改造成 FaaS 模式，公有云的收入应该是降低了。但实际上，这种方式在于激活更多的需求，原来的模式下，许多低频的需求实际上是被忽略了，因为给低频需求提供服务会导致入不敷出。另外 FaaS 可以让云更贴近用户业务，本质上是由云来定义应用，通过云将用户的逻辑块串联起来，可以更方便的实现更高级的调度（比如 AI DevOps)，以最大化的提升资源利用率，所以肯定是未来云的兵家必争之地。当前的公有云的优势是资源以及已有用户，但挑战是当前的公有云尚不是一个面向开发者的平台，用户多把它当做资源交付平台，而 FaaS 本质上是一个开发者平台。</p>
+
+<p>而对私有云来说，可以把 FaaS 叫做 Distributed FastCGI 或者 Distributed Function Application Server，更主要关注的是开发交付效率。团队分工上也会更明确，基础架构以及 SRE 团队负责 FaaS 平台的优化改进以及运维，业务团队负责实现业务逻辑。另外当各家公有云的 FaaS 平台都不互相兼容的情况下，开发者有可能因为 vendor lock-in 的问题而选择开源方案，开源的 FaaS 也更贴近开发者。同时开源方案可以做到在语言规范层兼容公有云标准，在混合云或者多云场景下会有优势，但挑战是 FaaS 需要和各种系统事件交互，能否通过抽象让各种系统事件也兼容，这个是比较困难的。</p>
+
+<p>总的来说，这一波以应用为中心的云原生应用浪潮带来的变革，才刚刚开启，会是下个十年云的主题。无论 FaaS 波及的范围会到那一层，无论未来的应用平台是不是现在 FaaS 这个样子，但大的方向是确定的，并且 FaaS 已经在这个方向上前进，值得期待。</p>
+
+<p><img src="http://jolestar.com/images/weichat/qrcode_jolestar_blog2.png" alt="qrcode_jolestar_blog2" /></p>
+
+<p><strong>相关链接</strong></p>
+
+<hr />
+
+<ol>
+  <li><a href="https://arxiv.org/abs/1708.08028">Status of Serverless Computing and Function-as-a-Service(FaaS) in Industry and Research</a> 这篇论文讨论了当前 FaaS 工业界状态以及未来的可能</li>
+  <li><a href="https://arxiv.org/abs/1703.07562">Snafu: Function-as-a-Service (FaaS) Runtime Design and Implementation</a> 这篇论文探索了一下 FaaS 的实现以及隔离方式，并且用几种开源以及公有云的 FaaS 进行了比较，提供了prototype 的一种实现</li>
+  <li><a href="https://www.gartner.com/doc/3749163/evolution-server-computing-vms-containers">Evolution of Server Computing: VMs to Containers to Serverless — Which to Use When?</a> Gartner 的 serverless 报告</li>
+  <li><a href="http://serverless.ink">Serverless 应用开发指南</a> 一本 serverless 应用开发的电子书</li>
+  <li><a href="https://medium.com/memory-leak/this-year-gartner-added-serverless-to-its-hype-cycle-of-emerging-technologies-reflecting-the-5dfe43d818f0">Introducing Redpoint’s FaaS Landscape</a>  对 FaaS 社区的整体概览描述</li>
+  <li><a href="http://jolestar.com/parallel-programming-model-thread-goroutine-actor/">并发之痛 Thread，Goroutine，Actor</a></li>
+  <li><a href="http://gitbook.cn/gitchat/activity/5a2a69d1860b2336015beb3f">本文的 Gitchat 地址</a> 可以查看答疑实录或者进行提问</li>
+</ol>
+
+<hr />
+
+<p>更新说明：</p>
+
+<p>2018-01-09：修订文章中关于阿里云 Function 支持语言的描述，阿里云的 FaaS 测试的时候选择语言在第一个界面，不在编辑器界面，所以误认为只支持 nodejs。</p>
+
+
+  </article>
+  <div>
+  </div>
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">午夜咖啡</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>午夜咖啡</li>
+          <li><a href="mailto:jolestar@gmail.com">jolestar@gmail.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/jolestar">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/jolestar">
+              <span class="icon  icon--twitter">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809
+                  c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="http://weibo.com/jolestar">
+              <span class="icon  icon--weibo">
+                <svg viewBox="0 0 1000 1235">
+                  <path fill="#828282" d="M0 672q0-161 184-347 117-116 236-162 56-23 97-23 45 0 72 27 26 26 26 72 0 31-12 72-4 14 3 17.5t16 .5l10-4q96-40 170-40t106 42q15 22 15 52 0 31-16 71-7 10-2.5 17t8 9 14.5 5q62 19 106 62t44 107q0 59-41 120.5t-111.5 112.5-178 84-228.5 33q-131 0-247.5-38.5t-193.5-115-77-174.5zm125 48q10 101 125 161 92 49 209 49 29 0 60-3 153-15 255-97 92-75 92-165 0-9-1-18-10-100-125-160-93-49-210-49-29 0-59 3-101 10-183 51t-126 101q-38 53-38 109 0 9 1 18zm160 62q-13-29-13-59 0-35 18-70 31-64 104-96 45-20 91-20 27 0 54 7 76 20 109 82 17 32 17 66 0 32-15 65-31 71-109 104-44 19-88 19-34 0-67-11-73-23-101-87zm56-19q6 25 30 35 13 6 27 6 12 0 24-4 28-9 43-33 10-16 10-32 0-7-3-15-6-24-30-34-13-5-26-5-12 0-25 4-27 9-41 32-11 16-11 33 0 7 2 13zm141-79q3 9 13 13 5 2 9.5 2t9.5-2q11-4 16-13t2-18-12-13q-9-3-19.5.5t-15.5 12.5q-3 6-3 12l0 6zm321-621q-1-5-1-10 0-13 8-25 10-16 29-21 34-7 68-7 51 0 100 15 83 27 143 93t78 153q7 35 7 68 0 51-16 98l0 1q-6 18-23 27-11 5-22 5-7 0-15-2-19-6-27-23-5-11-5-21 0-8 2-15l0-1q11-34 11-70 0-23-4-48-13-62-56-109t-102-66q-35-10-70-10-24 0-49 5-5 1-10 1-14 0-26-8-16-11-20-30zm40 157q-1-5-1-10 0-10 6-21 9-14 26-18 19-4 37-4 67 0 115 53 29 33 38 75 3 17 3 33 0 24-8 48-5 16-20 23-9 5-18 5-7 0-13-2-16-5-24-20-4-9-4-18 0-7 2-13 4-14 4-26 0-28-21-50-22-26-54-26-10 0-20 2-5 1-9 1-11 0-21-7-14-9-18-25z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
+            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+        </div>
+        <script>
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+            ga('create', 'UA-1268034-7', 'auto');
+            ga('send', 'pageview');
+        </script>
+
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

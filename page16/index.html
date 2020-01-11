@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html>
+
+  
+
+
+ 
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>午夜咖啡</title>
+  <meta name="description" content="Jolestar 的个人博客，微信公众号 午夜咖啡 jolestar-blog，工具 架构 成长 思考
+">
+
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="canonical" href="http://jolestar.com/page16/">
+  <link rel="alternate" type="application/rss+xml" title="午夜咖啡" href="../feed.xml" />
+  <meta name="google-site-verification" content="kmm9IK4zVCvEFzsNDOyTkDdtkaMGQHtdgEXurVQizfc" />
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="../">午夜咖啡</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        <!-- 
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+          <a class="page-link" href="/sitemap.txt">Sitemap</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+         -->
+        <a class="page-link" href="../about/">About</a>
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        
+
+
+
+<div class="home">
+
+  <ul class="post-list">
+    
+        
+      <li>
+        <span class="post-meta">Sep 22, 2008</span>
+        <h2>
+            <a class="post-link" href="../1222025640000/">ActiveMQ的一个问题</a>
+        </h2>
+        <div class="post_at_index">
+            <p>安装了activemq，然后要配置成数据库持久化的。</p>
+
+<p>参考文档:</p>
+
+<p>这是个pdf教程，比较详细:</p>
+
+<p>启动之后报错:</p>
+
+<p> </p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>java.io.IOException: Failed to get last broker message id:
+com.mysql.jdbc.exceptions.MySQLSyntaxErrorException: Table 'activemq.activemq_acks' doesn't exist
+</code></pre></div></div>
+
+<p> </p>
+
+<p> 按道理数据表会在启动的时候自动创建。因为journaledJDBC有个属性createTablesOnStartup默认是true。并且查看了一下数据库，有两个表：</p>
+
+<p> </p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ACTIVEMQ_LOCK
+ ACTIVEMQ_MSGS
+</code></pre></div></div>
+
+<p> </p>
+
+<p> </p>
+
+<p>搜索了一下,在activemq的邮件列表里找到答案:</p>
+
+<p> </p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Specified key was too long; max key length is 1000 bytes is the error not
+allowing the creation of ACTIVEMQ_ACKS
+
+You are probably using utf8/some other multibyte encoding as the collation
+in your database....
+
+Switch it to latin1 or ASCII... The varchar fields that the key is composed
+of add up to less than 1000 characters but with a multibyte encoding the key
+length is over 1000 bytes.
+</code></pre></div></div>
+
+<p> </p>
+
+<p> </p>
+
+<p>我创建activemq数据库的时候用的character-set是utf-8.把character-set改成latin1就好了。</p>
+
+        
+        </div>
+      </li>
+    
+        
+      <li>
+        <span class="post-meta">Jul 30, 2008</span>
+        <h2>
+            <a class="post-link" href="../1217358000000/">四个有害的java习惯</a>
+        </h2>
+        <div class="post_at_index">
+            <p>本文不算严格意义上的翻译，算是该文章的摘要以及读后感</p>
+
+<p>文章原始地址:</p>
+
+<p>John O’Hanley 的这篇文章列举了四个有害的java编码习惯，并提出了改正方案。</p>
+
+<p>这四个习惯普遍存在于java程序员中，并且已经被广泛接受，大家都习以为常，流毒甚远。</p>
+
+<p><strong>1.对局部变量(local variables)，字段(fields)，参数(method arguments)这三种变量的命名没有区分，造成了代码的阅读困难，增加了代码的维护成本。</strong></p>
+
+<p>作者举了个例子:</p>
+
+<p> </p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public boolean equals (Object arg) {
+  if (! (arg instanceof Range)) return false;
+  Range other = (Range) arg;
+  return start.equals(other.start) &amp;&amp; end.equals(other.end);
+}
+</code></pre></div></div>
+
+<p> </p>
+
+<p> </p>
+
+<p>在这个方法中，arg直接用argument的缩写，虽然大家一看就知道这是参数了，但这种命名方式却丢失了参数代表的对象本身的含义。大家知道这<br />
+是参数，却不知道这是什么参数。如果方法的参数多一点，都按照arg1，arg2这样的方式命名，阅读代码的时候很头疼。另外两个字段变量，start和<br />
+end，突然凭空而出，想一下才知道这应该是字段。当然，这个方法很短，造成的困难还不大，如果这个方法比较长的话，突然看到start和end两个变<br />
+量，一般会先在前面找一下是不是局部变量，然后才能确定是类的字段变量。</p>
+
+<p>这个问题貌似微不足道，但为什么要让代码阅读者花费额外时间在这些琐碎的问题上呢？如果有个方案能让代码阅读者一目了然的明白变量是那种变量，为什<br />
+么不采用呢？就如同Steve McConnell在<br />
+《代码大全》中说的:”让人费神去琢磨神秘杀人凶手这没有问题，但你不需要琢磨程序代码，代码是用来阅读的。”</p>
+
+<p>作者提出了解决方案:</p>
+
+<ul>
+  <li>方法参数用前缀a开始</li>
+  <li>类字段变量用前缀f开始</li>
+  <li>局部变量不用前缀</li>
+</ul>
+
+<p>修正后的代码样式应该是:</p>
+
+<p> </p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public boolean equals (Object aOther) {
+  if (! (aOther instanceof Range)) return false;
+  Range other = (Range) aOther;
+  return fStart.equals(other.fStart) &amp;&amp; fEnd.equals(other.fEnd);
+}
+</code></pre></div></div>
+
+<p> </p>
+
+<p> </p>
+
+<p>这样的代码看起来一目了然，如果你没有一目了然，说明还是习惯问题，习惯养成了就好了。</p>
+
+<p> </p>
+
+<p>不过作者的方案里，给类字段变量前面加 f 前缀，如果用代码生成工具生成get，set方法是会比较麻烦。get，set方法中我们不希望出现个f。不过这个问题可以用修改代码生成工具的方式解决。如果这个习惯普遍被java界接受，这些应该都不成问题了。</p>
+
+<p> </p>
+
+<p>作者引用了一句名言:</p>
+
+<p> </p>
+
+<p>“By relieving the brain of all unnecessary work, a good notation sets<br />
+it free to concentrate on more advanced problems, and in effect<br />
+increases the mental power of the race. Before the introduction of the<br />
+Arabic notation, multiplication was difficult, and the division even of<br />
+integers called into play the highest mathematical faculties. Probably<br />
+nothing in the modern world would have more astonished a Greek<br />
+mathematician than to learn that … a large proportion of the<br />
+population of Western Europe could perform the operation of division<br />
+for the largest numbers. This fact would have seemed to him a sheer<br />
+impossibility … Our modern power of easy reckoning with decimal<br />
+fractions is the almost miraculous result of the gradual discovery of a<br />
+perfect notation.”<br />
+– Alfred North Whitehead, <em>An Introduction To Mathematics</em></p>
+
+<p> </p>
+
+<p>个人理解大意为:</p>
+
+<p>把大脑从不必需的工作中解放出来，一个好的记号法可以让大脑去关注更高级的问题，提升民族的整体智力。在阿拉伯数字记号法被介绍进来以前，乘法是非<br />
+常困难的，计算整除也需要非常高的数学才能。一个古希腊的数学家可能非常诧异于西欧的大多数人口可以计算很大数字的除法。这个事实对他来说似乎是不可能<br />
+的。我们现代人很容易用小数算帐的能力几乎可以说是由逐渐探索出的一套完美的计数法而造成的奇迹。</p>
+
+<p><strong>2.包(package)的命名和划分按照行为和层次划分(package-by-layer)而不是根据特征和功能划分(package-by-feature)</strong></p>
+
+<p> </p>
+
+<p>这个问题在我刚学java的时候就遇到了，在看了众多的网上开源程序后，我也慢慢习惯了按层次命名包。</p>
+
+<p>作者举了个例子:</p>
+
+<p> </p>
+
+<ul>
+  <li><code class="highlighter-rouge">com.blah.action</code></li>
+  <li><code class="highlighter-rouge">com.blah.dao</code></li>
+  <li><code class="highlighter-rouge">com.blah.model</code></li>
+  <li><code class="highlighter-rouge">com.blah.util</code></li>
+</ul>
+
+<p>我们已经习惯了按照层次分类或者叫按照行为分类，model一个包，dao一个包，service一个包，action一个包。这样就把具有同样特<br />
+征或者功能的类划分到了不同的包里。这样的习惯，把java的包内私有(package-private)这个作用域给完全扔掉了，而包内私有是java<br />
+的默认作用域。（ps:我学java来好像很少用过java的包内私有这个作用域，汗一个）</p>
+
+<p>这中包的划分习惯也违反了面向对象编程的核心原则之–尽量保持私有以减少影响,因为这种习惯强迫你必须扩大类的作用域.</p>
+
+<p> </p>
+
+<p>下面的包命名方式是按照特征划分命名:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">com.blah.painting</code></li>
+  <li><code class="highlighter-rouge">com.blah.buyer</code></li>
+  <li><code class="highlighter-rouge">com.blah.seller</code></li>
+  <li><code class="highlighter-rouge">com.blah.auction</code></li>
+  <li><code class="highlighter-rouge">com.blah.webmaster</code></li>
+  <li><code class="highlighter-rouge">com.blah.useraccess</code></li>
+  <li><code class="highlighter-rouge">com.blah.util</code></li>
+</ul>
+
+<p>举个例子，在一个web应用中，<code class="highlighter-rouge">com.blah.painting包可能包含下面的成员:</code></p>
+
+<ul>
+  <li>Painting.java: model对象</li>
+  <li>PaintingDAO.java: dao对对象</li>
+  <li>PaintingAction.java:controller or action 对象</li>
+  <li>statements.sql: SQL文件</li>
+  <li>view.jsp: JSP文件</li>
+</ul>
+
+<p> </p>
+
+<p>值得注意的是这种情况下，包里包含的不仅仅是java源码文件，同时也包含其他与该特征相关的文件。这点上好像违反大多数java程序员的习惯，并且如果要打包为jar好像也不方便，真实环境中如何应用，有没有别的麻烦，还要待实践一下。</p>
+
+<p> </p>
+
+<p>作者列举了这种包划分方式的优点:</p>
+
+<ul>
+  <li>
+    <p>包是高内聚的，并且模块化，包与包之间的耦合性被降到最低。</p>
+  </li>
+  <li>
+    <p>代码的自文档性(或自描述性 self-documenting)增强. 读者只需看包的名字就对程序有些什么功能或特征有了大概的印象。在《代码大全》中<em>,</em><br />
+Steve McConnell 将自文档化(self-documenting)的代码比作 “the Holy Grail of legibility.”(不知道怎么翻译)</p>
+  </li>
+  <li>
+    <p>把类按照每个特征和功能区分开可以很容易实现分层设计。</p>
+  </li>
+  <li>
+    <p>相关的成员在同一个位置。不需要为了编辑一个相关的成员而去浏览整个源码树。</p>
+  </li>
+  <li>
+    <p>成员的作用域默认是包内私有。只有当另外的包需要访问某个成员的时候，才把它修改为public.<br />
+(需要注意的是修改一个类为public，并不意味着它的所有类成员都应该改为public。public成员和包内私有(package-<br />
+private)成员是可以在同一个类里共存的。)</p>
+  </li>
+  <li>删除一个功能或特征只需要简单的删除一个文件夹。</li>
+  <li>每个包内一般只有很少的成员，这样包可以很自然的按照进化式发展。如果包慢慢变的太大，就可以再进行细分，把它重构为两个或者更多新的包，类似于物种进化。而按照层次划分的方式，就没办法进化式发展，重构也不容易。</li>
+</ul>
+
+<p>作者引用了一句Effective Java中的名言:</p>
+
+<p>“The single most important factor that distinguishes a well-designed module from a poorly designed one is the degree to which<br />
+the module hides its internal data and other implementation details from other modules.”<br />
+– Joshua Bloch, <em>Effective Java</em></p>
+
+<p> </p>
+
+<p> </p>
+
+<p><strong>3.习惯用JavaBeans而不是不可变对象</strong></p>
+
+<p> </p>
+
+<p>按照javabeans的说明书(<a href="http://www.javaworld.com/javaworld/jw-07-2008/jw-07-harmful-idioms.html?page=3#resources">JavaBeans specification</a><br />
+)，javabeans是用来解决特殊领域的问题:在图形界面程序的设计中充当小部件。但现在通常用javabean来做数据库记录的映射。作者反对javabean的这种用法。他提出了一个问题:</p>
+
+<p>假如你要从数据库记录集映射一行为对象，不考虑现有的持久化方案和框架，你会将这个对象设计成什么样子？跟javabean相似呢还是完全不一样？</p>
+
+<p> </p>
+
+<p>作者倾向于设计一个完全不一样的，他列举他的设计的几个特点:</p>
+
+<p> </p>
+
+<ul>
+  <li>它不包含一个无参数构造方法（这一特征是javabean必备的。）。作者认为一个数据库记录的对象如果不包含任何数据是没有意义的。一个数据库表的所有字段都是可选的情况有多少？</li>
+  <li>
+    <p>It would likely <em>not</em><br />
+have anything to say about events and listeners.(不太明白作者的意思)</p>
+  </li>
+  <li>它不强迫你用可变的对象。</li>
+  <li>
+    <p>它内部有一个数据验证机制。这样一个验证机制对大多数数据库应用非常重要。(记住对象的第一原则：一个对象应该同时封装数据和对数据的操作。在这种情况下，操作就是验证数据。)</p>
+  </li>
+  <li>数据验证机制可以给最终用户(end user)报错。</li>
+</ul>
+
+<p> </p>
+
+<p>作者的这一点我没看太明白。希望达人指点。作者不满于现有的数据库持久化框架滥用javabean，提出了几个观点，但没有具体的代码演示。据我的理解，作者的意思和前一段时间javaeye上争论的充血模型和贫血模型有点类似。</p>
+
+<p> </p>
+
+<p><strong>4.类成员的排序没有按照成员的作用域(scope) 的大小从大到小排列，而是喜欢把private放在前面。</strong></p>
+
+<p>作者举了一个常见的类样式：</p>
+
+<p> </p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public class OilWell implements EnergySource {
+   private Long id;
+   private String name;
+   private String location;
+   private Date discoveryDate;
+   private Long totalReserves;
+   private Long productionToDate;
+
+   public Long getId() {
+      return id;
+   }
+   public void setId(Long id) {
+      this.id = id;
+   }
+
+  //..elided
+}
+</code></pre></div></div>
+
+<p> 这种方式将private变量放在最前面。作者认为应该倒过来，把private变量的申明放在最后面。</p>
+
+<p>因为人们认识一个事物的通常过程都是从一般到特殊，从抽象层次来说，是从高到底的认识过程。如果你倒过来的话，就不能从整体上把握事物，也不能抓住事物的本质，只能在一堆具体的片段事实中迷失。</p>
+
+<p>整体的抽象允许你忽略细节。抽象的层次越高，你可以忽略越多的细节。读者阅读一个类时可以忽略的细节越多他会越高兴。脑袋里填充太多的细节是痛苦的，所以细节越少越好。因此，将private成员方在最后会显得更富有同情心，因为这样阻止了不必要的细节显露给读者。</p>
+
+<p> </p>
+
+<p>原来C 程序的习惯也是把private成员放在最开始。然而，C 社区迅速的认识到这是一个有害的规范，这个规范现在已经被修正。(参看 <a href="http://www.javaworld.com/javaworld/jw-07-2008/jw-07-harmful-idioms.html?page=4#resources">a typical C style guide</a><br />
+)</p>
+
+<p> </p>
+
+<p>写道</p>
+
+<p>注意:public 接口应该放在class的最开始，其次是protected成员，最后是private成员。原因是:</p>
+<ul>
+  <li>程序员应该更关心接口而不是具体实现。</li>
+  <li>当程序员需要用一个类的时候，他们需要的是接口而不是实现。</li>
+</ul>
+
+<p>把接口放在开始是非常有意义的。把实现部分，private 片段，放在开始是一个历史遗留问题。最后还是要反复强调一下，一个类的接口的重要性超过实现细节。</p>
+
+<p> </p>
+
+<p> </p>
+
+<p>将私有成员放在类的开始是一个等待打破的怀习惯，它似乎是sun早期的编码规范造成的。</p>
+
+<p>将代码按照javadoc的顺序编排是非常好的：首先是构造方法，然后是非私有方法，最后是私有字段和方法。这样读者阅读的时候很自然的从抽象层次的高向低运动。</p>
+
+<p>作者的这个观点确实很有道理，以前也没仔细思考过。可以考虑给IDE做个重构插件，专门按照这种排序格式化代码。</p>
+
+<p> </p>
+
+<p><strong>作者介绍:</strong></p>
+
+<p><a href="mailto:support@web4j.com">John O’Hanley</a><br />
+是 <a href="http://www.javapractices.com/">javapractices.com </a><br />
+的专栏作者，<br />
+同时也是 <a href="http://www.web4j.com/Java_Web_Application_Framework_Overview.jsp">WEB4J framework  </a><br />
+的创建者。他拥有10年编程经验，现在居住于Prince Edward Island, Canada.</p>
+
+<p> </p>
+
+<p><strong>参考资料:</strong></p>
+
+<ul>
+  <li>在线阅读 Steve McConnell’s <a href="http://www.cc2e.com/">《代码大全》</a><br />
+.</li>
+  <li>学习关于<a href="http://web.mst.edu/~cpp/common/hungarian.html">Hungarian notation</a><br />
+.（匈牙利命名法）</li>
+  <li>The Java Language Specification has more on Java’s <a href="http://java.sun.com/docs/books/jls/second_edition/html/names.doc.html#104285">default scoping rules</a><br />
+.</li>
+  <li>阅读<a href="http://java.sun.com/products/javabeans/docs/spec.html">JavaBeans specification</a></li>
+  <li> <a href="http://www.possibility.com/Cpp/CppCodingStandard.html#classlayout">Possibility.com C style guide</a><br />
+和 <a href="http://www.doc.ic.ac.uk/lab/cplus/c%2B%2B.rules/chap6.html#sect1">Imperial College London C Style Guide</a><br />
+同时建议将private成员放在最后。</li>
+</ul>
+
+<p> </p>
+
+        
+        </div>
+      </li>
+    
+        
+      <li>
+        <span class="post-meta">Apr 6, 2008</span>
+        <h2>
+            <a class="post-link" href="../1207420620000/">Shell(Bash)学习笔记(一)</a>
+        </h2>
+        <div class="post_at_index">
+            <p>以前只是简单看过一些文章，了解一些。平时也就是写个简单的命令组合啥的，没写过复杂的脚本。最近一次为了恢复数据，写了一下脚本，发现这东西光学不练确实不行。顺便记一下学习笔记备用。</p>
+
+<p>约定：本文中的shell特指bash.</p>
+
+<p>由于javaeye博客编辑器没有提供shell代码格式，就只好勉强用javascript脚本格式插入代码。</p>
+
+<p><strong>一.变量</strong></p>
+
+<p>变量直接赋值，不用提前声明。</p>
+
+<p> </p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var="Hello"
+var=Hello
+var='Hello'
+</code></pre></div></div>
+
+<p> </p>
+
+<p> </p>
+
+<p>注意几点：</p>
+
+<p>1.变量和值之间不能有空格，否则解释器会认为是几个命令。很多程序员的习惯是在＝号两边留空格为了好看，但这点在shell中行不通。</p>
+
+<p>2.字符串不必用”号或者’，上面的几种赋值方式是等价的。除非字符串之间有空格的时候。</p>
+
+<p>如:</p>
+
+<p> </p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var="Hello World"
+</code></pre></div></div>
+
+<p> 这时候就需要用引号。</p>
+
+<p> </p>
+
+<p>3.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var=
+</code></pre></div></div>
+
+<p> 这样的语句也是合法的，表示var的值为空。</p>
+
+<p> </p>
+
+<p> </p>
+
+<p>4.使用变量的时候需要在变量前面加上$符号。这一点php程序员比较熟悉。</p>
+
+<p>如:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>echo $var
+</code></pre></div></div>
+
+<p> </p>
+
+<p> 这也就是为什么shell中的字符串不必用引号的原因。你如果直接运行</p>
+
+<p> </p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>echo var
+</code></pre></div></div>
+
+<p> </p>
+
+<p> </p>
+
+<p>系统会将var当作字符串，而不是变量处理。在变量前加上$号还有个好处就是在字符串中输出变量的时候，直接在字符串里面用变量就行。</p>
+
+<p>如：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var=World
+var2="$var World"
+echo $var2
+</code></pre></div></div>
+
+<p> </p>
+
+<p> </p>
+
+<p>但与php不同的是变量赋值的时候不用加$符号。因为shell中没有==这个符号，判断相等也是用＝号。如果赋值的时候加上$号，会产生混淆。</p>
+
+<p>还有一点要注意的就是单引号（’）字符串 中的变量不会被替换。</p>
+
+<p> </p>
+
+<p> </p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var=World
+var2='$var World'
+echo $var2
+</code></pre></div></div>
+
+<p> </p>
+
+<p> </p>
+
+<p>上面的语句输出结果：$var World</p>
+
+<p>这个可以用来输出$等特殊符号，而不用担心字符被当作变量替换。</p>
+
+<p><strong>二.语句</strong></p>
+
+<p>1.shell的语句不必用;号结束，除非是同一行写几个语句的时候。</p>
+
+<p>2.shell中的语句块不用{}号扩起来。if语句一般就用fi表示结束。当然这个也有特例，后面会提到。</p>
+
+<p>3.if语句</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>if [ condition ]
+then
+    action
+elif [ condition2 ]
+then
+    action2
+.
+.
+.
+elif [ condition3 ]
+then
+else
+    actionx
+fi
+</code></pre></div></div>
+
+<p> </p>
+
+<p> </p>
+
+<p>需要注意的是shell中没有elseif，而是elif(这个缩写也太变态了吧，有必要么？).</p>
+
+<p>每个或者elif后跟着then，并且要换行或者用;分开。then可以和后面的action在一行。</p>
+
+<p> </p>
+
+<p>3.for循环</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var="one two three four"
+for x in $var
+do
+     echo $x
+done
+</code></pre></div></div>
+
+<p> </p>
+
+<p> for循环用do  和 done表示开始结束，不要举一反三，认为是用 rof结束。</p>
+
+<p>4.while和util循环</p>
+
+<p> </p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>while [ condition ]
+ do
+     statements
+ done
+</code></pre></div></div>
+
+<p> </p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>until [ condition ]
+ do
+     statements
+ done
+</code></pre></div></div>
+
+<p> </p>
+
+<p> </p>
+
+<p>5.条件语句</p>
+
+<p>shell中的条件语句用[]号括起来，用于if,while,until等结构。</p>
+
+<p> 条件判断用=号，而不是==号。条件语句与[] 号之间要有空格分开。</p>
+
+<p>如:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gender="boy"
+if [ "$gender" = "girl" ]
+then
+      echo 'Welcome!'
+else
+      echo 'We only welcome girl.'
+fi
+</code></pre></div></div>
+
+<p> </p>
+
+<p> </p>
+
+<p>还有要注意的是条件语句中=号两旁要有空格分开，否则shell会将条件语句整个作为一个字符串处理，条件永远为真。条件语句中的变量最好用”号引<br />
+起来，否则如果该变量中有空格，shell就会报too many arguments错误。如果变量正好为空，则会报 =: unary<br />
+operator expected.错误。因为变量为空的话，条件语句少了一边，当然会出错。所以，<strong>将字符串</strong><strong>变量用双引号括起来是shell编程的好习惯,尤其在条件语句中。</strong></p>
+
+<p> </p>
+
+<p>其他的比较符号,如 &gt;,号在shell中有特殊含义。下面是shell的比较运算符号表示方法:</p>
+
+<p> </p>
+
+<p> </p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>算术比较运算符
+
+num1-eq num2 	等于	[ 3 -eq $mynum ]
+num1-ne num2 	不等于	[ 3 -ne $mynum ]
+num1-lt num2 	小于	[ 3 -lt $mynum ]
+num1-le num2 	小于或等于	[ 3 -le $mynum ]
+num1-gt num2 	大于	[ 3 -gt $mynum ]
+num1-ge num2 	大于或等于	[ 3 -ge $mynum ]
+</code></pre></div></div>
+
+<p> </p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>字符串比较运算符
+
+-z string 	如果 string长度为零，则为真 	[ -z "$myvar" ]
+-n string 	如果 string长度非零，则为真 	[ -n "$myvar" ]
+string1= string2 	如果 string1与 string2相同，则为真 	[ "$myvar" = "one two three" ]
+string1!= string2 	如果 string1与 string2不同，则为真 	[ "$myvar" != "one two three" ]
+</code></pre></div></div>
+
+<p>6.case 语句</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gender="boy"
+case "$gender" in
+      boy)
+            echo "We only welcome girl."
+            ;;
+      girl)
+            echo 'Welcome !'
+            ;;
+      *)
+            echo "unknow."
+            ;;
+ esac  
+</code></pre></div></div>
+
+<p> </p>
+
+<p> </p>
+
+<p>case语句的语法比较怪，乍一看比较别扭。每个pattern用 半括号括起来,用;;结束。</p>
+
+<p> </p>
+
+<p><strong>三.算术</strong></p>
+
+<p>shell 默认是用来处理字符串的，所以如果你直接运行:</p>
+
+<p> </p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>echo 1 1
+</code></pre></div></div>
+
+<p> </p>
+
+<p> 它会直接输出1 1，而不会输出2。 如果需要计算表达式的值，则只需用”$((” 和 “))”将表达式<br />
+括起。</p>
+
+<p> </p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>echo $((1 1))
+</code></pre></div></div>
+
+<p> </p>
+
+<p> </p>
+
+<p><strong>四.函数</strong></p>
+
+<p> </p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>add(){
+    result=0
+    for n in $*
+    do
+        result=$(($result $n))
+    done
+    return $result
+}
+</code></pre></div></div>
+
+<p> 执行:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>add 1 2 3
+echo $?
+echo $result
+</code></pre></div></div>
+
+<p> </p>
+
+<p> </p>
+
+<p>两个输出结果都是:6.</p>
+
+<p>这里需要几点说明.shell中是不能直接获得函数的返回值的，如果你要用函数返回值，只能用全局变量传输。<br />
+shell中的变量默认都是全局的，除非你在前面加了local修饰符。如上面的例子，在函数外面，result变量也是可见的。如果你在result前<br />
+加local修饰，result变量在函数外就不可见了。但shell会把函数返回值放在$?全局变量中，你可以用$?<br />
+来取得前个函数调用的返回值。$*可以获得函数的所有输入参数，$1表示第一个参数，以此类推。</p>
+
+<p> </p>
+
+<p><strong>五.其他</strong></p>
+
+<p>shell内置的一些特征，可以很容易的处理文件,以及和其他程序交互。</p>
+
+<p> </p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>文件比较运算符
+
+-e filename 	如果 filename存在，则为真 	[ -e /var/log/syslog ]
+-d filename 	如果 filename为目录，则为真 	[ -d /tmp/mydir ]
+-f filename 	如果 filename为常规文件，则为真 	[ -f /usr/bin/grep ]
+-L filename 	如果 filename为符号链接，则为真 	[ -L /usr/bin/grep ]
+-r filename 	如果 filename可读，则为真 	[ -r /var/log/syslog ]
+-w filename 	如果 filename可写，则为真 	[ -w /var/mytmp.txt ]
+-x filename 	如果 filename可执行，则为真 	[ -L /usr/bin/grep ]
+filename1-nt filename2 	如果 filename1比 filename2新，则为真 	[ /tmp/install/etc/services -nt /etc/services ]
+filename1-ot filename2 	如果 filename1比 filename2旧，则为真 	[ /boot/bzImage -ot arch/i386/boot/bzImage ]
+</code></pre></div></div>
+
+<p> </p>
+
+<p> for 循环中很容易遍历文件</p>
+
+<p> </p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>for file in /home/*
+do
+   if [ -d "$file" ]
+   then
+      echo $file is a directory
+    fi
+done
+</code></pre></div></div>
+
+<p> </p>
+
+<p> 很容易调用其他程序的输出结果：</p>
+
+<p> </p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>for user in `awk -F":" '{ print $1 }' /etc/passwd`
+do
+    echo find user $user
+done
+</code></pre></div></div>
+
+<p> shell脚本中要使用其他命令的输出结果，只需用`符号把命令包含起来。注意：这个符号不是单引号，在键盘左上角那个位置。</p>
+
+<p> </p>
+
+<p> </p>
+
+<p><strong>六. 后记</strong></p>
+
+<p>基本的shell语法就学了这些，高级的还没弄通。这篇笔记也差不多长了，别的再边学边写。shell是基础，要配合awk，grep，sed这些工具才能发挥出效果。最近在看《unix编程艺术》,上面谈到了*nix系统的几个哲学基础原则，其中有个原则就是：</p>
+
+<p><em>组合原则：设计时考虑拼接组合</em></p>
+
+<p>*nix系统程序的的输入和输出一般都是简单，文本化，面向流的格式。这样便于程序和程序之间的交互和拼接。*nix系统下的程序一般都只完成单一功能，如果你需要要一个复杂的功能，那就需要把小程序拼接在一起。这一特征也决定了shell在*uix系统中的重要性。</p>
+
+<p> </p>
+
+<p><strong>七.shell学习资料</strong></p>
+
+<p>1.<a href="http://www.ibm.com/developerworks/cn/linux/shell/">IBM Shell编程系列  </a></p>
+
+<p>本文中的许多例子以及资料就是来自该系列教程</p>
+
+<p>2.<a href="http://www.gnu.org/software/bash/manual/bash.html">Bash 参考手册</a></p>
+
+<p>Gnu的bash官方参考手册</p>
+
+        
+        </div>
+      </li>
+    
+        
+      <li>
+        <span class="post-meta">Apr 6, 2008</span>
+        <h2>
+            <a class="post-link" href="../1207420560000/">一次linux服务器管理的惨痛教训</a>
+        </h2>
+        <div class="post_at_index">
+            <p>系统用的是fedroa8,机房给装系统的时候，分区按默认方式，用lvm管理。</p>
+
+<p>后来一次机房给拔了一下电，估计文件系统哪儿出问题<br />
+了，磁盘全部变成只读。然后我想检查一下磁盘，运行了一下fsck，结果检查失败，而文件系统又被卸载掉了，所有命令都用不了。只好让机房给重启一下，然<br />
+后系统就起不来了。怀疑机房重启系统的时候发现系统没反应，多起了几下，导致系统检查硬盘的过程被中断。</p>
+
+<p>为了保存数据，我只好重新加了块硬盘，把系统装在新硬盘上，挂上旧硬盘，我慢慢恢复数据。</p>
+
+<p>先是遇到lvm的分区挂载问题，这东西不能像别的分区一样直接挂在。网上查了一下：</p>
+
+<p>先用vgscan，找到虚拟卷，然后用 vgchange -ay 激活虚拟卷，/dev下就有了虚拟卷设备。  默认是/dev/VolGroup00/LogVol00 /dev/VolGroup00/LogVol01这样的。</p>
+
+<p>用<br />
+mount  /dev/VolGroup00/LogVol00 /root/vg0 挂载，结果报错：mount: you must specify the filesystem type</p>
+
+<p>用<br />
+fdisk查看<br />
+了一下，发现虚拟卷识别出来了，但就是分区表被破坏了，系统识别不出分区格式。只好再用fsck修复。不停提示，开始还看，后来烦了，加了个   <br />
+fsck<br />
+-y。好，一路顺利，检查完了。mount上虚拟卷，进入目录，傻眼了，分区下只剩下一个lost found文件夹，别的啥都没了。进到<br />
+lost found下面，ls了一下，等了半天才显示出来结果。原来所有文件都被移到这个文件下了，并且都重命名为以#开头，一串数字结尾的文件，好几<br />
+万文件。欲哭无泪啊。</p>
+
+<p>无奈间，试着grep了一下，发现还好，有的文件夹名字变了但结构还在。赶忙写了个shell脚本恢复数据。幸运的是，主要数据基本上都恢复了。</p>
+
+<p>总结了一下教训：</p>
+
+<p>1。fsck不能乱用。先要把文件系统umount掉，然后检查。最好启动到单用户模式下fsck。</p>
+
+<p>2。<br />
+不必要的时候不要用lvm。真不知道fedora为什么默认用lvm，为了实验技术？这个鬼东西把硬盘弄成一块，要坏全坏，还影响磁盘io性能。网上看到<br />
+还有把boot文件夹也放到lvm下的，这样系统起不来的时候，你想手动加载一下内核地址，你都不知道内核地址应该怎么表示。</p>
+
+<p>3。分区和备份太重要了。数据库的datadir要手动指定到放数据的分区下，这样重装系统的时候，数据不会丢失。etc目录下的配置文件要备份，不然系统重装后，重新配置一边也够受的。</p>
+
+<p> </p>
+
+<p>平时自己本地用linux，服务器管理经验不多，让老鸟看了笑话。吃一堑长一智，我这也算长了一智。</p>
+
+        
+        </div>
+      </li>
+    
+        
+      <li>
+        <span class="post-meta">Mar 29, 2008</span>
+        <h2>
+            <a class="post-link" href="../1206729180000/">一个纯java的H.264播放器&#8211;Onavia Video Player</a>
+        </h2>
+        <div class="post_at_index">
+            <p>在网上闲逛，遇到一个纯java的H.264播放器，看了它的官方网站上的applet，效果确实不错。</p>
+
+<p> </p>
+
+<p>支持以下几种格式：</p>
+
+<ul>
+  <li><strong>.mp4</strong> standard H.264 file format</li>
+  <li><strong>.mpeg</strong> standard H.264 file format</li>
+  <li><strong>.h264</strong> standard H.264 file format</li>
+  <li><strong>.avi</strong> generic video file extension</li>
+</ul>
+
+<p>有以下特征：</p>
+
+<p> </p>
+
+<p> </p>
+
+<ul>
+  <li><strong>High definition video.</strong> The Onavia H.264 Java Video<br />
+Player plays the standard resolution and high definition video files<br />
+that conform to the latest H.264 video compression standard.</li>
+  <li><strong>End-user controls.</strong> The player has all end-user<br />
+functions including: play, pause, rewind, fast forward, video duration,<br />
+elapsed time, clickable progress bar.</li>
+  <li><strong>Open APIs.</strong> Video publishers and web developers can<br />
+customize the entire player (e.g. look &amp; feel, colors, borders,<br />
+window size, video resolution, streaming bandwidth, end-user controls).<br />
+The player is fully customizable, and allows a publisher not only to<br />
+control the end user experience, but also gives flexibility to rapidly<br />
+change the end user experience to keep their website and video viewing<br />
+experience fresh. It also allows a publisher to create different end<br />
+user viewing experiences for different websites or within different<br />
+sections of the same website.</li>
+  <li><strong>Cost-effective delivery of high quality video.</strong><br />
+Enables publishers and web developers to implement H.264 quality video<br />
+into a website without the need to implement costly Flash servers.</li>
+  <li>Can pull a video file from multiple domains/servers</li>
+  <li><strong>Platform independence.</strong> It works on PCs, Macs, and all popular browser (Internet Explorer, Mozzilla, Firefox)</li>
+  <li><strong>Device independence.</strong> Onavia H.264 Java Video<br />
+Player can be easily ported to a variety of mobile devices and<br />
+environments. The only requirement is that a device supports Java.</li>
+  <li><strong>Automatic Bandwidth detection.</strong> The player<br />
+automatically senses the available bandwidth at the end user device and<br />
+adjusts the buffering and streaming to deliver the best possible<br />
+viewing experience.</li>
+</ul>
+
+<p> </p>
+
+<p>官方网站：</p>
+
+<p> </p>
+
+<p>java在多媒体方面很让人失望，那个JMF框架架构不错，但就是功能太弱。这个播放器的出现，至少说明了java在这方面还是有能力的，只是没发挥出来。</p>
+
+        
+        </div>
+      </li>
+    
+        
+      <li>
+        <span class="post-meta">Mar 21, 2008</span>
+        <h2>
+            <a class="post-link" href="../1206037560000/">struts2的时间格式转换问题</a>
+        </h2>
+        <div class="post_at_index">
+            <p>struts2提供了一个时间标签:</p>
+
+<p> 但这个标签很只能在显示的时候用，但如果我想在输入框里显示时间，让用户直接修改时间，怎么弄？datepicker？选择太麻烦，我想让用户输入，并且<br />
+兼容多种日期格式。还有，如果用时间标签的话，每个地方都需要指定format，如果我想修改一下格式，所有的时间显示都变，怎么弄？</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>*  In some situations you may wish to apply a type converter globally.
+ *  This can be done by editing the file
+ * xwork-conversion.properties in the root of your class path
+ * (typically WEB-INF/classes) and providing a
+ * property in the form of the class name of the object you wish to convert
+ * on the left hand side and the class name of
+ * the type converter on the right hand side. For example, providing
+ * a type converter for all Point objects would mean
+ * adding the following entry:
+ *
+ * com.acme.Point = com.acme.PointConverter
+</code></pre></div></div>
+
+<p> XWorkConverter，先在classpath root下找xwork-conversion.properties文件，这个文件定义了全局转换。然后每遇到新的类需要转换，便查找是否有特殊的自定义转换配置。特殊自定义转换配置文件的路径是:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>className.replace('.', '/')   "-conversion.properties";
+</code></pre></div></div>
+
+<p> 比方com.acme.Point的转换配置就是classpath 下的/com/acme/Point-coversion.properties文件。</p>
+
+<p>ok，这个问题好解决了。</p>
+
+<p>我的xwork-coversion.properties文件:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>java.util.Date=cn.jolstar.struts.type.DateTypeConverter
+</code></pre></div></div>
+
+<p>  我的DateTypeConverter代码:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">/**</span>
+ <span class="p">*</span>
+ <span class="p">*/</span>
+<span class="k">package</span> <span class="n">cn</span><span class="p">.</span><span class="n">jolestar</span><span class="p">.</span><span class="n">struts</span><span class="p">.</span><span class="n">type</span><span class="p">;</span>
+
+<span class="n">import</span> <span class="n">java</span><span class="p">.</span><span class="n">text</span><span class="p">.</span><span class="n">DateFormat</span><span class="p">;</span>
+<span class="n">import</span> <span class="n">java</span><span class="p">.</span><span class="n">text</span><span class="p">.</span><span class="n">ParseException</span><span class="p">;</span>
+<span class="n">import</span> <span class="n">java</span><span class="p">.</span><span class="n">text</span><span class="p">.</span><span class="n">SimpleDateFormat</span><span class="p">;</span>
+<span class="n">import</span> <span class="n">java</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">Date</span><span class="p">;</span>
+<span class="n">import</span> <span class="n">java</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">Map</span><span class="p">;</span>
+
+<span class="n">import</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">log4j</span><span class="p">.</span><span class="n">Logger</span><span class="p">;</span>
+<span class="n">import</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">struts2</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">StrutsTypeConverter</span><span class="p">;</span>
+
+<span class="p">/**</span>
+ <span class="p">*</span> <span class="p">@</span><span class="n">author</span> <span class="n">jolestar</span>
+ <span class="p">*</span>
+ <span class="p">*/</span>
+<span class="k">public</span> <span class="n">class</span> <span class="n">DateTypeConverter</span> <span class="n">extends</span> <span class="n">StrutsTypeConverter</span> <span class="p">{</span>
+
+	<span class="n">private</span> <span class="n">static</span> <span class="n">final</span> <span class="n">Logger</span> <span class="nb">log</span> <span class="p">=</span> <span class="n">Logger</span><span class="p">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">DateTypeConverter</span><span class="p">.</span><span class="n">class</span><span class="p">);</span>
+	<span class="k">public</span> <span class="n">static</span> <span class="n">final</span> <span class="k">String</span> <span class="n">DEFAULT_DATE_FORMAT</span> <span class="p">=</span> <span class="s2">"yyyy-MM-dd"</span><span class="p">;</span>
+
+	<span class="p">//</span><span class="err">暂时只考虑这几种日期格式</span>
+	<span class="k">public</span> <span class="n">static</span> <span class="n">final</span> <span class="n">DateFormat</span><span class="p">[]</span> <span class="n">ACCEPT_DATE_FORMATS</span> <span class="p">=</span> <span class="p">{</span>
+			<span class="n">new</span> <span class="n">SimpleDateFormat</span><span class="p">(</span><span class="n">DEFAULT_DATE_FROMAT</span><span class="p">),</span>
+			<span class="n">new</span> <span class="n">SimpleDateFormat</span><span class="p">(</span><span class="s2">"yyyy年MM月dd日"</span><span class="p">),</span>
+			<span class="n">new</span> <span class="n">SimpleDateFormat</span><span class="p">(</span><span class="s2">"yyyy/MM/dd"</span><span class="p">)</span> <span class="p">};</span>
+
+	<span class="p">/**</span>
+	 <span class="p">*</span>
+	 <span class="p">*/</span>
+	<span class="k">public</span> <span class="n">DateTypeConverter</span><span class="p">()</span> <span class="p">{</span>
+	<span class="p">}</span>
+
+	<span class="p">/*</span>
+	 <span class="p">*</span> <span class="p">(</span><span class="n">non</span><span class="p">-</span><span class="n">Javadoc</span><span class="p">)</span>
+	 <span class="p">*</span>
+	 <span class="p">*</span> <span class="p">@</span><span class="n">see</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">struts2</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">StrutsTypeConverter</span><span class="p">#</span><span class="n">convertFromString</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">Map</span><span class="p">,</span>
+	 <span class="p">*</span>      <span class="n">java</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="k">String</span><span class="p">[],</span> <span class="n">java</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">Class</span><span class="p">)</span>
+	 <span class="p">*/</span>
+	<span class="p">@</span><span class="n">Override</span>
+	<span class="k">public</span> <span class="n">Object</span> <span class="n">convertFromString</span><span class="p">(</span><span class="n">Map</span> <span class="n">context</span><span class="p">,</span> <span class="k">String</span><span class="p">[]</span> <span class="n">values</span><span class="p">,</span> <span class="n">Class</span> <span class="n">toClass</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="m">0</span><span class="p">]</span> <span class="p">==</span> <span class="n">null</span> <span class="p">||</span> <span class="n">values</span><span class="p">[</span><span class="m">0</span><span class="p">].</span><span class="nf">trim</span><span class="p">().</span><span class="n">equals</span><span class="p">(</span><span class="s2">""</span><span class="p">))</span>
+			<span class="n">return</span> <span class="n">null</span><span class="p">;</span>
+		<span class="n">for</span> <span class="p">(</span><span class="n">DateFormat</span> <span class="n">format</span> <span class="p">:</span> <span class="n">ACCEPT_DATE_FORMATS</span><span class="p">)</span> <span class="p">{</span>
+			<span class="n">try</span> <span class="p">{</span>
+				<span class="n">return</span> <span class="n">format</span><span class="p">.</span><span class="n">parse</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="m">0</span><span class="p">]);</span>
+			<span class="p">}</span> <span class="n">catch</span> <span class="p">(</span><span class="n">ParseException</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+				<span class="n">continue</span><span class="p">;</span>
+			<span class="p">}</span> <span class="n">catch</span> <span class="p">(</span><span class="n">RuntimeException</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+				<span class="n">continue</span><span class="p">;</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+		<span class="nb">log</span><span class="p">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"can not format date string:"</span>   <span class="n">values</span><span class="p">[</span><span class="m">0</span><span class="p">]);</span>
+		<span class="n">return</span> <span class="n">null</span><span class="p">;</span>
+	<span class="p">}</span>
+
+	<span class="p">/*</span>
+	 <span class="p">*</span> <span class="p">(</span><span class="n">non</span><span class="p">-</span><span class="n">Javadoc</span><span class="p">)</span>
+	 <span class="p">*</span>
+	 <span class="p">*</span> <span class="p">@</span><span class="n">see</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">struts2</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">StrutsTypeConverter</span><span class="p">#</span><span class="n">convertToString</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">Map</span><span class="p">,</span>
+	 <span class="p">*</span>      <span class="n">java</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">Object</span><span class="p">)</span>
+	 <span class="p">*/</span>
+	<span class="p">@</span><span class="n">Override</span>
+	<span class="k">public</span> <span class="k">String</span> <span class="n">convertToString</span><span class="p">(</span><span class="n">Map</span> <span class="n">context</span><span class="p">,</span> <span class="n">Object</span> <span class="n">o</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">o</span> <span class="n">instanceof</span> <span class="n">Date</span><span class="p">)</span> <span class="p">{</span>
+			<span class="n">SimpleDateFormat</span> <span class="n">format</span> <span class="p">=</span> <span class="n">new</span> <span class="n">SimpleDateFormat</span><span class="p">(</span>
+					<span class="n">DEFAULT_DATE_FORMAT</span><span class="p">);</span>
+			<span class="n">try</span> <span class="p">{</span>
+				<span class="n">return</span> <span class="n">format</span><span class="p">.</span><span class="n">format</span><span class="p">((</span><span class="n">Date</span><span class="p">)</span> <span class="n">o</span><span class="p">);</span>
+			<span class="p">}</span> <span class="n">catch</span> <span class="p">(</span><span class="n">RuntimeException</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+				<span class="n">return</span> <span class="s2">""</span><span class="p">;</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+		<span class="n">return</span> <span class="s2">""</span><span class="p">;</span>
+	<span class="p">}</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p> </p>
+
+<p>这样，从字符串转换为日期对象的时候，会尝试上面列出的多种日期格式，但输出的时候，则会统一按照DEFAULT—DATE—FORMAT转换。 需要修改格式，只需要修改DEFAULT—DATE—FORMAT。当然，你也可以把它方在配置文件里，便于修改。</p>
+
+<p> </p>
+
+<p>了解了这一点，其实也就 明白了struts的类型转换模式。然后，无论是字符串id到持久化对象的转换，还是自定义的字符串到对象之间的转换，都容易了。</p>
+
+        
+        </div>
+      </li>
+    
+  </ul>
+ 
+<div class="pagination pagination-centered">
+    <ul>
+    
+        <li class="prev">
+        <a href="../page15">&larr; Previous</a>
+        
+        </li>
+    
+
+    
+        <li><a href="../">1</a></li>
+        
+
+        
+            <li><a href="../page2">2</a></li>
+            
+        
+            <li><a href="../page3">3</a></li>
+            
+        
+            <li><a href="../page4">4</a></li>
+            
+        
+            <li><a href="../page5">5</a></li>
+            
+        
+            <li><a href="../page6">6</a></li>
+            
+        
+            <li><a href="../page7">7</a></li>
+            
+        
+            <li><a href="../page8">8</a></li>
+            
+        
+            <li><a href="../page9">9</a></li>
+            
+        
+            <li><a href="../page10">10</a></li>
+            
+        
+            <li><a href="../page11">11</a></li>
+            
+        
+            <li><a href="../page12">12</a></li>
+            
+        
+            <li><a href="../page13">13</a></li>
+            
+        
+            <li><a href="../page14">14</a></li>
+            
+        
+            <li><a href="../page15">15</a></li>
+            
+        
+            <li class="disabled"><a>16</a></li>
+            
+        
+            <li><a href="../page17">17</a></li>
+            
+        
+            <li><a href="../page18">18</a></li>
+            
+        
+            <li><a href="../page19">19</a></li>
+            
+        
+    
+
+    
+        <li class="next"><a href="../page17">Next &rarr;</a></li>
+    
+    </ul>
+</div>
+
+
+ <p class="rss-subscribe">subscribe <a href="../feed.xml">via RSS</a></p>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">午夜咖啡</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>午夜咖啡</li>
+          <li><a href="mailto:jolestar@gmail.com">jolestar@gmail.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/jolestar">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/jolestar">
+              <span class="icon  icon--twitter">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809
+                  c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="http://weibo.com/jolestar">
+              <span class="icon  icon--weibo">
+                <svg viewBox="0 0 1000 1235">
+                  <path fill="#828282" d="M0 672q0-161 184-347 117-116 236-162 56-23 97-23 45 0 72 27 26 26 26 72 0 31-12 72-4 14 3 17.5t16 .5l10-4q96-40 170-40t106 42q15 22 15 52 0 31-16 71-7 10-2.5 17t8 9 14.5 5q62 19 106 62t44 107q0 59-41 120.5t-111.5 112.5-178 84-228.5 33q-131 0-247.5-38.5t-193.5-115-77-174.5zm125 48q10 101 125 161 92 49 209 49 29 0 60-3 153-15 255-97 92-75 92-165 0-9-1-18-10-100-125-160-93-49-210-49-29 0-59 3-101 10-183 51t-126 101q-38 53-38 109 0 9 1 18zm160 62q-13-29-13-59 0-35 18-70 31-64 104-96 45-20 91-20 27 0 54 7 76 20 109 82 17 32 17 66 0 32-15 65-31 71-109 104-44 19-88 19-34 0-67-11-73-23-101-87zm56-19q6 25 30 35 13 6 27 6 12 0 24-4 28-9 43-33 10-16 10-32 0-7-3-15-6-24-30-34-13-5-26-5-12 0-25 4-27 9-41 32-11 16-11 33 0 7 2 13zm141-79q3 9 13 13 5 2 9.5 2t9.5-2q11-4 16-13t2-18-12-13q-9-3-19.5.5t-15.5 12.5q-3 6-3 12l0 6zm321-621q-1-5-1-10 0-13 8-25 10-16 29-21 34-7 68-7 51 0 100 15 83 27 143 93t78 153q7 35 7 68 0 51-16 98l0 1q-6 18-23 27-11 5-22 5-7 0-15-2-19-6-27-23-5-11-5-21 0-8 2-15l0-1q11-34 11-70 0-23-4-48-13-62-56-109t-102-66q-35-10-70-10-24 0-49 5-5 1-10 1-14 0-26-8-16-11-20-30zm40 157q-1-5-1-10 0-10 6-21 9-14 26-18 19-4 37-4 67 0 115 53 29 33 38 75 3 17 3 33 0 24-8 48-5 16-20 23-9 5-18 5-7 0-13-2-16-5-24-20-4-9-4-18 0-7 2-13 4-14 4-26 0-28-21-50-22-26-54-26-10 0-20 2-5 1-9 1-11 0-21-7-14-9-18-25z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
+            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+        </div>
+        <script>
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+            ga('create', 'UA-1268034-7', 'auto');
+            ga('send', 'pageview');
+        </script>
+
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

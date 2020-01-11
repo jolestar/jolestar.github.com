@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html>
+
+  
+
+
+ 
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>依赖管理工具漫谈--从Maven,Gradle到Go</title>
+  <meta name="description" content="本文从Maven谈起，分析了Maven的主要思想以及Gradle对Maven的改进，最后谈了下Go语言面临的依赖管理问题。">
+
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="canonical" href="http://jolestar.com/dependency-management-tools-maven-gradle/">
+  <link rel="alternate" type="application/rss+xml" title="午夜咖啡" href="../feed.xml" />
+  <meta name="google-site-verification" content="kmm9IK4zVCvEFzsNDOyTkDdtkaMGQHtdgEXurVQizfc" />
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="../">午夜咖啡</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        <!-- 
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+          <a class="page-link" href="/sitemap.txt">Sitemap</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+         -->
+        <a class="page-link" href="../about/">About</a>
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">依赖管理工具漫谈--从Maven,Gradle到Go</h1>
+    <p class="post-meta">Feb 21, 2016 • jolestar</p>
+  </header>
+
+  <article class="post-content">
+    <p>本文从Maven谈起，分析了Maven的主要思想以及Gradle对Maven的改进，最后谈了下Go语言面临的依赖管理问题。</p>
+
+<!--more-->
+
+<p><strong>为什么要有依赖管理工具？</strong></p>
+
+<hr />
+
+<p>谈依赖管理之前我们先谈谈为什么要有依赖管理工具这东西。</p>
+
+<p>我们学了一种编程语言，然后写了个『Hello World』，然后宣称自己学了一门语言，这时候确实不需要关心依赖问题。</p>
+
+<p>然而，当你要写一个稍微复杂点的应用，那怕就是留言板这样的，需要读写数据库，就需要依赖数据库驱动，就会遇到依赖管理的问题了。</p>
+
+<p>再进一步，你写了一个库，想共享给别人使用，更需要了解依赖管理的问题。</p>
+
+<p>当然，如果项目足够简单，你可以直接将依赖方的源码放置在自己的项目中，或者将依赖库的二进制文件（比如jar，dll）放置在项目的lib里。要提供给别人呢？把二进制包提供下载或者给别人传过去。依赖管理工具出现之前大多数都是这样搞的。</p>
+
+<p>但如果再复杂些，依赖库本身也有依赖怎么弄呢？将依赖压缩打包，然后放个readme帮助文件说明下，貌似也可以工作。</p>
+
+<p>那如果你的项目依赖了好几个，乃至几十个库，而各库又有依赖，依赖也有自己的依赖，怎么办？怎么检测库的依赖是否有版本冲突？以后升级的时候怎么办？怎么判断lib目录下的某个文件是否被依赖了？</p>
+
+<p>到这一步必须要承认需要有个依赖管理工具了，无论你使用任何语言。我们大约也清楚了依赖管理要做些什么。假设还没有依赖管理工具，我们自己要设计一个，如何入手？</p>
+
+<ol>
+  <li>要有一种依赖库的命名规则，或者叫坐标（Coordinates）的定义规则，可以通过坐标准确找到依赖的库。</li>
+  <li>要有对应的配置文件规则，来描述和定义依赖。</li>
+  <li>要有中心仓库保存这些依赖库，以及依赖库的元数据（metadata），供使用方拉取。</li>
+  <li>还需要一个本地工具去解析这个配置文件，实现依赖的拉取。</li>
+</ol>
+
+<p>以上其实就是各依赖管理工具的核心要素。</p>
+
+<p><strong>聊聊Maven</strong></p>
+
+<hr />
+
+<p>Maven诞生于2004年（来源维基），查询了下，应该是各语言的依赖管理工具中早的。Ruby的gem也是2004年出现的，但gem离完备的依赖管理工具还差些，直到Ruby的bundler出现。Python的pip出现的更晚。</p>
+
+<p>Maven的习惯是通过 groupID（一般是组织的域名倒写，遵循Java package的命名习惯）+ artifactId（库本身的名称） + version（版本）来定义坐标，通过xml来做配置文件，提供了中心仓库（repo.maven.org）以及本地工具（mvn）。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>依赖定义：
+
+&lt;dependency&gt;
+    &lt;groupId&gt;com.google.guava&lt;/groupId&gt;
+    &lt;artifactId&gt;guava&lt;/artifactId&gt;
+    &lt;version&gt;18.0&lt;/version&gt;
+&lt;/dependency&gt;
+
+repo定义：
+
+&lt;repository&gt;
+    &lt;id&gt;repo.default&lt;/id&gt;
+    &lt;name&gt;Internal Release Repository&lt;/name&gt;
+    &lt;url&gt;http://repo.xxxxxx.com/nexus/content/repositories/releases&lt;/url&gt;
+    &lt;releases&gt;
+    &lt;enabled&gt;true&lt;/enabled&gt;
+    &lt;updatePolicy&gt;interval:60&lt;/updatePolicy&gt;
+    &lt;checksumPolicy&gt;warn&lt;/checksumPolicy&gt;
+    &lt;/releases&gt;
+    &lt;snapshots&gt;
+    &lt;enabled&gt;false&lt;/enabled&gt;
+    &lt;updatePolicy&gt;always&lt;/updatePolicy&gt;
+    &lt;checksumPolicy&gt;warn&lt;/checksumPolicy&gt;
+    &lt;/snapshots&gt;
+&lt;/repository&gt;
+</code></pre></div></div>
+
+<p>同时为了避免依赖冲突的问题，Maven的依赖配置提供了exclude配置机制，用于阻断部分库的传递依赖。</p>
+
+<p>Ruby的gem，Node的npm，Python的pip，iOS的CocoaPods都类似,只是配置文件语法和坐标命名规则有些差异。</p>
+
+<p>至此，看起来Maven很简单啊，为啥许多人会觉得Maven复杂呢？</p>
+
+<p>主要在于以下两点：</p>
+
+<ol>
+  <li>Java这样需要编译的语言，发布的库是二进制版本的jar包，发布前需要有编译的流程，而依赖和编译是紧密相关的。不像Ruby，Node这样的脚本语言，将源码和配置文件扔到仓库就可以。</li>
+  <li>Maven并没有将自己单纯的定义为依赖管理工具，而是项目管理工具，它将项目的整个生命周期都囊括进去了。</li>
+</ol>
+
+<p>第二点也是Ant+ivy和Maven思路上的区别，ivy认为已经有Ant这样的编译打包工具了，只需在上面做个插件解决依赖问题即可，而Maven认为Ant本身也有改进的地方，所以一并改造了。</p>
+
+<p>Maven的改进的核心思路是</p>
+
+<blockquote>
+  <p>Convention Over Configuration</p>
+</blockquote>
+
+<p>即『约定大于配置』。既然大多数人习惯都把源码目录命名为src，那就约定好都用这个目录，不用专门去配置。同样，clean，compile，package等也约定好，不需要专门定义Ant task。这样既简化了配置文件，同时也降低了学习成本。一个Ant定义的项目，你需要阅读帮助文件或者查看build.xml文件才能了解如何编译打包，而Maven定义的项目直接运行『mvn package』即可。</p>
+
+<p>Java语言发明的比较早，初期这种思想还不普及，所以Java本身没有对项目的规范，而新的语言基本都吸收了这个思想，对项目都做了约定和规范。比如Go语言，如果用C/C++可能需要定义复杂的Makefile来定义编译的规则，以及如何运行测试用例，而在Go中，这些都是约定好的。</p>
+
+<p>Maven定义为项目管理工具，包含了项目从源码到发布的整个生命周期：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>validate → generate-sources → process-sources
+→ generate-resources → process-resources → compile 
+→ process-classes → generate-test-sources
+→ process-test-sources → generate-test-resources
+→ process-test-resources → test-compile
+→ test → prepare-package → package 
+→ pre-integration-test → integration-test 
+→ post-integration-test → verify → install → deploy 
+</code></pre></div></div>
+
+<p>既然包含了这么多功能和阶段，所以Maven引入了插件机制，Maven的本身的编辑打包等功能都是用插件来实现的，也允许用户自己定义插件。</p>
+
+<p>同时涉及构建生命周期的不同的阶段，依赖也需要确定是编译依赖？测试依赖？运行时依赖？于是依赖多了scope的定义。</p>
+
+<p>如果仅仅是这样把Maven理解成标准化的Ant+ivy+可扩展的插件框架即可？但现实世界的项目往往更复杂。</p>
+
+<p>我们有了function用于组合代码块逻辑，有了object用于组合一组方法，有了package,namespace用于组合一组相关对象，但其实还需要有更高一个层次的组合定义 —– module，或者叫子项目。同一个项目下不同的源码目录可能需要编译打包成不同的二进制文件，这些module共同构成了一个整体的项目。这个其实和源码管理习惯有关系，是每个独立的module作为单独的源码仓库呢还是将相关的module全部放在一起？从降低沟通成本的角度考虑，还是应该通过一个大的仓库组织。</p>
+
+<p>于是Maven引入了module的概念，同一个项目下可以有多个module，每个module有单独的pom文件来定义，但为了避免重复，Maven的pom文件支持parent机制，子项目的pom文件继承parent pom的基本配置。可以说，module的机制将Maven的复杂度又提升了一个层次，很多人遇到Maven的坑多栽到这里了。</p>
+
+<p>这里介绍一个Maven多项目版本管理的最佳实践：</p>
+
+<ol>
+  <li>父项目中配置版本号，子项目中不要显示配置版本号，直接继承父项目的版本号。</li>
+  <li>子项目之间的依赖通过${project.version}引用，不要明确配置版本号。</li>
+  <li>发布新版的时候，同时发布所有子项目，即便是该子项目未做变更。</li>
+  <li>最好通过Maven的release插件发布，避免手动修改版本号导致的不一致问题。</li>
+</ol>
+
+<p>即便是这样，Maven的多项目版本管理经常也会遇到问题。主要是因为Maven的子项目之间的依赖也沿用的是第三方库依赖的配置方式，需要指定子项目的版本号。另外子项目的parent需要显式配置，也需要明确指定parent的版本号。一旦这些版本号出现错误，最后就会导致各种诡异的问题。</p>
+
+<p>Maven的release插件使用也比较复杂，该插件其实做几个事情：</p>
+
+<ol>
+  <li>先构建一遍项目，确认项目可以正常构建。</li>
+  <li>修改pom文件的版本号到正式版，然后提交到源码仓库并打tag。</li>
+  <li>将该tag的源码检出，再构建一次，这次构建的jar包的版本是正式版的，将jar包上传到Maven仓库。</li>
+  <li>递增版本号，修改pom文件的版本号到SNAPSHOT，再次提交到源码仓库。</li>
+</ol>
+
+<p>这个过程中，由于要构建两次，提交两次源码仓库，上传一次jar包，任何一步出错都会导致release失败，所以使用比较复杂。</p>
+
+<p>到此，Maven的核心概念都分析完了，其他的都是插件机制上的一些扩展。大家也应该明白了Maven之所以最后变这么复杂的原因。</p>
+
+<p>但无论如何，Maven基本上是项目管理工具的标杆了，有的语言直接通过扩展插件来用Maven管理，比如C++，C#(NMaven)，或者做了移植Byldan(C#)，不过貌似都是不太成功，估计主要原因应该是Maven是用Java写的，有社区隔膜。</p>
+
+<p><strong>Gradle对Maven的改进</strong></p>
+
+<hr />
+
+<p>聊了Maven的思路和优势，那Maven的缺点呢？这个我们和Gradle一起聊聊。Gradle就是在Maven的基础上进行的改进。优势主要体现在以下方面：</p>
+
+<ol>
+  <li><strong>配置语言</strong><br />
+ Maven使用的是XML，受限于XML的表达能力以及XML本身的冗余，会使pom.xml文件显得冗长而笨重。而Gradle是基于Groovy定义的一种DSL语言，简洁并且表达能力强大。在Maven中，任何扩展都需要通过Maven插件实现，但Gradle的配置文件本身就是一种语言，可以直接依赖任意Java库，可以直接在build.gradle文件中像Ant一样定义task，比Ant的表达能力更强（Ant本身也是XML定义的）。<br />
+ Gradle的配置文件中可以直接获取到Project对象以及环境变量，可以通过程序对build过程进行更细致的自定义控制，这个功能对于复杂的项目来说非常有用。</li>
+  <li><strong>项目自包含(Self Provisioning Build Environment)</strong><br />
+ 用户下载了一个Maven定义的项目，如果没用过Maven，还需要下载Maven工具包，了解Maven。但Gradle可以给项目生成一个gradlew脚本，用户直接运行gradlew脚本即可，该脚本会自动检测本地是否已经有Gradle，没有则从网络下载，对用户透明（当然，国内网络下最好还是自己先下载好）。<br />
+ 对仓库的配置，Maven提供了一个本地的settings.xml配置文件，用于定义私有仓库以及仓库密码这样的敏感的不应该放源码仓库里的文件。但这样带来的不便就是这些信息项目中没有自包含，所以Gradle干掉了这种本地配置的机制，所有的定义都在项目里。私有仓库密码这样的可以放在项目下的gradle.properties文件里不提交上去，通过其他方式分享给内部成员。这点可能各有优劣。</li>
+  <li><strong>任务依赖以及执行机制</strong><br />
+ Maven的构建生命周期的每一步都是预定义好的（参看前文），插件任务只能在预留的生命周期中的某个阶段切入，虽然Maven的生命周期阶段考虑很充分，但有时候也不能满足需求。Maven会严格按照生命周期的阶段从开始线性执行任务，而Gradle则使用了<a href="https://en.wikipedia.org/wiki/Directed_acyclic_graph">Directed Acyclic Graph</a>来检测任务的依赖关系，决定哪些任务可以并行执行，这样使任务的定义以及执行都更灵活。</li>
+  <li>
+    <p><strong>依赖管理更为灵活</strong><br />
+ Maven对依赖管理比较严格，依赖必须是源码仓库的坐标。虽然也支持system scope的本地路径配置，但还是有许多不方便之处（system scope的依赖，打包的时候不包含进来）。如果世界上所有的库都通过Maven发布，当然没有问题，但现实往往不是这样的。这里要吐槽一下国内的各大厂发布的sdk之类的库，几乎都不提供仓库地址，就给个压缩包放一堆jar包进来，让用户自己搞定依赖管理问题。而Gradle在这方面比较灵活，比如支持：</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> compile fileTree(dir: 'libs', include: '*.jar')  
+</code></pre></div>    </div>
+
+    <p>这样的配置规则。<br />
+ 另外由于Gradle本身是一种语言，可以用编程的方式来管理依赖。比如大多数子项目都依赖某个库，除了个别几个，就可以这样写：</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> configure(subprojects.findAll {it.name != 'xxx1’ &amp;&amp; it.name != ‘xxx2’}) {  
+     dependencies {  
+         compile("com.google.guava:guava:18.0”)  
+     }  
+ }
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p><strong>子项目以及动态依赖机制</strong><br />
+ 动态依赖主要是用来解决几个互相依赖的库都在快速开发期间的依赖问题，不能每次地层库修改发布新版本，上层库都要修改依赖配置文件，所以需要动态设置依赖最新版本。<br />
+ Maven的解决方案是SNAPSHOT机制，子项目之间也是通过这个机制来实现依赖的。遇到的问题我们前面也分析了。<br />
+ Gradle的虽然也兼容Maven仓库的SNAPSHOT机制，但它自己的版本管理机制上，并没有引入SNAPSHOT机制。它的依赖支持4.x,2.+这样的配置规则，实现动态依赖（注：Maven也支持类似的规则，参看 <a href="https://maven.apache.org/pom.html#Dependency_Version_Requirement_Specification">Dependency Version Requirement Specification</a>）。而子项目之间的依赖采用特殊的依赖配置，和第三方库的配置规则有区别。它直接使用：<br />
+     compile project(“:subpoject-name”);</p>
+
+    <p>这样的配置，无需配置版本号，明确指定是子项目，避免Maven的子项目依赖带来的版本号问题。子项目的配置中也不需要显示配置父项目，只需要父项目单向中配置子项目列表即可。<br />
+ 同时Gradle的release机制也更为灵活，支持release到各种仓库（包括Maven仓库），但不控制release过程中的版本号生成，修改源码仓库等步骤，留给用户自己通过手动或者CI工具，或者脚本去解决。</p>
+  </li>
+</ol>
+
+<p>关于Gradle相对Maven的改进这里主要列举这几点，其他的可以参看Gradle官方的比较表格：<a href="http://gradle.org/maven_vs_gradle/">maven_vs_gradle</a>，这里不再详述。</p>
+
+<p><strong>Go语言的多项目以及依赖管理问题</strong></p>
+
+<hr />
+
+<p>最后再谈谈Go语言的多项目以及依赖管理问题。Go官方对这两方面并未做约定或者提供工具，于是只能各自想办法解决。多项目问题一般就是回归到了Makefile+脚本的解决方案，比如kubernetes。依赖管理，开源社区多用Godeps，kubernetes用的也是这个。Godeps通过源码仓库路径以及源码tag来确定库的坐标，只管理依赖，有点像ivy，不关心构建过程。Godepes会将依赖库的依赖也添加到当前项目的依赖配置中，不是动态的依赖传递机制。没有scope，不区分是否是单元测试的依赖。一个仓库只支持一个配置，没有子项目概念，项目大了管理就比较复杂。另外它对传递依赖以及版本冲突的问题当前还是没有解决太好（有一些相关Issue）。</p>
+
+<p>一个语言的多项目以及依赖管理方案对这个语言的生态发展有很大的影响，Java发展到现在，Maven以及Gradle功不可没，所以感觉Go官方应该对这两方面有所作为。Go语言迟迟没出依赖管理工具个人觉得有几方面考虑：</p>
+
+<ol>
+  <li>Go尚未确定动态库的机制。编译型语言依赖最好也是二进制的，而不是源码。一方面可以加快编译速度，另外一方面也可以实现源码保护，方便分发以及代理缓存，让语言的适用范围更广。许多商业上的库是不方便提供源码的。所以依赖管理工具的实现需要动态库的机制。而动态库尚未确定的原因我觉得是Go语言不想过早的引入二进制动态库的格式兼容问题，初期全部用源码是最省事的。</li>
+  <li>先让社区试试水，看看效果和反馈。</li>
+</ol>
+
+<p>任何一个语言，发展到一定阶段都避不开依赖管理问题。前一段时间看到一篇写Go语言的文章，嘲讽Java的Maven构建个项目恨不能把半个互联网下载下来，我当时脑海中就浮现出长者的那句经典语录『图样图森破』。Go当前没遇到这些问题的原因只是Go还比较年轻，库还不够丰富，以及Go的很多项目还不够复杂。而像kubernetes这样的项目，当前依赖已经有226个了，构建一下，也快要下载半个Github了。所以个人觉得Go社区当前还是非常需要一个类似于Gradle的工具，来解决依赖管理，构建，多项目管理等问题。</p>
+
+<p><img src="http://jolestar.com/images/weichat/qrcode_jolestar_blog2.png" alt="code" /></p>
+
+<p>相关阅读：</p>
+
+<hr />
+
+<ol>
+  <li><a href="http://www.cloudcity.io/blog/2015/07/10/how-bundler-works-a-history-of-ruby-dependency-management/">How Bundler Works: A History of Ruby Dependency Management</a></li>
+  <li><a href="http://gradle.org/maven_vs_gradle/">maven vs gradle</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Directed_acyclic_graph">Directed acyclic graph</a></li>
+  <li><a href="http://blog.devtang.com/blog/2014/05/25/use-cocoapod-to-manage-ios-lib-dependency/">唐巧–用CocoaPods做iOS程序的依赖管理</a></li>
+  <li><a href="https://mp.weixin.qq.com/s?__biz=MjM5MDE0Mjc4MA==&amp;mid=402857685&amp;idx=1&amp;sn=6e6b5350e169340516ff032f022b79f2&amp;scene=1&amp;srcid=0222DMXQsV7CnwEjSM4l2JDz&amp;key=710a5d99946419d9a74993af45cb0d67247a9fc6a0bae7f6e934ea2bc42b338027911732d8f983ea14cfa5ecb4a72528&amp;ascene=0&amp;uin=MjQzMDU4NQ%3D%3D&amp;devicetype=iMac+MacBookPro10%2C1+OSX+OSX+10.11.3+build(15D21)&amp;version=11020201&amp;pass_ticket=U88pIZpDVTNWF6PAqTokrmlDyTfWPCW45xreTKIDOmY%3D">寻找最优解，Golang的包管理之道</a></li>
+</ol>
+
+
+  </article>
+  <div>
+  </div>
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">午夜咖啡</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>午夜咖啡</li>
+          <li><a href="mailto:jolestar@gmail.com">jolestar@gmail.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/jolestar">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/jolestar">
+              <span class="icon  icon--twitter">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809
+                  c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="http://weibo.com/jolestar">
+              <span class="icon  icon--weibo">
+                <svg viewBox="0 0 1000 1235">
+                  <path fill="#828282" d="M0 672q0-161 184-347 117-116 236-162 56-23 97-23 45 0 72 27 26 26 26 72 0 31-12 72-4 14 3 17.5t16 .5l10-4q96-40 170-40t106 42q15 22 15 52 0 31-16 71-7 10-2.5 17t8 9 14.5 5q62 19 106 62t44 107q0 59-41 120.5t-111.5 112.5-178 84-228.5 33q-131 0-247.5-38.5t-193.5-115-77-174.5zm125 48q10 101 125 161 92 49 209 49 29 0 60-3 153-15 255-97 92-75 92-165 0-9-1-18-10-100-125-160-93-49-210-49-29 0-59 3-101 10-183 51t-126 101q-38 53-38 109 0 9 1 18zm160 62q-13-29-13-59 0-35 18-70 31-64 104-96 45-20 91-20 27 0 54 7 76 20 109 82 17 32 17 66 0 32-15 65-31 71-109 104-44 19-88 19-34 0-67-11-73-23-101-87zm56-19q6 25 30 35 13 6 27 6 12 0 24-4 28-9 43-33 10-16 10-32 0-7-3-15-6-24-30-34-13-5-26-5-12 0-25 4-27 9-41 32-11 16-11 33 0 7 2 13zm141-79q3 9 13 13 5 2 9.5 2t9.5-2q11-4 16-13t2-18-12-13q-9-3-19.5.5t-15.5 12.5q-3 6-3 12l0 6zm321-621q-1-5-1-10 0-13 8-25 10-16 29-21 34-7 68-7 51 0 100 15 83 27 143 93t78 153q7 35 7 68 0 51-16 98l0 1q-6 18-23 27-11 5-22 5-7 0-15-2-19-6-27-23-5-11-5-21 0-8 2-15l0-1q11-34 11-70 0-23-4-48-13-62-56-109t-102-66q-35-10-70-10-24 0-49 5-5 1-10 1-14 0-26-8-16-11-20-30zm40 157q-1-5-1-10 0-10 6-21 9-14 26-18 19-4 37-4 67 0 115 53 29 33 38 75 3 17 3 33 0 24-8 48-5 16-20 23-9 5-18 5-7 0-13-2-16-5-24-20-4-9-4-18 0-7 2-13 4-14 4-26 0-28-21-50-22-26-54-26-10 0-20 2-5 1-9 1-11 0-21-7-14-9-18-25z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
+            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+        </div>
+        <script>
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+            ga('create', 'UA-1268034-7', 'auto');
+            ga('send', 'pageview');
+        </script>
+
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

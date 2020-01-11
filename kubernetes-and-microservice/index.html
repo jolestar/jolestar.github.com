@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html>
+
+  
+
+
+ 
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Kubernetes & Microservice</title>
+  <meta name="description" content="这是前一段时间在一个微服务的 meetup 上的分享，整理成文章发布出来。">
+
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="canonical" href="http://jolestar.com/kubernetes-and-microservice/">
+  <link rel="alternate" type="application/rss+xml" title="午夜咖啡" href="../feed.xml" />
+  <meta name="google-site-verification" content="kmm9IK4zVCvEFzsNDOyTkDdtkaMGQHtdgEXurVQizfc" />
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="../">午夜咖啡</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        <!-- 
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+          <a class="page-link" href="/sitemap.txt">Sitemap</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+         -->
+        <a class="page-link" href="../about/">About</a>
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Kubernetes & Microservice</h1>
+    <p class="post-meta">Sep 21, 2017 • jolestar</p>
+  </header>
+
+  <article class="post-content">
+    <p>这是前一段时间在一个微服务的 meetup 上的分享，整理成文章发布出来。</p>
+
+<!--more-->
+
+<p>谈微服务之前，先澄清一下概念。微服务这个词的准确定义很难，不同的人有不同的人的看法。比如一个朋友是『微服务原教旨主义者』，坚持微服务一定是无状态的 http API 服务，其他的都是『邪魔歪道』，它和 SOA，RPC，分布式系统之间有明显的分界。而另外也有人认为微服务本身就要求把整体系统当做一个完整的分布式应用来对待，而不是原来那种把各种组件堆积在一起，『拼接』系统的做法。两种说法都有道理，因为如果微服务没有个明确的边界的话，你可能会发现微服务囊括了一切，但如果只是坚持无状态，那微服务相关的一些领域又无法涵盖。我个人对这个问题持开放式的看法，微服务本身代表了一种软件交付以及复用模式的变化，从依赖库到依赖服务，和 SOA 有相通之处，同时它也带来了新的挑战，对研发运维都有影响，所有因为和微服务相关而产生的变化，都可以囊括在大微服务主题下。</p>
+
+<h2 id="微服务带来的变化">微服务带来的变化</h2>
+
+<p>微服务主要给我们带来的变化有三点，</p>
+
+<ol>
+  <li>部署单元 越来越小的粒度，加快交付效率，同时增加运维的复杂度。</li>
+  <li>依赖方式 从依赖库到依赖服务，增加了开发者选择的自由（语言，框架，库），提高了复用效率，同时增加了治理的复杂度。</li>
+  <li>架构模式 从单体应用到微服务架构，架构设计的关注点从分层转向了服务拆分。</li>
+</ol>
+
+<h2 id="微服务涉及的技术点">微服务涉及的技术点</h2>
+
+<ul>
+  <li>服务注册与发现 服务目录 服务列表 配置中心</li>
+  <li>进程间通讯 负载均衡</li>
+  <li>服务生命周期管理 部署， 变更，升级，自动化运维</li>
+  <li>服务依赖关系</li>
+  <li>链路跟踪，限流，降级，熔断</li>
+  <li>访问控制</li>
+  <li>日志与监控</li>
+  <li>微服务应用框架</li>
+</ul>
+
+<p>这个是我浏览了众多微服务的话题之后摘要出来的一些技术点，不全面也不权威，不过可以看出，微服务主题涉及的面非常广，那这些问题在微服务之前就不存在么？为什么大家谈到微服务的时候才把这些东西拿出来说。这个需要从软件开发的历史说来。软件开发行业从十多年前开始，出现了一个分流，一部分是企业应用开发，软件要安装到企业客户自己的资源上，客户负责运维（或者通过技术支持），一部分是互联网软件，自己开发运维一套软件通过网络给最终用户使用。这两个领域使用的技术栈也逐渐分化，前者主要关注标准化，框架化（复用），易安装，易运维，后者主要关注高可用，高性能，纵向伸缩。而这两个领域到微服务时代，形成了一个合流，都在搞微服务化。主要原因我认为有两点：</p>
+
+<ol>
+  <li>SaaS 的兴起，使得一些企业应用厂商也开始采用互联网模式，遇到用户规模的问题。同时企业应用很难纯 SaaS 化，面对大客户的时候，势必面临私有部署的问题，所以必须探索一种既能支撑用户规模，同时要能方便私有化部署的架构。</li>
+  <li>随着互联网技术领域为了应对新的业务变化，需要将原来的技术经验沉淀继承过来，开始关注标准化和框架化。</li>
+</ol>
+
+<p>也就是说，这些技术点并不是新问题，但如何将这些技术点从业务逻辑中抽取出来，作为独立的，可复用的框架或者服务，这个是大家探寻的新问题。</p>
+
+<h2 id="为微服务而生的-kubernetes">为微服务而生的 Kubernetes</h2>
+
+<ul>
+  <li>Kubernetes Pod - Sidecar 模式</li>
+  <li>Kubernetes 支持微服务的一些特性</li>
+  <li>Service Mesh 微服务的中间件层</li>
+</ul>
+
+<p>我这样说，不仅仅是因为这是一个微服务的 meetup，微服务和 Kubernetes 确实是相辅相成的。一方面 Kubernetes 帮助微服务落地，另外一方面微服务促进了对容器和 Kubernetes 的需求。</p>
+
+<h2 id="kubernetes-的-pod---sidecar-模式">Kubernetes 的 Pod - Sidecar 模式</h2>
+
+<p>我们先从 Kubernetes 的 Pod 机制带来的一种架构模式 — Sidecar 来说。下面这段配置文件是我从 Kubernetes 内置的 dns 的 deployment 中抽取出来的 Pod 描述文件，简化掉了资源限制，端口设置以及健康检查等内容。</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Pod</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">dnspod</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">containers</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">kubedns</span>
+    <span class="na">image</span><span class="pi">:</span> <span class="s">gcr.io/google_containers/k8s-dns-kube-dns-amd64:1.14.4</span>
+    <span class="na">args</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">--domain=cluster.local.</span>
+    <span class="pi">-</span> <span class="s">--dns-port=10053</span>
+    <span class="pi">-</span> <span class="s">--config-dir=/kube-dns-config</span>
+    <span class="pi">-</span> <span class="s">--v=2</span>
+    <span class="na">ports</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="na">containerPort</span><span class="pi">:</span> <span class="m">10053</span>
+      <span class="na">name</span><span class="pi">:</span> <span class="s">dns-local</span>
+      <span class="na">protocol</span><span class="pi">:</span> <span class="s">UDP</span>
+    <span class="pi">-</span> <span class="na">containerPort</span><span class="pi">:</span> <span class="m">10053</span>
+      <span class="na">name</span><span class="pi">:</span> <span class="s">dns-tcp-local</span>
+      <span class="na">protocol</span><span class="pi">:</span> <span class="s">TCP</span>
+  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">dnsmasq</span>
+    <span class="na">image</span><span class="pi">:</span> <span class="s">gcr.io/google_containers/k8s-dns-dnsmasq-nanny-amd64:1.14.4</span>
+    <span class="na">args</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">-v=2</span>
+    <span class="pi">-</span> <span class="s">-logtostderr</span>
+    <span class="pi">-</span> <span class="s">-configDir=/etc/k8s/dns/dnsmasq-nanny</span>
+    <span class="pi">-</span> <span class="s">-restartDnsmasq=true</span>
+    <span class="pi">-</span> <span class="s">--</span>
+    <span class="pi">-</span> <span class="s">-k</span>
+    <span class="pi">-</span> <span class="s">--cache-size=1000</span>
+    <span class="pi">-</span> <span class="s">--log-facility=-</span>
+    <span class="pi">-</span> <span class="s">--server=/cluster.local/127.0.0.1#10053</span>
+    <span class="pi">-</span> <span class="s">--server=/in-addr.arpa/127.0.0.1#10053</span>
+    <span class="pi">-</span> <span class="s">--server=/ip6.arpa/127.0.0.1#10053</span>
+    <span class="na">ports</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="na">containerPort</span><span class="pi">:</span> <span class="m">53</span>
+      <span class="na">name</span><span class="pi">:</span> <span class="s">dns</span>
+      <span class="na">protocol</span><span class="pi">:</span> <span class="s">UDP</span>
+    <span class="pi">-</span> <span class="na">containerPort</span><span class="pi">:</span> <span class="m">53</span>
+      <span class="na">name</span><span class="pi">:</span> <span class="s">dns-tcp</span>
+      <span class="na">protocol</span><span class="pi">:</span> <span class="s">TCP</span>
+  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">sidecar</span>
+    <span class="na">image</span><span class="pi">:</span> <span class="s">gcr.io/google_containers/k8s-dns-sidecar-amd64:1.14.4</span>
+    <span class="na">args</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">--v=2</span>
+    <span class="pi">-</span> <span class="s">--logtostderr</span>
+    <span class="pi">-</span> <span class="s">--probe=kubedns,127.0.0.1:10053,kubernetes.default.svc.cluster.local,5,A</span>
+    <span class="pi">-</span> <span class="s">--probe=dnsmasq,127.0.0.1:53,kubernetes.default.svc.cluster.local,5,A</span>
+</code></pre></div></div>
+
+<p>从这个配置文件可以看出，Kubernetes 的 Pod 里可以包含多个容器，同一个 Pod 的多个容器之间共享网络，Volume，IPC（需要设置），生命周期和 Pod 保持一致。上例中的 kube-dns 的作用是通过 Kubernetes 的 API 监听集群中的 Service 和 Endpoint 的变化，生成 dns 记录，通过 dns 协议暴露出来。dnsmasq 的作用是作为 dns 缓存，cluster 内部域名解析代理到 kube-dns，其他域名通过上游 dns server 解析然后缓存，供集群中的应用使用。sidecar 容器的作用是进行 dns 解析探测，然后输出监控数据。</p>
+
+<p>通过这个例子可以看出来，Kubernetes 的 Pod 机制给我们提供了一种能力，就是将一个本来要捆绑在一起的服务，拆成多个，分为主容器和副容器（sidecar），是一种更细粒度的服务拆分能力。当然，没有 Kubernetes 的时候你也可以这么干，但如果你的程序需要几个进程捆绑在一起，要一起部署迁移，运维肯定想来打你。有了这种能力，我们就可以用一种非侵入的方式来扩展我们的服务能力，并且几乎没有增加运维复杂度。这个在我们后面的例子中也可以看到。</p>
+
+<h2 id="kubernetes-上的服务发现">Kubernetes 上的服务发现</h2>
+
+<p>服务发现其实包含了两个方面的内容，一种是要发现应用依赖的服务，这个 Kubernetes 提供了内置的 dns 机制和 ClusterIP 机制，每个 Service 都自动注册域名，分配 ClusterIP，这样服务间的依赖可以从 IP 变为 name，这样可以实现不同环境下的配置的一致性。</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">apiVersion</span><span class="pi">:</span> <span class="s">v1</span>
+<span class="na">kind</span><span class="pi">:</span> <span class="s">Service</span>
+<span class="na">metadata</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">myservice</span>
+<span class="na">spec</span><span class="pi">:</span>
+  <span class="na">ports</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">port</span><span class="pi">:</span> <span class="m">80</span>
+    <span class="na">protocol</span><span class="pi">:</span> <span class="s">TCP</span>
+    <span class="na">targetPort</span><span class="pi">:</span> <span class="m">9376</span>
+  <span class="na">selector</span><span class="pi">:</span>
+    <span class="na">app</span><span class="pi">:</span> <span class="s">my-app</span>
+  <span class="na">clusterIP</span><span class="pi">:</span> <span class="s">10.96.0.11</span>
+</code></pre></div></div>
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="go">curl http://myservice
+</span></code></pre></div></div>
+<p>如上面的 Service 的例子，依赖方只需要通过 myservice 这个名字调用，具体这个 Service 后面的后端实例在哪，有多少个，用户不用关心，交由 Kubernetes 接管，相当于一种基于虚 IP（通过 iptables 实现） 的内部负载均衡器。（具体的 clusterIP 实现这里不再详述，可查阅相关资料）。</p>
+
+<p>另外一种服务发现是需要知道同一个服务的其他容器实例，节点之间需要互相连接，比如一些分布式应用。这种需求可以通过 Kubernetes 的 API 来实现，比如以下实例代码：</p>
+
+<div class="language-go highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">endpoints</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">Core</span><span class="p">()</span><span class="o">.</span><span class="n">Endpoints</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span><span class="o">.</span><span class="n">Get</span><span class="p">(</span><span class="s">"myservice"</span><span class="p">,</span> <span class="n">metav1</span><span class="o">.</span><span class="n">GetOptions</span><span class="p">{})</span>
+<span class="n">addrs</span> <span class="o">:=</span> <span class="p">[]</span><span class="kt">string</span><span class="p">{}</span>
+<span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">ss</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">endpoints</span> <span class="p">{</span>
+	<span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">addr</span> <span class="o">:=</span> <span class="k">range</span> <span class="n">ss</span><span class="o">.</span><span class="n">Addresses</span> <span class="p">{</span>
+		<span class="n">ips</span> <span class="o">=</span> <span class="nb">append</span><span class="p">(</span><span class="n">addrs</span><span class="p">,</span> <span class="n">fmt</span><span class="o">.</span><span class="n">Sprintf</span><span class="p">(</span><span class="s">`"%s"`</span><span class="p">,</span> <span class="n">addr</span><span class="o">.</span><span class="n">IP</span><span class="p">))</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+<span class="n">glog</span><span class="o">.</span><span class="n">Infof</span><span class="p">(</span><span class="s">"Endpoints = %s"</span><span class="p">,</span> <span class="n">addrs</span><span class="p">)</span>
+</code></pre></div></div>
+<p>Kubernetes 提供了 ServiceAccount 的机制，自动在容器中注入调用 Kubernetes API 需要的 token，应用代码中无需关心认证问题，只需要部署的时候在 yaml 中配置好合适的 ServiceAccount 即可。</p>
+
+<p>关于服务发现再多说两句，没有 Kubernetes 这样的统一平台之前，大家做服务发现还主要依赖一些服务发现开源工具，比如 etcd，zookeeper，consul 等，进行自定义开发注册规范，在应用中通过 sdk 自己注册。但当应用部署到 Kubernetes 这样的平台上你会发现，应用完全不需要自己注册，Kubernetes 本身最清楚应用的节点状态，有需要直接通过 Kubernetes 进行查询即可，这样可以降低应用的开发运维成本。</p>
+
+<h2 id="通过-kubernetes-进行-leader-选举">通过 Kubernetes 进行 Leader 选举</h2>
+
+<p>有些分布式需要 Leader 选举，在之前，大家一般可能依赖 etcd 或者 zookeeper 这样的服务来实现。如果应用部署在 Kubernetes 中，也可以利用 Kubernetes 来实现选举，这样可以减少依赖服务。</p>
+
+<p>Kubernetes 中实现 Leader 选举主要依赖以下特性：</p>
+
+<ol>
+  <li>Kubernetes 中的所有 API 对象类型，都有一个 ResourceVersion，每次变更，版本号都会增加。</li>
+  <li>Kubernetes 中的所有对象，都支持 Annotation，支持通过 API 修改，这样可以附加一些自定义的 key-value 数据保存到 Kubernetes 中。</li>
+  <li>Kubernetes 的所有 API 对象中，Endpoint/ConfigMap 属于『无副作用』对象，也就是说，创建后不会带来额外的影响，所以一般用这两种对象来保存选主信息。</li>
+  <li>Kubernetes 的 Update/Replace 接口，支持 CAS 机制的更新，也就是说，更新时可以带上客户端缓存中的 ResourceVersion，如果服务器端该对象的 ResourceVersion 已经大于客户端传递的 ResourceVersion，则会更新失败。</li>
+</ol>
+
+<p>这样，所有的节点都一起竞争更新同一个 Endpoint/ConfigMap，更新成功的，作为 Leader，然后把 Leader 信息写到 Annotation 中，其他节点也能获取到。为了避免竞争过于激烈，会有一个过期机制，过期时间也写入到 Annotation，Leader 定时 renew 过期时间，其他节点定时查询，发现过期就发起新一轮的竞争。这样相当于 Kubernetes 提供了一种以 client 和 API 一起配合实现的 Leader 选举机制，并且在 client sdk 中提供。当前 Kubernetes 的一些内部组件，比如 controller-manager，也是通过这种方式来实现选举的。</p>
+
+<p>当然，如果觉得调用 client 麻烦，或者该语言的 sdk 尚未支持这个特性（应该只有 go 支持了），可以也可以通过 sidercar 的方式实现，参看 https://github.com/kubernetes/contrib/tree/master/election 。也就是说，通过一个 sidecar 程序去做选主，主程序只需要调用 sidecar 的一个 http api 去查询即可。</p>
+
+<div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">$</span><span class="w"> </span>kubectl <span class="nb">exec </span>elector-sidecar <span class="nt">-c</span> nodejs <span class="nt">--</span> wget <span class="nt">-qO-</span> http://localhost:8080
+<span class="go">Master is elector-sidecar
+</span></code></pre></div></div>
+<h2 id="kubernetes-支持微服务的运维特性">Kubernetes 支持微服务的运维特性</h2>
+
+<p>Kubernetes 对微服务的运维特性上的支持，主要体现以下两方面：</p>
+
+<ol>
+  <li>
+    <p>滚动升级以及自动化伸缩</p>
+
+    <div class="language-console highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gp">kubectl set image deployment &lt;deployment&gt;</span><span class="w"> </span>&lt;container&gt;<span class="o">=</span>&lt;image&gt;
+<span class="gp">kubectl rollout status deployment &lt;deployment&gt;</span><span class="w">
+</span><span class="gp">kubectl rollout pause deployment &lt;deployment&gt;</span><span class="w">
+</span><span class="gp">kubectl rollout resume deployment &lt;deployment&gt;</span><span class="w">
+</span><span class="gp">kubectl rollout undo deployment &lt;deployment&gt;</span><span class="w">
+</span></code></pre></div>    </div>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl autoscale deployment php-apache --cpu-percent=50 --min=1 --max=10
+</code></pre></div>    </div>
+
+    <p>滚动升级支持最大不可用节点设置，支持暂停，恢复，一键回滚。自动伸缩支持根据监控数据在一个范围内自动伸缩，很大程度上降低了微服务的运维成本。</p>
+  </li>
+  <li>
+    <p>日志与监控的标准化</p>
+
+    <p>通过 Kubernetes 可以实现日志收集以及应用监控的标准化，自动化，这样应用不用关心日志和监控数据的收集展示，只需要按照系统标准输出日志和监控接口即可。</p>
+  </li>
+</ol>
+
+<h2 id="service-mesh-微服务的中间件层">Service Mesh 微服务的中间件层</h2>
+
+<p>微服务这个话题虽然火了有很长时间了，关于微服务的各种框架也有一些。但这些框架大多是编程语言层面来解决的，需要用户的业务代码中集成框架的类库，语言的选择也受限。这种方案很难作为单独的产品或者服务给用户使用，升级更新也受限于应用本身的更新与迭代。直到 Service Mesh 的概念的提出。Service Mesh 貌似也没有比较契合的翻译（有的译做服务齿合层，有的翻译做服务网格），这个概念就是试图在网络层抽象出一层，来统一接管一些微服务治理的功能。这样就可以做到跨语言，无侵入，独立升级。其中前一段时间 Google，IBM，Lyft 联合开源的 istio 就是这样一个工具，先看下它的功能简介：</p>
+
+<ul>
+  <li>智能路由以及负载均衡</li>
+  <li>跨语言以及平台</li>
+  <li>全范围（Fleet-wide）策略执行</li>
+  <li>深度监控和报告</li>
+</ul>
+
+<p>是不是听上去就很厉害？有的还搞不明白是啥意思？我们看 istio 之前先看看 Service Mesh 能在网络层做些什么。</p>
+
+<ul>
+  <li>可视化 其实本质上微服务治理的许多技术点都包含可视化要求，比如监控和链路追踪，比如服务依赖</li>
+  <li>弹性（Resiliency 或者应该叫柔性，因为弹性很容易想到 scale）  就是网络层可以不那么生硬，比如超时控制，重试策略，错误注入，熔断，延迟注入都属于这个范围。</li>
+  <li>效率（Efficiency）  网络层可以帮应用层多做一些事情，提升效率。比如卸载 TLS，协议转换兼容</li>
+  <li>流量控制 比如根据一定规则分发流量到不同的 Service 后端，但对调用方来说是透明的。</li>
+  <li>安全保护 在网络层对流量加密/解密，增加安全认证机制，而对应用透明。</li>
+</ul>
+
+<p>可以看出，如果接管了应用的进出流量，将网络功能可编程化，实际上可做的事情很多。那我们简单看下 istio 是如何做的。</p>
+
+<p><img src="http://jolestar.com/images/istio/istio.svg" alt="istio" /></p>
+
+<p>大致看一下这个架构图，istio 在业务 Pod 里部署了一个 sidecar — Envoy，这是一个代理服务器，前面说的网络层功能基本靠它来实现，然后 Envoy 和上面的控制层组件（Mixer，Pilot，Istio-Auth）交互，实现动态配置，策略执行，安全证书获取等，对用户业务透明。实际部署的时候，并不需要开发者在自己的 Pod 声明文件里配置 Envoy 这个 sidecar，istio 提供了一个命令行工具，在部署前注入（解析声明配置文件然后自动修改）即可，这样 istio 的组件就可以和业务应用完全解耦，进行独立升级。</p>
+
+<p>看到这里，Java 服务器端的研发人员可能会感觉到，这个思路和 Java 当初的 AOP（aspect-oriented programming） 有点像，确实很多 Java 微服务框架也是利用 AOP 的能力来尽量减少对应用代码的侵入。但程序语言的 AOP 能力受语言限制，有的语言里就非常难实现非侵入的 AOP，而如果直接在网络层面寻找切面就可以做到跨语言了。</p>
+
+<p>当前其实已经有许多在网络层实现的中间件，比如有提供数据库安全审计功能的，有提供 APM 的，有提供数据库自动缓存的，但这些中间件遇到的最大问题是增加了用户应用的部署复杂度，实施成本比较高，很难做到对用户应用透明。可以预见，随着 Kubernetes 的普及，这类中间件也会涌现出来。</p>
+
+<h2 id="结语">结语</h2>
+
+<p>本质上，微服务的目的是想以一种架构模式，应对软件所服务的用户的规模增长。没有微服务架构之前，大多数应用是以单体模式出现的，只有当规模增长到一定程度，单体架构满足不了伸缩的需求的时候，才考虑拆分。而微服务的目标是在一开始的时候就按照这种架构实现，是一种面向未来的架构，也就是说用开始的选择成本降低以后的重构成本。<strong>用经济学的观点来说，微服务是技术投资，单体应用是技术债务，技术有余力那可以投资以期待未来收益，没余力那就只能借债支持当前业务，等待未来还债。而随着微服务基础设施的越来越完善，用很小的投资就可以获得未来很大的收益，就没有理由拒绝微服务了</strong>。</p>
+
+<h2 id="插一个硬广告">插一个硬广告</h2>
+
+<p>看了这篇文章，是不是心动想尝试一下 Kubernetes 了？QingCloud 应用中心的 <a href="https://appcenter.qingcloud.com/apps/app-u0llx5j8">Kubernetes1.7</a> 版本已经发布，欢迎大家试用。  一键部署 Kubernetes 集群只需要 2分多钟，5节点的集群一小时只花费2块多啊，2块多。</p>
+
+<p>另外，QingCloud 近期会推出一个 Kubernetes 网上系列课程，由我主讲，从 Kubernetes 架构，到网络，存储，使用运维，插件开发，尽量完整的介绍一下 Kubernetes，欢迎关注。同时，Docker 是 Kubernetes 的基础，所以我们准备了一堂预备课 <a href="http://edu.csdn.net/huiyiCourse/detail/563">Docker 以及 Docker 网络</a> ，如果对 Docker 尚不熟悉的朋友可以先了解下。</p>
+
+<p>更新：《<a href="http://edu.csdn.net/course/detail/6080">Kubernetes 完全课程</a>》已经上线</p>
+
+<p><img src="http://jolestar.com/images/weichat/qrcode_jolestar_blog2.png" alt="qrcode_jolestar_blog2" /></p>
+
+<p><strong>相关链接</strong></p>
+
+<hr />
+
+<ol>
+  <li>
+    <p><a href="https://github.com/kubernetes/contrib/tree/master/election/">kubernetes election</a></p>
+  </li>
+  <li>
+    <p><a href="[https://appcenter.qingcloud.com/apps/app-u0llx5j8">Kubernetes on QingCloud</a></p>
+  </li>
+  <li>
+    <p><a href="https://istio.io/">istio</a> 官方文档</p>
+  </li>
+  <li>
+    <p><a href="https://istio.doczh.cn">istio.doczh.cn</a> istio 中文文档</p>
+  </li>
+  <li>
+    <p><a href="http://edu.csdn.net/course/detail/6080">Kubernetes 完全课程</a></p>
+
+  </li>
+</ol>
+
+  </article>
+  <div>
+  </div>
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">午夜咖啡</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>午夜咖啡</li>
+          <li><a href="mailto:jolestar@gmail.com">jolestar@gmail.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/jolestar">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/jolestar">
+              <span class="icon  icon--twitter">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809
+                  c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="http://weibo.com/jolestar">
+              <span class="icon  icon--weibo">
+                <svg viewBox="0 0 1000 1235">
+                  <path fill="#828282" d="M0 672q0-161 184-347 117-116 236-162 56-23 97-23 45 0 72 27 26 26 26 72 0 31-12 72-4 14 3 17.5t16 .5l10-4q96-40 170-40t106 42q15 22 15 52 0 31-16 71-7 10-2.5 17t8 9 14.5 5q62 19 106 62t44 107q0 59-41 120.5t-111.5 112.5-178 84-228.5 33q-131 0-247.5-38.5t-193.5-115-77-174.5zm125 48q10 101 125 161 92 49 209 49 29 0 60-3 153-15 255-97 92-75 92-165 0-9-1-18-10-100-125-160-93-49-210-49-29 0-59 3-101 10-183 51t-126 101q-38 53-38 109 0 9 1 18zm160 62q-13-29-13-59 0-35 18-70 31-64 104-96 45-20 91-20 27 0 54 7 76 20 109 82 17 32 17 66 0 32-15 65-31 71-109 104-44 19-88 19-34 0-67-11-73-23-101-87zm56-19q6 25 30 35 13 6 27 6 12 0 24-4 28-9 43-33 10-16 10-32 0-7-3-15-6-24-30-34-13-5-26-5-12 0-25 4-27 9-41 32-11 16-11 33 0 7 2 13zm141-79q3 9 13 13 5 2 9.5 2t9.5-2q11-4 16-13t2-18-12-13q-9-3-19.5.5t-15.5 12.5q-3 6-3 12l0 6zm321-621q-1-5-1-10 0-13 8-25 10-16 29-21 34-7 68-7 51 0 100 15 83 27 143 93t78 153q7 35 7 68 0 51-16 98l0 1q-6 18-23 27-11 5-22 5-7 0-15-2-19-6-27-23-5-11-5-21 0-8 2-15l0-1q11-34 11-70 0-23-4-48-13-62-56-109t-102-66q-35-10-70-10-24 0-49 5-5 1-10 1-14 0-26-8-16-11-20-30zm40 157q-1-5-1-10 0-10 6-21 9-14 26-18 19-4 37-4 67 0 115 53 29 33 38 75 3 17 3 33 0 24-8 48-5 16-20 23-9 5-18 5-7 0-13-2-16-5-24-20-4-9-4-18 0-7 2-13 4-14 4-26 0-28-21-50-22-26-54-26-10 0-20 2-5 1-9 1-11 0-21-7-14-9-18-25z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
+            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+        </div>
+        <script>
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+            ga('create', 'UA-1268034-7', 'auto');
+            ga('send', 'pageview');
+        </script>
+
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

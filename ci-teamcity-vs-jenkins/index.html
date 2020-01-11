@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html>
+
+  
+
+
+ 
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>持续集成系统的演进之路</title>
+  <meta name="description" content="本文分析了持续集成系统的功能点，比较Jenkins,Teamcity这两款持续集成工具的优缺点，最后总结了持续集成的最佳实践要点。">
+
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="canonical" href="http://jolestar.com/ci-teamcity-vs-jenkins/">
+  <link rel="alternate" type="application/rss+xml" title="午夜咖啡" href="../feed.xml" />
+  <meta name="google-site-verification" content="kmm9IK4zVCvEFzsNDOyTkDdtkaMGQHtdgEXurVQizfc" />
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="../">午夜咖啡</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        <!-- 
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+          <a class="page-link" href="/sitemap.txt">Sitemap</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+         -->
+        <a class="page-link" href="../about/">About</a>
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">持续集成系统的演进之路</h1>
+    <p class="post-meta">Sep 13, 2015 • jolestar</p>
+  </header>
+
+  <article class="post-content">
+    <p>本文分析了持续集成系统的功能点，比较Jenkins,Teamcity这两款持续集成工具的优缺点，最后总结了持续集成的最佳实践要点。</p>
+
+<p>阅读对象：研发以及研发管理人员，研发工具研究爱好者</p>
+
+<!--more-->
+<p><strong>持续集成（Continuous integration）</strong>，是随着敏捷开发一起成长起来的理念，逐渐发展，当前持续集成的外延基本已经涵盖了持续测试，持续部署，持续反馈，逐渐和持续交付等同了，只是二者的关注点略有区别。</p>
+
+<p>引用《Continuous Integration: Improving Software Quality and Reducing Risk》中的一句话：</p>
+
+<blockquote>
+  <p>持续集成的核心是减少缺陷引入，发现和修复之间的时间间隔。</p>
+</blockquote>
+
+<p>所以持续集成的关键在于<strong>持续</strong>。</p>
+
+<p>假设时间回退，我们回到还没有持续集成工具的计算机远古时代，遇到了以下场景：</p>
+
+<blockquote>
+  <p>你辛辛苦苦，撸啊撸呀，撸完了功能代码，高兴提交代码到仓库里。结果你的同事更新代码后发现程序编译不通过，后来发现是你少提交了一个代码文件或者依赖配置，导致大家的工作中断。</p>
+</blockquote>
+
+<p>于是你们商量，找了一台专用电脑，每次代码提交都触发一个hook，调用编译器在服务器上编译，如果错误就通知对应的提交者。这个可能就是最初的持续集成了。</p>
+
+<p>但后来发现只编译还解决不了问题，所以逐渐增加了代码风格检查，静态代码分析，单元测试调用，测试覆盖率检查等等增强功能。</p>
+
+<p>这是持续集成第一进阶，<strong>代码级别的集成</strong>。这个级别的集成不依赖独立的持续集成工具也可以实现，一般语言的build工具基本内置，比如java的maven，gradle，go内置的build工具。</p>
+
+<p>然而好景不长，你们发现即便是经过了完整的单元测试，严格的代码分析，也不能保证程序正常运行，更不能保证接口实现符合需求定义。于是你们增加了自动部署测试环境的流程，编写了集成测试用例，每次提交先进行代码build，然后触发测试环境部署和集成测试。</p>
+
+<p>这是持续集成的第二进阶，<strong>集成workflow</strong>，这才基本实现了真正的持续集成。</p>
+
+<p>你们继续欢乐的进行编程，后来发生一次部署故障，经过集成测试打包后的系统部署到生产环境后出现了错误。原因可能是生产环境和测试环境的异构，也可能是二者配置差异导致的错误。于是你们又改进一次，在workflow中增加了部署预生产环境进行灰度集成测试的流程，还进一步将生产环节的部署和持续集成系统整合，通过持续集成系统来触发生产环境的部署，同时做线上环境部署后的回归测试。</p>
+
+<p>至此，是持续集成的第三进阶，<strong>持续部署与交付</strong>。</p>
+
+<p>随着你们项目的发展，团队成员越来越多，用户也越来越多，对稳定性的要求也越来越高。原来你们的修改直接提交到代码仓库的主分支上，然后触发持续集成。人多了后发现这样有问题，于是使用了feature分支模式，比如典型的Github workflow。</p>
+
+<p>借用一张微博@TimYang发的<a href="http://weibo.com/10503/B6h6RmPDv">gitlab workflow交付流程图</a>：
+<img src="http://ww3.sinaimg.cn/mw1024/00002907jw1egt5z5d4n6j20go0howgf.jpg" alt="" title="git workflow" /></p>
+
+<ul>
+  <li>分支的每次提交是否需要触发CI流程？</li>
+  <li>每次merge request或者pull request，是否要触发CI，进行预验证，然后再进行合并？</li>
+</ul>
+
+<p>如果回答是，则需要进一步改进CI，CI的workflow要支持分支并行，并且需要考虑并行到哪一步，只是代码级别，还是同时要进行测试环境集成（当然分支的测试不建议直接跑到灰度环境）。另外如果代码量和单元测试越来越多，开发者本地执行太慢，是否要支持本地未提交代码在服务器端进行CI？</p>
+
+<p>至此，是持续集成的第四进阶，<strong>并行多workflow集成以及个性化集成</strong>。</p>
+
+<p>假设我们需要自己设计一个持续集成系统，现在总结一下持续集成系统需要设计的功能点：</p>
+
+<ol>
+  <li><strong>User &amp; AuthManager</strong> 这个是任何一个系统的基本需求，同时和持续集成的提醒反馈机制，以及第四进阶的个性化集成都相关。</li>
+  <li><strong>Project</strong> 权限控制一般是以项目为粒度的，同时持续集成的Build configure都是关联在项目之下。</li>
+  <li><strong>Build Runner</strong> 因为各种语言的build工具以及项目定义都不相同，需要允许扩展。为什么不直接用命令行调用呢？Build Runner需要做的事情包括日志收集，错误收集，变量注入等，用脚本比较困难。</li>
+  <li><strong> Source configure </strong> 项目关联的源码配置</li>
+  <li><strong> Build configure </strong> Builder Runner需要的参数等设置，一般都需要支持能配置多个step配置。</li>
+  <li><strong> Workflow (pipeline) </strong> 这个到第二进阶的时候就需要。因为持续集成系统执行的最小单元是Build configure，同一个configure的step不能独立执行，如果没有workflow机制，直接将所有的流程都放到同一个Build configure的不同的step，导致的结果就是如果后面的step失败，则必须从头开始。比如灰度测试的时候，部署脚本出现了错误，导致失败。如果有workflow，修复脚本后再次运行灰度测试这个Build configure即可，否则必须从头构建，非常浪费时间。</li>
+  <li><strong> Build agent </strong> 这个不同的CI工具实现的机制不一样，在这里指真正执行Build Runner的单元。Build agent要能支持库扩充部署，方便实现并行Build。</li>
+  <li><strong>Notification</strong> 通知和反馈对持续集成非常重要，最开始和就说到，持续集成包含的一层含义就是持续反馈。只有Build的结果及时通知到开发，测试，运维人员，才能形成持续集成环。</li>
+</ol>
+
+<p>当然，当前CI工具这么多，我们完全没必要自己设计开发。既然我们总结出来CI工具需要包含的功能点，那么我们就从这几个方面进行比较选择一下。由于笔者主要使用Jenkins和Teamcity，所以这里只比较这两个工具，其他的工具也可以按照这几个角度进行比较。另外选择这两个工具比较的原因是二者都可以免费获取到，Jenkins是开源的，Teamcity小规模使用（3个agent，20个Build configure）免费。</p>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>Teamcity</th>
+      <th>Jenkins</th>
+      <th>比较说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>User &amp; AuthManager</td>
+      <td>5</td>
+      <td>5</td>
+      <td>二者差距不大，都支持ldap等认证扩展，Jenkins胜在认证扩展插件比较多，Teamcity胜在权限管理比较方便（这个和项目配置有关，下面会说到）。</td>
+    </tr>
+    <tr>
+      <td>Project</td>
+      <td>5</td>
+      <td>3</td>
+      <td>Teamcity的Project是树型结构的，而不是并列的。这样的好处是配置可以继承，子项目继承父项目的配置。另外的好处是权限容易管理。即使项目非常多也可以展示出来。Jenkins下如果项目太多就必须通过插件来解决了。</td>
+    </tr>
+    <tr>
+      <td>Build Runner</td>
+      <td>5</td>
+      <td>5</td>
+      <td>二者基本扯平，Jenkins依然胜在插件较多，Teamcity胜在Builder Runner的抽象比较好，配置项定制化比较强。</td>
+    </tr>
+    <tr>
+      <td>Source configure</td>
+      <td>5</td>
+      <td>4</td>
+      <td>主流的SCM二者都支持，Teamcity胜在Source configure是独立的配置对象，关联在Project上，可以通过继承机制多个项目或者多个Build configure共享Source configure。另外就是Teamcity可以直接在后台查看本次build变更的diff，不需要依赖SCM的支持（不确定Jenkins是否有插件支持）。</td>
+    </tr>
+    <tr>
+      <td>Build configure</td>
+      <td>5</td>
+      <td>3</td>
+      <td>Jenkins没有明确抽象Build configure，同一个Project只能有一个Build configure。二者的Build configure都支持多个step。Jenkins的这种抽象方式带来的问题是配置不够灵活，实现Workflow比较困难。</td>
+    </tr>
+    <tr>
+      <td>Workflow</td>
+      <td>5</td>
+      <td>3</td>
+      <td>Jenkins是通过<a href="https://wiki.jenkins-ci.org/display/JENKINS/Build+Pipeline+Plugin">Build Pipeline</a>插件来实现这个功能，Teamcity内置Build Chains机制。前面也说了，由于Jenkins的同一个项目只支持一个Build configure，Pipeline是通过多个项目的trigger机制实现的。这种方式导致pipleline之间共享资源比较困难。而Teamcity 的Build Chains是通过Build configure之间的依赖关系来实现的，配置比较方便。另外Jekins也有<a href="https://wiki.jenkins-ci.org/display/JENKINS/Workflow+Plugin">Workflow</a>插件，通过脚本定义workflow，但笔者未深度使用过，不好评价。</td>
+    </tr>
+    <tr>
+      <td>Build agent</td>
+      <td>5</td>
+      <td>3</td>
+      <td>Jenkins没有Build agent抽象，集群是通过master-slave机制实现的，slave基本上是master的全功能复制。好处是部署后不依赖agent即可工作，缺点是不方便扩容。而Teamcity的Build agent是独立的，Build runner是运行在agent上的，通agent pool统一管理。Teamcity还支持cloud-agent功能，监测Build queue中的任务，动态伸缩agent的数量。这个使用云服务时非常方便，也能节省资源。</td>
+    </tr>
+    <tr>
+      <td>Notification</td>
+      <td>5</td>
+      <td>5</td>
+      <td>二者都支持各种Notification机制以及插件。Jenkins优点是插件多，Teamcity优点是各种Notification工具都开箱即用。</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>综合评价，由上表可以看出，Teamcity在易用性以及抽象设计上胜出，开箱即用，不用太多自定义即可满足大多数场景，但由于是非开源应用，不便于自定义扩展。建议初创团队或者没有太多研发精力自定义CI工具的团队选择。Jenkins胜在开源，插件丰富，可完全自定义，建议有专门的CI研发人员的团队选择。</p>
+
+<p>Teamcity的cloud-agent有个bug，不能支持amazon aws的中国区Region，因为没有源码我只能提bug等待他们修复，有兴趣的可以上去帮忙给投个票。<a href="https://youtrack.jetbrains.com/issue/TW-42235">TW-42235</a>。</p>
+
+<h3 id="再说说持续反馈问题">再说说持续反馈问题</h3>
+<p>前面说了，如果CI的反馈不能及时通知到相关人员，或者相关人员响应不及时，最后导致的结果就是CI形同虚设。所以CI都有各种Notification插件，还有人弄了个硬件的报警器，build失败就报警，据说效果不错。</p>
+
+<ul>
+  <li><strong>邮件</strong> 默认都是通过邮件通知的。但邮件的缺点是不及时，同时大家为了避免打扰，往往会设置过滤器过滤掉。</li>
+  <li><strong>Jabber等内部IM</strong> 前提是必须团队内有搭建使用内部Jabber服务的习惯。</li>
+  <li><strong>桌面客户端以及IDE通知</strong> 需要所有成员都安装插件或者桌面agent。</li>
+  <li><strong>Slack等团队通讯SaaS</strong> Slack的集成可以将build结果通知到channel内，团队共享通知，也可以及时讨论，但缺点是会打扰到不相干的人。</li>
+  <li><strong>Grouk</strong> <a href="https://grouk.com">Grouk</a> 是笔者团队研发的团队通讯工具。在CI通知集成上尝试进行改进，在build失败的消息中 @ 导致build失败的提交者，这样大家把提醒设置为 @ 就可以避免打扰了（此功能尚未上线，敬请期待）。</li>
+</ul>
+
+<h3 id="创业团队是否需要持续集成">创业团队是否需要持续集成</h3>
+<p>前一段时间微博上关于技术工具，架构，团队的争论非常火热，有一种观点是创业团队关键是要生存发展，对生存发展没有帮助的花架子都不要，办法土点也没关系。</p>
+
+<p>技术人创业失败后对自信心打击是非常大的，因为会发现自己优雅的代码架构，完善的单元测试覆盖率，良好的持续集成，竟然也没干过对手找外包撸的烂系统，于是就有了上面的观点。笔者也遭遇过创业团队失败，对这种心情深有所感。</p>
+
+<p>但创业失败和成功的因素太多了，很难说优雅的代码架构，完善的单元测试覆盖率，良好的持续集成能有多大作用。我个人后来想明白了，这些只是作为一个技术人专业态度的体现，与成功与否关系不大。</p>
+
+<p>持续集成最大的作用是让研发团队更优雅的进行功能开发，快速迭代，而不是忙于扑火，填坑。具体值得花多大代价去维护，是磨刀和砍柴的关系。如果只是砍棵树，磨磨斧头就行了，如果是片林子，你可能需要弄台伐木机了。</p>
+
+<h3 id="持续集成最佳实践要点">持续集成最佳实践要点</h3>
+
+<p>还是引用@TimYang上一个配图的说明：</p>
+
+<blockquote>
+  <p>当然这里面[持续集成]最容易的就是画流程，难改变是流程之外的东西。</p>
+</blockquote>
+
+<p>持续集成无论是工具使用还是流程定义，其实都不难，难的是如何形成这样的习惯与文化。笔者通过自己的实践经验总结了以下持续集成的最佳实践要点，可以帮助让这个改进更容易些：</p>
+
+<ol>
+  <li>首先要选择一个可以脱离IDE进行build的语言以及项目定义工具。这个很明显，CI是要在服务器上跑的。如果你的团队进行build还完全依赖IDE，这事情就没法搞。</li>
+  <li>CI工具越早引入越好，最好是写第一行代码的时候就先弄个CI，但配置不用一步到位，可以按照上面的进阶一步步完善。这样才容易形成围绕CI进行开发的习惯。</li>
+  <li>集成测试用例最好使用项目本身开发语言编写和单元测试类似，至少是团队开发人员都熟悉的语言。并且项目代码要和集成测试用例在同一个源码仓库里。如果你的团队有专门的QA人员写测试用例，那最好让QA和开发人员共享同一个代码仓库。如果你的集成测试系统是通过配置实现的，那也请将测试用例作为配置文件放到代码仓库中，而不是通过web编辑器放到数据库中。这样做的最大好处是项目代码和集成测试代码共享同一个分支，同一个build number，只有这样才能做多分支的并行测试。否则如果测试用例单独维护，代码的分支如何和测试用例对应起来？最后的结果就是，自动化测试用例都是上线后补充的，上线前还是依赖人肉测试。</li>
+  <li>编写测试用例和功能开发最好是同一个人，如果做不到，编写测试用例的开发也要有权限修改业务代码。因为要做自动化测试必须在系统中留一些后门来给自动化测试提供便利。比如提供用户的批量生成和销毁，比如对测试的请求不记录到统计日志中等等。</li>
+  <li>部署的脚本或者配置最好和项目在同一个源码仓库。只有这样，自动化部署才方便实施。因为项目的改进以及重构，往往伴随着依赖资源以及部署机制上的改造。</li>
+  <li>服务最好不依赖外部容器，可以独立运行。这个专指java的容器，其他的如go,nodejs都没有这个问题。java的容器是企业应用为了降低部署成本带来的习惯，但当前虚拟化，docker等技术这样成熟的情况下，应用容器已经完全没必要了。如果非要用，也最好直接和应用打包在一起，让应用可以直接运行，这对开发效率以及集成测试，都非常有帮助。</li>
+  <li>最好提供一种直接可以单进程运行整个系统而不依赖外部资源的配置，外部资源都用内存版的库进行mock。这样做的好处是可以非常快速的进行初步的集成测试验证，同时也非常方便统计集成测试覆盖率（通过单元测试覆盖率工具即可实现）。</li>
+  <li>如果公司有多个研发团队，最好共享CI池，这样成本最小。有的公司为了省钱，避免超过免费限制，部署多套CI。其实算下来这样成本比购买商业版更高。</li>
+</ol>
+
+<p>总结，持续集成是最能体现一个团队的DevOps氛围以及水平的一个场景，因为整个流程需要开发，测试，运维的紧密协作，缺一不可。</p>
+
+
+  </article>
+  <div>
+  </div>
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">午夜咖啡</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>午夜咖啡</li>
+          <li><a href="mailto:jolestar@gmail.com">jolestar@gmail.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/jolestar">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/jolestar">
+              <span class="icon  icon--twitter">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809
+                  c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="http://weibo.com/jolestar">
+              <span class="icon  icon--weibo">
+                <svg viewBox="0 0 1000 1235">
+                  <path fill="#828282" d="M0 672q0-161 184-347 117-116 236-162 56-23 97-23 45 0 72 27 26 26 26 72 0 31-12 72-4 14 3 17.5t16 .5l10-4q96-40 170-40t106 42q15 22 15 52 0 31-16 71-7 10-2.5 17t8 9 14.5 5q62 19 106 62t44 107q0 59-41 120.5t-111.5 112.5-178 84-228.5 33q-131 0-247.5-38.5t-193.5-115-77-174.5zm125 48q10 101 125 161 92 49 209 49 29 0 60-3 153-15 255-97 92-75 92-165 0-9-1-18-10-100-125-160-93-49-210-49-29 0-59 3-101 10-183 51t-126 101q-38 53-38 109 0 9 1 18zm160 62q-13-29-13-59 0-35 18-70 31-64 104-96 45-20 91-20 27 0 54 7 76 20 109 82 17 32 17 66 0 32-15 65-31 71-109 104-44 19-88 19-34 0-67-11-73-23-101-87zm56-19q6 25 30 35 13 6 27 6 12 0 24-4 28-9 43-33 10-16 10-32 0-7-3-15-6-24-30-34-13-5-26-5-12 0-25 4-27 9-41 32-11 16-11 33 0 7 2 13zm141-79q3 9 13 13 5 2 9.5 2t9.5-2q11-4 16-13t2-18-12-13q-9-3-19.5.5t-15.5 12.5q-3 6-3 12l0 6zm321-621q-1-5-1-10 0-13 8-25 10-16 29-21 34-7 68-7 51 0 100 15 83 27 143 93t78 153q7 35 7 68 0 51-16 98l0 1q-6 18-23 27-11 5-22 5-7 0-15-2-19-6-27-23-5-11-5-21 0-8 2-15l0-1q11-34 11-70 0-23-4-48-13-62-56-109t-102-66q-35-10-70-10-24 0-49 5-5 1-10 1-14 0-26-8-16-11-20-30zm40 157q-1-5-1-10 0-10 6-21 9-14 26-18 19-4 37-4 67 0 115 53 29 33 38 75 3 17 3 33 0 24-8 48-5 16-20 23-9 5-18 5-7 0-13-2-16-5-24-20-4-9-4-18 0-7 2-13 4-14 4-26 0-28-21-50-22-26-54-26-10 0-20 2-5 1-9 1-11 0-21-7-14-9-18-25z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
+            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+        </div>
+        <script>
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+            ga('create', 'UA-1268034-7', 'auto');
+            ga('send', 'pageview');
+        </script>
+
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

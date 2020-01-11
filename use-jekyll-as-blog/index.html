@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html>
+
+  
+
+
+ 
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>使用jeklly搭建自己的blog</title>
+  <meta name="description" content="博客荒废好久了，杂草丛生，都不好意思打开了。那天看到一个用git作为博客存储的博客搭建工具: jekyll。github的page服务就使用的是它。和我去年用git后产生的用git做wiki以及博客服务的思路类似，于是又激起了我捣鼓博客的兴趣。用jekyll的好处是可以使用Markdown的语法来写博客。下面介绍...">
+
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="canonical" href="http://jolestar.com/use-jekyll-as-blog/">
+  <link rel="alternate" type="application/rss+xml" title="午夜咖啡" href="../feed.xml" />
+  <meta name="google-site-verification" content="kmm9IK4zVCvEFzsNDOyTkDdtkaMGQHtdgEXurVQizfc" />
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="../">午夜咖啡</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        <!-- 
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+          <a class="page-link" href="/sitemap.txt">Sitemap</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+         -->
+        <a class="page-link" href="../about/">About</a>
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">使用jeklly搭建自己的blog</h1>
+    <p class="post-meta">Mar 13, 2013 • jolestar</p>
+  </header>
+
+  <article class="post-content">
+    <p>博客荒废好久了，杂草丛生，都不好意思打开了。那天看到一个用git作为博客存储的博客搭建工具: jekyll。github的page服务就使用的是它。和我去年用git后产生的用git做wiki以及博客服务的思路类似，于是又激起了我捣鼓博客的兴趣。用jekyll的好处是可以使用Markdown的语法来写博客。下面介绍一下搭建过程中的一些总结。</p>
+
+<!--more-->
+
+<p>##安装</p>
+
+<p>安装jekyll非常容易
+安装ruby后，使用gem一行命令搞定</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gem install jekyll
+</code></pre></div></div>
+
+<p>具体参看:</p>
+
+<p><a href="https://github.com/mojombo/jekyll/wiki/install">https://github.com/mojombo/jekyll/wiki/install</a></p>
+
+<p>但安装rdiscount的时候遇到了问题,rdiscount 在ruby 1.9.2版本上有个bug <a href="https://github.com/rtomayko/rdiscount/issues/48">https://github.com/rtomayko/rdiscount/issues/48</a>.我是升级到 1.9.3才解决的。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo gem install rdiscount
+</code></pre></div></div>
+
+<p>推荐使用rdiscount作为Markdown语法解析工具，速度快，兼容性强。</p>
+
+<p>##使用</p>
+
+<p>使用起来很简单。按照 jekyll的标准设置目录，修改_config.yml配置文件，然后用</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>jekyll --server
+</code></pre></div></div>
+
+<p>启动即可。
+按照Markdown的语法编写博客放置在 _post文件夹下。</p>
+
+<p>如果手动编写html的页面模板太麻烦，可以使用 <a href="http://jekyllbootstrap.com/" title="jekyllbootstrap">jekyllbootstrap</a>. jekyllbootstrap是一个整合twitter的 bootstrap 和 jekyll的工具，可以用bootstrap制作博客theme。</p>
+
+<p>##git仓库</p>
+
+<p>git仓库可以托管到github上，也可以自己搭建。如果托管到github上作为page服务，请参考 <a href="http://pages.github.com/">http://pages.github.com/</a>。另外也可以考虑使用国人的 <a href="https://gitcafe.com/">gitcafe</a>。</p>
+
+<p>##历史数据导入</p>
+
+<p>如果博客以前是用wordpress搭建的，则有许多工具支持导入数据
+这篇文章介绍如何通过一些ruby脚本完成这个事情
+<a href="http://vitobotta.com/how-to-migrate-from-wordpress-to-jekyll/">http://vitobotta.com/how-to-migrate-from-wordpress-to-jekyll/</a>
+也有一些现成的工具 <a href="https://github.com/mojombo/jekyll/wiki/Blog-Migrations">https://github.com/mojombo/jekyll/wiki/Blog-Migrations</a></p>
+
+<p>我用的是一个wordpress插件 <a href="https://github.com/benbalter/wordpress-to-jekyll-exporter">https://github.com/benbalter/wordpress-to-jekyll-exporter</a>。效果还好，只是部分链接转换的时候会坏掉。</p>
+
+<h2 id="扩展解决方案">扩展解决方案</h2>
+
+<h3 id="博客摘要">博客摘要</h3>
+
+<p>默认jekyll的首页只展示文章列表。可以让显示全文，但会导致首页过大。所以希望通过摘要的方式实现。博客摘要的功能当前有几种实现方式：</p>
+
+<ol>
+  <li>
+    <p>插件方式</p>
+
+    <p>插件方式功能较强，但github的pages服务不支持插件。</p>
+
+    <p>_plugins/more.rb:</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> module More
+     def more(input, type)
+         if input.include? "&lt;!--more--&gt;"
+             if type == "excerpt"
+                 input.split("&lt;!--more--&gt;").first
+             elsif type == "remaining"
+                 input.split("&lt;!--more--&gt;").last
+             else
+                 input
+             end
+         else
+             input
+         end
+     end
+ end
+
+ Liquid::Template.register_filter(More)
+</code></pre></div>    </div>
+
+    <p>博客中增加标记</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> ---
+ layout: post
+ title: "Your post title"
+ published: true
+ ---
+ &lt;p&gt;This is the excerpt.&lt;/p&gt;
+ &lt;!--more--&gt;
+ &lt;p&gt;This is the remainder of the post.&lt;/p&gt;
+</code></pre></div>    </div>
+
+    <p>获取摘要方法</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> &lt;summary&gt;&lt;/summary&gt;  获取全文
+
+ &lt;article&gt;&lt;/article&gt;		
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>liquid 过滤器方式</p>
+
+    <p>这种模式不需要插件，但缺点是截取的字符是固定的，会把一个词切开，体验不好。</p>
+  </li>
+  <li>
+    <p>通过html的注解进行hacks</p>
+
+    <p>在文档中增加特殊的标记。</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> ---
+ title: some post
+ layout: post
+ ---
+ Some intro, this will be visible on the index page.
+ &lt;!-- more start --&gt;
+ More content, this will not be visible on the index page.
+ &lt;!-- more end --&gt;
+</code></pre></div>    </div>
+
+    <p>显示summary的时候通过文本替换，将后面的全文内容放到html的注释中。这样页面上就不会显示出来。虽然看起来会好一点，但白白传输了一部分不需要显示的内容。</p>
+
+    <p>来源:
+ <a href="http://kaspa.rs/2011/04/jekyll-hacks-html-excerpts/">http://kaspa.rs/2011/04/jekyll-hacks-html-excerpts/</a></p>
+  </li>
+  <li>
+    <p>js操作模式</p>
+
+    <p>思路是页面渲染后通过js把过长的文章中的html节点给隐藏了。
+ 具体参看:
+ <a href="http://blog.evercoding.net/2013/03/09/traversing-dom-tree-with-javascript/">http://blog.evercoding.net/2013/03/09/traversing-dom-tree-with-javascript/</a></p>
+  </li>
+  <li>
+    <p>我的解决方案</p>
+
+    <p>参考方案3，我的解决方案更简单:</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> ---	
+ title: some post
+ layout: post
+ ---
+ Some intro, this will be visible on the index page.
+ &lt;!--more--&gt;
+ More content, this will not be visible on the index page.
+</code></pre></div>    </div>
+
+    <p>然后用split方法截取第一部分显示</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> post.content | split:'&lt;!--more--&gt;' |first
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h3 id="代码高亮">代码高亮</h3>
+
+<p>代码高亮有两种解决方案</p>
+
+<ol>
+  <li>
+    <p>使用pygmentize或者redcarpet在生成页面的时候自动将代码格式化成带样式的html
+ 参考: <a href="https://github.com/mojombo/jekyll/wiki/install">https://github.com/mojombo/jekyll/wiki/install</a></p>
+  </li>
+  <li>
+    <p>纯js解决方案</p>
+
+    <p>有名的有,<a href="http://google-code-prettify.googlecode.com/" title="google-code-prettify">google-code-prettify</a>和 <a href="http://alexgorbatchev.com/SyntaxHighlighter/" title="SyntaxHighlighter">SyntaxHighlighter</a>。后者功能比较强大，但也比较臃肿,最后选择了 <a href="http://google-code-prettify.googlecode.com/" title="google-code-prettify">google-code-prettify</a></p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> &lt;script type="text/javascript" src="/js/jquery-1.9.1.min.js"&gt;&lt;/script&gt;
+ &lt;script type="text/javascript"&gt;
+     $(function() {
+         $('pre').addClass('prettyprint').attr('style', 'overflow:auto');
+     });
+     $(function() {
+          window.prettyPrint &amp;&amp; prettyPrint();
+     });
+ &lt;/script&gt;
+ &lt;script src="/google-code-prettify/prettify.js" defer="defer"&gt;&lt;/script&gt;
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h3 id="评论方案">评论方案</h3>
+<p>评论可以使用<a href="http://jekyllbootstrap.com/" title="jekyllbootstrap">jekyllbootstrap</a>提供的comments-providers(disqus,facebook,intensedebate,livefyre)。
+我基于微博的评论箱功能扩展了一个基于微博的comments-providers</p>
+
+<p><a href="https://github.com/jolestar/jolestar.github.com/blob/master/_includes/JB/comments-providers/weibo">https://github.com/jolestar/jolestar.github.com/blob/master/_includes/JB/comments-providers/weibo</a></p>
+
+<h3 id="和nginx的整合">和nginx的整合</h3>
+<p>部署定时任务自动从git仓库拉取源码然后生成静态页面。
+如这篇博客中的介绍:<a href="http://grepalex.com/2012/08/17/full-jekyll-VM-setup/">http://grepalex.com/2012/08/17/full-jekyll-VM-setup/</a>。
+但为了节省资源，没必要每次都重新生成，所以我使用了git的post-merge hooks来触发生成静态页面。</p>
+
+<p>post-merge</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<span class="nv">workspace</span><span class="o">=</span><span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span><span class="p">;</span>
+<span class="nb">exec </span>sh <span class="nv">$GIT_DIR</span>/hooks/jekyll.sh <span class="nv">$workspace</span> <span class="o">&gt;</span> 	<span class="nv">$GIT_DIR</span>/jekyll.log
+</code></pre></div></div>
+
+<p>jekyll.sh</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+
+<span class="nv">workspace</span><span class="o">=</span><span class="nv">$1</span>
+
+send_email_and_exit<span class="o">()</span> <span class="o">{</span>
+  <span class="nv">recipient</span><span class="o">=</span><span class="nv">$1</span>
+  <span class="nv">message</span><span class="o">=</span><span class="nv">$2</span>
+
+  <span class="nb">echo</span> <span class="s2">"Sending email and exiting due to error"</span>
+  <span class="nb">echo</span> <span class="nv">$message</span>
+  mail <span class="nt">-s</span> <span class="s2">"Blog generation failure"</span> <span class="s2">"</span><span class="k">${</span><span class="nv">recipient</span><span class="k">}</span><span class="s2">"</span> <span class="o">&lt;&lt;</span> <span class="no">EOF</span><span class="sh">
+</span><span class="k">${</span><span class="nv">message</span><span class="k">}</span><span class="sh">
+</span><span class="no">EOF
+
+</span>  <span class="nb">exit </span>1
+<span class="o">}</span>
+
+<span class="nb">echo</span> <span class="s2">"Running at "</span><span class="sb">`</span><span class="nb">date</span><span class="sb">`</span>
+
+<span class="nv">emailto</span><span class="o">=</span><span class="s2">"youremail@xxx.com"</span>
+
+<span class="nb">echo</span> <span class="nv">$workspace</span>
+<span class="nb">cd</span> <span class="nv">$workspace</span>
+
+jekyll <span class="nt">--no-auto</span>  <span class="nt">--no-safe</span>
+
+<span class="nv">exitCode</span><span class="o">=</span><span class="nv">$?</span>
+
+<span class="k">if</span> <span class="o">[</span> <span class="k">${</span><span class="nv">exitCode</span><span class="k">}</span> <span class="o">!=</span> <span class="s2">"0"</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+  </span>send_email_and_exit <span class="s2">"</span><span class="k">${</span><span class="nv">emailto</span><span class="k">}</span><span class="s2">"</span> <span class="s2">"Jekyll failed with exit code </span><span class="k">${</span><span class="nv">exitCode</span><span class="k">}</span><span class="s2">"</span>
+<span class="k">fi</span>
+</code></pre></div></div>
+
+<p>将这两个文件放置到服务器的git workspace路径下的.git/hooks中，然后设置定时任务定时从仓库pull源码，如果有更新则会重新生成页面。默认的路径在 workspace/_site 目录下，将ngnix的web路径指向到该目录即可。</p>
+
+<p>至此大功告成。可以使用任意自己喜欢的文本编辑器来写博客了。除了vim，另外推荐一个 Markdown 的编辑器: Mou。</p>
+
+<p>##参考资料</p>
+
+<ul>
+  <li><a href="http://wiki.github.com/mojombo/jekyll/yaml-front-matter">YAML头</a></li>
+  <li><a href="http://daringfireball.net/projects/markdown/syntax">Markdown</a> <a href="http://wowubuntu.com/markdown">Markdown中文说明</a></li>
+  <li><a href="http://www.liquidmarkup.org/">Liquid</a> 与 <a href="http://wiki.github.com/mojombo/jekyll/liquid-extensions">Jekyll-Liquid-extensions</a></li>
+</ul>
+
+
+  </article>
+  <div>
+  </div>
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">午夜咖啡</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>午夜咖啡</li>
+          <li><a href="mailto:jolestar@gmail.com">jolestar@gmail.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/jolestar">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/jolestar">
+              <span class="icon  icon--twitter">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809
+                  c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="http://weibo.com/jolestar">
+              <span class="icon  icon--weibo">
+                <svg viewBox="0 0 1000 1235">
+                  <path fill="#828282" d="M0 672q0-161 184-347 117-116 236-162 56-23 97-23 45 0 72 27 26 26 26 72 0 31-12 72-4 14 3 17.5t16 .5l10-4q96-40 170-40t106 42q15 22 15 52 0 31-16 71-7 10-2.5 17t8 9 14.5 5q62 19 106 62t44 107q0 59-41 120.5t-111.5 112.5-178 84-228.5 33q-131 0-247.5-38.5t-193.5-115-77-174.5zm125 48q10 101 125 161 92 49 209 49 29 0 60-3 153-15 255-97 92-75 92-165 0-9-1-18-10-100-125-160-93-49-210-49-29 0-59 3-101 10-183 51t-126 101q-38 53-38 109 0 9 1 18zm160 62q-13-29-13-59 0-35 18-70 31-64 104-96 45-20 91-20 27 0 54 7 76 20 109 82 17 32 17 66 0 32-15 65-31 71-109 104-44 19-88 19-34 0-67-11-73-23-101-87zm56-19q6 25 30 35 13 6 27 6 12 0 24-4 28-9 43-33 10-16 10-32 0-7-3-15-6-24-30-34-13-5-26-5-12 0-25 4-27 9-41 32-11 16-11 33 0 7 2 13zm141-79q3 9 13 13 5 2 9.5 2t9.5-2q11-4 16-13t2-18-12-13q-9-3-19.5.5t-15.5 12.5q-3 6-3 12l0 6zm321-621q-1-5-1-10 0-13 8-25 10-16 29-21 34-7 68-7 51 0 100 15 83 27 143 93t78 153q7 35 7 68 0 51-16 98l0 1q-6 18-23 27-11 5-22 5-7 0-15-2-19-6-27-23-5-11-5-21 0-8 2-15l0-1q11-34 11-70 0-23-4-48-13-62-56-109t-102-66q-35-10-70-10-24 0-49 5-5 1-10 1-14 0-26-8-16-11-20-30zm40 157q-1-5-1-10 0-10 6-21 9-14 26-18 19-4 37-4 67 0 115 53 29 33 38 75 3 17 3 33 0 24-8 48-5 16-20 23-9 5-18 5-7 0-13-2-16-5-24-20-4-9-4-18 0-7 2-13 4-14 4-26 0-28-21-50-22-26-54-26-10 0-20 2-5 1-9 1-11 0-21-7-14-9-18-25z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
+            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+        </div>
+        <script>
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+            ga('create', 'UA-1268034-7', 'auto');
+            ga('send', 'pageview');
+        </script>
+
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

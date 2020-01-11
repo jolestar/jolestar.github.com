@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html>
+
+  
+
+
+ 
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>持续集成系统的演进之路-实践篇</title>
+  <meta name="description" content="本文是持续集成系统的演进之路的实践篇，是本人在dockone群组分享内容的整理。">
+
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="canonical" href="http://jolestar.com/ci-practice/">
+  <link rel="alternate" type="application/rss+xml" title="午夜咖啡" href="../feed.xml" />
+  <meta name="google-site-verification" content="kmm9IK4zVCvEFzsNDOyTkDdtkaMGQHtdgEXurVQizfc" />
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="../">午夜咖啡</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        <!-- 
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+          <a class="page-link" href="/sitemap.txt">Sitemap</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+         -->
+        <a class="page-link" href="../about/">About</a>
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">持续集成系统的演进之路-实践篇</h1>
+    <p class="post-meta">Sep 23, 2015 • jolestar</p>
+  </header>
+
+  <article class="post-content">
+    <p>本文是持续集成系统的演进之路的实践篇，是本人在dockone群组分享内容的整理。</p>
+
+<!--more-->
+
+<p>我们是一个初创团队，Grouk我们研发的团队通讯工具。我们的docker使用经验还比较浅，来这里和大家探讨学习。</p>
+
+<p>我在一篇<a href="http://jolestar.com/ci-teamcity-vs-jenkins/">持续集成的演进之路</a>中分析了持续集成的几个进阶：</p>
+
+<ol>
+  <li>代码级别的集成</li>
+  <li>集成workflow</li>
+  <li>持续部署与交付</li>
+  <li>并行多workflow集成以及个性化集成</li>
+</ol>
+
+<p>这次分享相当于是这篇文章的实践篇。</p>
+
+<p>代码级别的集成就是只做单元测试，和代码检查。这阶是用不到docker的。到第二阶，要做workflow了，需要部署环境，才需要docker。第三进阶，需要部署到生产环境，使用docker也会降低部署成本。最后第四进阶，每个分支都进行环境部署和集成测试。如果没有docker支持的话，实现成本就太高了。</p>
+
+<h3 id="我们的持续集成流程">我们的持续集成流程</h3>
+
+<p>我们使用的语言主要是java，build工具使用的是gradle，持续集成使用的是Teamcity。
+下面是我们的持续集成workflow，是Teamcity的buildchain截图。</p>
+
+<p><img src="http://jolestar.com/images/ci/ci-flow.png" alt="ci-flow" /></p>
+
+<ol>
+  <li>build 基本上是代码级别的编译，单元测试，代码检查</li>
+  <li>
+    <p>integration_test 单实例集成测试。</p>
+
+    <p>我们所有依赖的资源都有内存版的替代，这样我们可以将所有服务在单进程中启动进行集成测试。这样做有几个好处：一是减少集成测试的耗费的时间，这非常重要，持续集成就是要能做到快速反馈。二是方便统计集成测试的测试覆盖率。三是方便本地开发测试，直接可以在IDE中启动服务进行debug。</p>
+  </li>
+  <li>
+    <p>build_docker_image 打包docker镜像。</p>
+
+    <p>我们是将代码以及配置一起打包到镜像里的。开始我们打包镜像使用的是shell，后来我们该成gradle插件。主要原因是我们有5个模块要打包5个镜像。打包每个镜像需要5分钟多，5个就将近半个小时。改为gradle后，打包可以多线程并行，现在可以在10分钟内。</p>
+
+    <p>另外说下，gradle的docker插件gradle-docker有bug，我们做了一些改进，详细可以参看<a href="https://github.com/GroukLab/gradle-docker">https://github.com/GroukLab/gradle-docker</a></p>
+
+    <p>gradle打包docker的配置例子:</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker {
+ 	useApi true
+ 	hostUrl "${docker_host}"
+ 	baseImage "${base_image}"
+ 	maintainer "xxx@email"
+ 	registry "${docker_registry}"
+ 	apiUsername 'username'
+ 	apiPassword ''
+ 	apiEmail 'xxxx@domain'
+ }
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>deploy_test_env 部署测试环境</p>
+
+    <p>我们当前还没用到复杂的docker集群编排工具，直接使用脚本+docker直接部署的。包含了mysql，redis，mongodb，elasticsearch，logstash以及自己的服务，一起部署，初始化。<br />
+ 测试环境每次进行集成测试都是重新初始化的。</p>
+  </li>
+  <li>
+    <p>test_env_integration 测试环境的集成测试</p>
+
+    <p>对测试环境的部署进行集成测试，测试用例和前面的单实例集成测试是一套的。</p>
+  </li>
+  <li>
+    <p>deploy_sandbox_env 部署沙箱环境</p>
+
+    <p>沙箱环境和测试环境基本是一样的，唯一区别是沙箱环境的数据是多次积累的，不会每次初始化。</p>
+  </li>
+  <li>
+    <p>sandbox_env_integration 沙箱环境的集成测试</p>
+  </li>
+  <li>
+    <p>deploy_production_env 部署生产环境</p>
+
+    <p>我们线上环境的服务也是用docker部署的，但资源服务使用的是云服务提供的，并没有部署到docker中。</p>
+  </li>
+  <li>
+    <p>production_env_integration 进行生产环境回归测试</p>
+  </li>
+  <li>clean-up 清理环境</li>
+</ol>
+
+<h3 id="持续集成最佳实践">持续集成最佳实践</h3>
+
+<p>持续集成的演进之路中列举了一些持续集成最佳实践，下面我摘几点介绍下我们的具体做法：</p>
+
+<ol>
+  <li>
+    <p>集成测试用例最好使用项目本身开发语言编写和单元测试类似，至少是团队开发人员都熟悉的语言。并且项目代码要和集成测试用例在同一个源码仓库里。</p>
+
+    <p>我们的集成测试是直接用java写的，放到单元测试的目录里。不同环境的集成测试通过环境变量进行控制。直接通过gradle的task调用进行集成测试。
+ 下面是gradle的集成测试task例子：</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> task testTestEnv(type: Test) {  
+     systemProperty "ums.env", "test"  
+ }  
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>服务最好不依赖外部容器，可以独立运行<br />
+ 我们当前是内嵌netty和jetty，通过main方法直接运行服务，然后通过gradle的application插件生成启动脚本。这样的好处是应用可以直接启动，方便开发调试以及集成测试。</p>
+
+    <p>java的容器是企业应用为了降低部署成本带来的习惯，但当前虚拟化，docker等技术这样成熟的情况下，应用容器已经完全没必要了。</p>
+
+    <p>这点上go，nodejs等新的语言做的比较好。java也可以用spring-boot。</p>
+  </li>
+  <li>
+    <p>最好提供一种直接可以单进程运行整个系统而不依赖外部资源的配置</p>
+
+    <p>我们是提供了一套专门用于dev环境的配置，mysql用h2这样的内存数据库替代，redis,mongodb用java版本的内嵌server，服务可以不依赖外部资源直接启动。这样的好处前面也说了，可以快速集成测试，以及统计集成测试覆盖率。</p>
+  </li>
+</ol>
+
+<h3 id="我们遇到的问题">我们遇到的问题</h3>
+
+<ol>
+  <li>
+    <p>镜像版本问题 <br />
+ teamcity的BuildChain是可以并行的，如果一直使用latest，会出现后面的部署操作把前面的尚未进行集成测试的镜像给部署了。所以我们改造了下，镜像是按照CI的build number设置版本号的，整个workflow的每一步共享一个版本号。源码的tag，java的jar包版本号，以及docker镜像的版本号都是可以对应的。</p>
+  </li>
+  <li>
+    <p>镜像更新频繁导致docker storage分区空间用完<br />
+ 因为每次更新大约要拉取100多M的增量变更，时间长了storage分区空间用完，docker deamon 挂掉。改进了部署脚本，最后增加了cleanup脚本。</p>
+  </li>
+  <li>
+    <p>部署脚本问题<br />
+ 虽然docker降低了部署成本，我们可以实现一键部署一整套环境，但由于大量依赖shell脚本，失败检测等机制做的也不完善。存在部署风险。</p>
+  </li>
+  <li>
+    <p>Pets和Cattle<br />
+ <img src="http://jolestar.com/images/ci/pets-vs-cattle.jpg" alt="ci-flow" /></p>
+
+    <p>这是云时代无论是虚拟机还是容器想要解决的问题。对待机器节点要像Cattle而不是Pets。</p>
+
+    <p>我们现在的方案还是把容器当做Pets，要关心容器到主机的端口映射，要关心网络的互通，本地磁盘的映射路径等等，部署，迁移，变更都比较复杂。</p>
+  </li>
+</ol>
+
+<h3 id="当前正在进行的改进">当前正在进行的改进</h3>
+
+<p>我们当前还没做到我说的持续集成的第四进阶，多分支并行的集成测试。
+理想的CI流程测试如下图：
+<img src="http://jolestar.com/images/ci/ci.jpg" alt="ci" /></p>
+
+<ol>
+  <li>每个分支的提交也都需要进行集成测试</li>
+  <li>从分支发起MergeRequest(MR)后，CI在本地进行merge后进行集成测试，将测试结果汇报到MR页面。</li>
+  <li>Code Review后，MR合并到master，重新进行整体的CI流程，直到自动化部署完成。</li>
+</ol>
+
+<p>要做到这步的困难点有几个：</p>
+
+<ol>
+  <li>要能快速复制一整套环境，并进行初始化</li>
+  <li>要有服务发现以及负载均衡服务，给新的测试环境分配域名和负载均衡入口</li>
+</ol>
+
+<p>我们开始想尝试直接通过脚本调用云服务提供的api做这个事情，但发现比较困难，虚拟机启动也比较变慢，遂放弃。
+去年也尝试过搭建kubernetes(k8s)，但发现还不太成熟，没太多精力尝试，也放弃。</p>
+
+<p>前一段时间k8s的1.0发布，感觉应该相对比较成熟了，我们又开始尝试搭建k8s集群，想通过k8s来做这个事情。</p>
+
+<p>我们在k8s上也遇到了难点：</p>
+
+<ol>
+  <li>docker节点的网络互通 通讯服务和其他服务区别比较大的是节点之间需要直接连接进行转发消息。而k8s/docker容器直接网络互通这块的解决方案都还不是太成熟。</li>
+  <li>长时间运行的数据库服务在k8s中如何调度运维？数据迁移和HA如何实现？</li>
+  <li>依赖多种资源，多个服务模块，并且模块有依赖关系的应用如何整体定义？如何升级？</li>
+</ol>
+
+<p>我们尝试k8s，其实不仅仅是想在持续集成中使用，还有个想法是给企业提供私有部署。</p>
+
+<p>假设k8s可能会成为未来的云操作系统，企业的私有云上也部署的是k8s，这样我们提供基于k8s的部署，就可以实现一键部署到企业内网，降低了企业应用私有部署的部署运维成本。</p>
+
+<p>这方面还得期望各位docker的大牛们和各云厂商给提供解决方案。</p>
+
+<p>好了，我的分享结束。另外打个广告：我们的团队通讯应用正在公测，欢迎试用：<a href="https://grouk.com">Grouk</a></p>
+
+<h3 id="qa">Q&amp;A</h3>
+
+<p>Q1. CI过程中test需要连接数据库的代码时，您在写测试案例方面有哪些经验分享。</p>
+
+<p>单元测试不能依赖外部资源，用mock，或者用h2等内存数据库替代。集成测试的时候是从接口层直接调用测试的，测试用例对数据库无感知。</p>
+
+<p>Q2. 请问部署到生产环境是自动触发还是需要手动审批？sql执行或回滚是否自动化？</p>
+
+<p>当前是需要手动触发。sql更新当前没做到自动化，这块正在改进，因为部署私有环境需要。sql不支持回滚，代码做兼容。docker镜像回滚没有自动化。</p>
+
+<p>Q3. 问一下你们的redis内存版是用的什么？</p>
+
+<p>我们用的内存版的redis是 <a href="https://github.com/spullara/redis-protocol">https://github.com/spullara/redis-protocol</a> 中的server实现。不过这个实现部分功能没支持，比如lua脚本，我们自己做了改进。</p>
+
+<p>Q4. 介绍下workflow带来的好处</p>
+
+<p>workflow的好处我那篇文章中有说明，如果没有workflow，所有的步骤都在同一个配置的不同step实现，如果后面的失败，要重新从头开始。workflow可以中途开始，并且每一步骤完成都会触发通知。</p>
+
+<p>Q5. h2并不完全兼容mysql脚本，你们如何处理的？</p>
+
+<p>我们通过一些hack的办法，会探测下数据库是什么类型的，替换掉一些不兼容的sql，进行容错。</p>
+
+<p>Q6. 请问你们在构建的时候，你说有些需要半个小时左右，那么构建过程的进度监控和健康监控你们怎么做的呢，如果有build失败了怎么处理呢</p>
+
+<p>ci的每一步都有进度的，并且我们的团队通讯工具可以和CI集成，如果失败会发消息到群里通知大家</p>
+
+<p>Q7. 深圳Q3：cleanup脚本做哪些？</p>
+
+<p>主要是清理旧的docker镜像，以及清理自动化测试产生的垃圾数据。</p>
+
+<p>Q8. 请问你们文件存储怎么解决的呢？使用自己的网络文件系统还是云服务？</p>
+
+<p>文件系统支持多种storage配置，可以是本地目录（便于测试），也可以使云服务（比如s3）</p>
+
+<p>Q9. 刚才说你们能通过一键部署，但是中间无法监控，测试环境可以这么玩，那生产环境你们是怎么做的呢？还有你们后续的改造方向是自己开发？还是采用集成第三方软件？</p>
+
+<p>生产环境shell当前只能是多加错误判断。这块我们在改进，比如通过ansible等工具，以及使用k8s内置的rolling-update。自动化部署这块还没有好的开源工具。</p>
+
+<p>Q10. 你们的测试用了很多代替方案、如h2代mysql，要保证测试效果，除了你们用的hack方法之外，是不是从写代码的时候就开始做了方便测试的设计？</p>
+
+<p>对。这也是我文章中分享的观点之一。测试用例的编写人员要有业务代码的修改权限，最好是同一个人。要做自动化测试，业务代码必须要给测试留各种钩子以及后门。</p>
+
+<p>Q11. 请问你们的集群应用编排怎么做的？</p>
+
+<p>上面说了，还没用到编排。一直等编排工具的成熟。正在测试k8s。</p>
+
+<p>Q12. 你们做这个项目选型是出于什么考虑的，介绍里有提到使用一些脚本来管理容器解决开发和测试各种问题，
+感觉这种管理容器方式过于简单会带来管理问题，为何不用第三方开源项目来做二次开发，如：Kubernetes；另一个问题是，下一步有没有考虑如何让你的docker和云服务平台结合，要解决运营成本问题（docker最大吸引力在这里），而不只是解决开发测试问题。</p>
+
+<p>因为我们最早用的时候k8s 1.0 还没有，变化太大，创业团队没精力跟进，脚本是粗暴简单的办法。一直在等待各种基于docker的云解决方案呀，肯定考虑结合。</p>
+
+<p>Q13. 对于dockerstorage分区用完问题，我想问一下，你们是使用docker官方提供的registry仓库吗，如何解决仓库单点问题，这机器要是故障了怎么办？</p>
+
+<p>registry用的是官方的，后端存储是挂载到s3上的。没有s3, 推荐使用京东田琪团队开源的 <a href="https://github.com/jcloudpub/speedy">https://github.com/jcloudpub/speedy</a> ，实现了分布式存储。</p>
+
+<p>Q14. 除了介绍的Java相关的CI方案，对于C/C++开发语言有没有推荐的CI方案</p>
+
+<p>Teamcity/Jenkins等CI工具支持任何语言的。其实任何语言的CI都差不多，单元测试，集成测试。关键还在于依赖环境的准备以及集成测试用例的管理。</p>
+
+<p>Q15. 我看到你们为了方便测试和调试会有独立的集合docker环境，这种环境和上线环境其实是有差别的，这样测试的结果能够代表线上环境吗？这种问题怎么看待</p>
+
+<p>所以我们有多个流程。清理数据的测试环境，以及不清理环境的沙箱环境。但这也不能避免一部分线上环境的数据导致的bug。另外就是配合灰度上线机制。当前我们的灰度是通过代码中的开关实现的，使用这种方案的也很多，比如facebook的Gatekeeper。</p>
+
+<p>Q16. 请问Grouk有涉及前端(nodejs方面的)并结合docker的CI/CD经历吗。可以分享下吗？</p>
+
+<p>这我们也在尝试。当前js的测试主要还是基于<a href="https://github.com/ariya/phantomjs">https://github.com/ariya/phantomjs</a> ，纯粹的js库比较方便测试，但如果牵扯到界面，就比较复杂些了。</p>
+
+  </article>
+  <div>
+  </div>
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">午夜咖啡</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>午夜咖啡</li>
+          <li><a href="mailto:jolestar@gmail.com">jolestar@gmail.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/jolestar">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/jolestar">
+              <span class="icon  icon--twitter">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809
+                  c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="http://weibo.com/jolestar">
+              <span class="icon  icon--weibo">
+                <svg viewBox="0 0 1000 1235">
+                  <path fill="#828282" d="M0 672q0-161 184-347 117-116 236-162 56-23 97-23 45 0 72 27 26 26 26 72 0 31-12 72-4 14 3 17.5t16 .5l10-4q96-40 170-40t106 42q15 22 15 52 0 31-16 71-7 10-2.5 17t8 9 14.5 5q62 19 106 62t44 107q0 59-41 120.5t-111.5 112.5-178 84-228.5 33q-131 0-247.5-38.5t-193.5-115-77-174.5zm125 48q10 101 125 161 92 49 209 49 29 0 60-3 153-15 255-97 92-75 92-165 0-9-1-18-10-100-125-160-93-49-210-49-29 0-59 3-101 10-183 51t-126 101q-38 53-38 109 0 9 1 18zm160 62q-13-29-13-59 0-35 18-70 31-64 104-96 45-20 91-20 27 0 54 7 76 20 109 82 17 32 17 66 0 32-15 65-31 71-109 104-44 19-88 19-34 0-67-11-73-23-101-87zm56-19q6 25 30 35 13 6 27 6 12 0 24-4 28-9 43-33 10-16 10-32 0-7-3-15-6-24-30-34-13-5-26-5-12 0-25 4-27 9-41 32-11 16-11 33 0 7 2 13zm141-79q3 9 13 13 5 2 9.5 2t9.5-2q11-4 16-13t2-18-12-13q-9-3-19.5.5t-15.5 12.5q-3 6-3 12l0 6zm321-621q-1-5-1-10 0-13 8-25 10-16 29-21 34-7 68-7 51 0 100 15 83 27 143 93t78 153q7 35 7 68 0 51-16 98l0 1q-6 18-23 27-11 5-22 5-7 0-15-2-19-6-27-23-5-11-5-21 0-8 2-15l0-1q11-34 11-70 0-23-4-48-13-62-56-109t-102-66q-35-10-70-10-24 0-49 5-5 1-10 1-14 0-26-8-16-11-20-30zm40 157q-1-5-1-10 0-10 6-21 9-14 26-18 19-4 37-4 67 0 115 53 29 33 38 75 3 17 3 33 0 24-8 48-5 16-20 23-9 5-18 5-7 0-13-2-16-5-24-20-4-9-4-18 0-7 2-13 4-14 4-26 0-28-21-50-22-26-54-26-10 0-20 2-5 1-9 1-11 0-21-7-14-9-18-25z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
+            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+        </div>
+        <script>
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+            ga('create', 'UA-1268034-7', 'auto');
+            ga('send', 'pageview');
+        </script>
+
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

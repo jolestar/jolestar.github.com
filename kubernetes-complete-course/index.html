@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+
+  
+
+
+ 
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Kubernetes 完全教程</title>
+  <meta name="description" content="经过一个阶段的准备，视频版本的 《Kubernetes 完全教程》出炉了。">
+
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="canonical" href="http://jolestar.com/kubernetes-complete-course/">
+  <link rel="alternate" type="application/rss+xml" title="午夜咖啡" href="../feed.xml" />
+  <meta name="google-site-verification" content="kmm9IK4zVCvEFzsNDOyTkDdtkaMGQHtdgEXurVQizfc" />
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="../">午夜咖啡</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        <!-- 
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+          <a class="page-link" href="/sitemap.txt">Sitemap</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+         -->
+        <a class="page-link" href="../about/">About</a>
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">Kubernetes 完全教程</h1>
+    <p class="post-meta">Sep 30, 2017 • jolestar</p>
+  </header>
+
+  <article class="post-content">
+    <p>经过一个阶段的准备，视频版本的 《Kubernetes 完全教程》出炉了。</p>
+
+<!--more-->
+
+<p>课程一共分为七节，另外有一节 Docker 预备课，每节课大约一个多小时。目标是让从没接触过 Kubernetes 的同学也能通过这个课程掌握 Kubernetes。</p>
+
+<h2 id="为什么要学习-kubernetes">为什么要学习 Kubernetes</h2>
+
+<p>在介绍课程之前，先说说为什么要学习 Kubernetes 以及什么人需要学习 Kubernetes。</p>
+
+<p>记得一次我在微博上说 OpenStack 主力公司 Mirantis 公开承认 OpenStack 衰败，转投 Kubernetes 阵营，然后引起很多人讨论。有人说还好没入 OpenStack 的坑，也有人说，看来对 Kubernetes 也要谨慎，不能跟风搞，说不定火一段时间也就偃旗息鼓了。</p>
+
+<p>大家的担心也是有道理的，技术人学一门技术其实是一项投资，投资就肯定期望能有长期受益。但每一项技术都有其历史使命，学习的收益取决于其技术生命周期的长短和适用范围。很多技术在开始的时候是很难评估其生命周期的，投资肯定有风险。当然，不学习，不投资，是没有了直接的投资风险，但更大的风险是机会风险，错失了技术变革带来的机会。所以技术人评估是否要学习一项新技术，最好持开放心态，如果都不试图去理解一下新技术到底要解决什么问题，也更没办法做进一步的评估。</p>
+
+<p>好吧，理性的分析就到这里，我的角色转换为 Kubernetes 布道师了，开始王婆卖瓜。</p>
+
+<p>Kubernetes 本身是容器掀起的服务器端应用标准化趋势下的产物（虽然 Kubernetes 本身是源自 Google 的 Borg 和 Omega，但它能被业界接受，是依赖于容器的广泛普及的，这个在 《<a href="https://thenewstack.io/ebooks/kubernetes/state-of-kubernetes-ecosystem/">The State of the Kubernetes Ecosystem</a>》这本书里也有提到。），所以如果你自己或者所在企业已经接受了容器，肯定需要进一步考虑容器的编排，这时候学习一下 Kubernetes，至少有助于最后做选型。</p>
+
+<p>如果你是系统运维人员，那恭喜你，Kubernetes 的首要目标用户就是系统运维人员。Kubernetes 接过了 OpenStack 的棒，继续实现运维人员那个把机器和应用当牲畜而不是宠物的梦想。利用 Kubernetes 可以实现运维人员一直在努力实现的部署标准化，滚动升级，自动伸缩，监控日志标准化。哪怕最后不采用 Kubernetes，学下 Kubernetes 了解下它是怎么做的也肯定有帮助。</p>
+
+<p>如果你是服务端开发人员，以前的基础设施变更可能和你关系不是太大，OpenStack 把物理机变成虚拟机，你的程序还是按原来的写法弄。但 Kubernetes 时代不同了，一方面 Kubernetes 提供的能力可以协助你简化应用开发，另外一方面，要享受 Kubernetes 带来的标准化的好处，就需要让渡一部分程序的能力出去。所以你的程序不可能不受 Kubernetes 的影响，你要学习下如何开发 Kubernetes Native Application。</p>
+
+<p>如果你是服务器端测试人员，是不是天天为了各种测试环境和开发，运维撕扯？拥抱 Kubernetes 吧，一键搭建整个系统不是梦。何况 Kubernetes 之上的自动化接口测试，性能测试工具还大有可为。</p>
+
+<p>如果你是服务器端架构师或者基础研发人员，研发了各种基础框架，性能追踪工具，却很难推动业务应用升级？可以了解下 Kubernetes 上的 Service Mesh 是如何将这种基础组件作为可独立升级的模块的。如果你正在研发一个分布式调度系统，来解决应用的调度以及任务分发，更应该了解下 Kubernetes 的状态控制器的架构思路。</p>
+
+<p>如果你是客户端开发人员，好吧，你可以不用关心。不过如果你想做全栈工程师，耗子叔都说了，只学 javascript 肯定不够的，再学学 Kubernetes，至少多了一栈。</p>
+
+<h2 id="课程介绍">课程介绍</h2>
+
+<ul>
+  <li>
+    <p>预备课：Docker 以及 Docker 网络</p>
+
+    <p>这节课是为没有 Docker 基础的同学准备的，用通俗的方式讲解了容器和 Docker 的价值和目标，并通过 shell 脚本手动组装了一个自定义的 “Docker” — Xocker，通过这个例子理解 Linux 容器技术， chroot/namespace/cgroups 以及容器网络。</p>
+  </li>
+  <li>
+    <p>第一课：Kubernetes 架构概述</p>
+
+    <p>这节课先讲解了 Kubernetes 的由来以及它和 Borg, Mesos, Omega 的关系和差异，然后整体分析了它的部署架构和逻辑架构，以及和传统的分布式调度机制实现的运维或调度系统的差异，最后分析了为什么说 Kubernetes 的架构是一种面向未来的架构。</p>
+  </li>
+  <li>
+    <p>第二课：Kubernetes 的安装和运维</p>
+
+    <p>通过演示手动搭建 Kubernetes，逐个讲解了 Kubernetes 的组件以及配置参数。然后讲解 Kubernetes 的高可用实现方案以及 selfhosting。</p>
+  </li>
+  <li>
+    <p>第三课：Kubernetes 的网络和存储</p>
+
+    <p>这节课首先讲解了 Kubernetes 的网络，主要包含两部分：</p>
+
+    <ol>
+      <li>Kubernetes 的 Service ClusterIP 机制是如何实现的。</li>
+      <li>Pod 之间的网络方案，以 Flannel 为例进行讲解。</li>
+    </ol>
+
+    <p>然后讲解了 Kubernetes 的 Volume 机制，以及PersistentVolume，PersistentVolumeClaim，StorageClass 是要解决什么场景的问题。</p>
+
+    <p>最后演示了手动通过创建一个跨主机网络的方案。</p>
+  </li>
+  <li>
+    <p>第四课：Kubernetes 的 API Spec 以及安全机制
+这节课主要讲 Kubernetes 的 API Spec，Service/ReplicaSet/Deployment/DaemonSet/StatefulSet 等 API Object 主要用来解决问题的场景是什么。
+然后讲 Kubernetes 1.7 带来的 RBAC(Role-Based Access Control) 授权以及 ServiceAccount 机制。</p>
+  </li>
+  <li>
+    <p>第五课：Kubernetes 的应用管理（案例）
+这节课通过案例，进行分析如何将一个应用 Kubernetes 化，如何通过 Kubernetes 提供的 API Object 描述集群状态，如何利用 Kubernetes 提供的能力，比如 autoscale，affinity，tolerations 来降低我们的研发运维成本。</p>
+  </li>
+  <li>
+    <p>第六课：Kubernetes 的日志监控与故障排除
+这节主要分析 Kubernetes 上的日志与监控方案，如何运维 Kubernetes 上的应用，发生问题是如何排查。</p>
+  </li>
+  <li>
+    <p>第七课：Kubernetes 的扩展开发
+这节课主要讲解如何对 Kubernetes 进行扩展，主要包括 CloudProvider， VolumeProvisioner 以及 CustomResourceDefinitions。通过对 Kubernetes 扩展开发的了解，更深入的理解 Kubernetes 架构的灵活性。</p>
+  </li>
+</ul>
+
+<p>当前课程第三课已经录制完毕，后续课程还在录制中。</p>
+
+<ul>
+  <li>课程 Github 仓库: <a href="https://github.com/jolestar/kubernetes-complete-course">https://github.com/jolestar/kubernetes-complete-course</a></li>
+  <li>课程视频地址：<a href="http://edu.csdn.net/course/detail/6080">http://edu.csdn.net/course/detail/6080</a></li>
+  <li>课程二维码地址
+  <img src="http://jolestar.com/images/k8s/k8s-course.png" alt="" /></li>
+</ul>
+
+<p>如果学习课程的过程中有问题，可以通过邮件，微博(@jolestar)，或者在 github 仓库上提 issue 来和我咨询。</p>
+
+<p>最后说一下课程的付费问题，这个课程是付费的，98元。这个课程是公司支持推出的，也并不指望通过这个课程赚钱，当时讨论的结论是，如果是免费的，可能你看到就放收藏夹里永远不打开了，人总是有惰性的，更珍惜自己有付出的东西。另外一方面是，这种课程，光看是学不会的，总需要资源做实验，付费用户我们会给发送 QingCloud 代金券，可以在云上做练习。一个集群一小时也就2块左右，用完就删除或者关机，98可以学很长时间了。</p>
+
+<p><img src="http://jolestar.com/images/weichat/qrcode_jolestar_blog2.png" alt="qrcode_jolestar_blog2" /></p>
+
+<p><strong>相关链接</strong></p>
+
+<hr />
+
+<ol>
+  <li>
+    <p><a href="http://jolestar.com/kubernetes-and-microservice/">Kubernetes &amp; Microservice</a>  Kubernetes 是如何支持微服务的，以及 Service Mesh 是什么。</p>
+  </li>
+  <li>
+    <p>《<a href="https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/44843.pdf">Borg, Omega, and Kubernetes</a>》Google 的论文，详述了 Kubernetes 和 Borg，Omega 之间的渊源以及积累的经验如何在 Kubernetes 继承。</p>
+  </li>
+  <li>
+    <p>《<a href="https://thenewstack.io/ebooks/kubernetes/state-of-kubernetes-ecosystem/">The State of the Kubernetes Ecosystem</a>》 Kubernetes 生态圈，这本书详述了当前 Kubernetes 整个生态圈的状况。</p>
+  </li>
+  <li>
+    <p><a href="http://edu.csdn.net/course/detail/6080">Kubernetes 完全课程</a></p>
+  </li>
+</ol>
+
+
+  </article>
+  <div>
+  </div>
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">午夜咖啡</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>午夜咖啡</li>
+          <li><a href="mailto:jolestar@gmail.com">jolestar@gmail.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/jolestar">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/jolestar">
+              <span class="icon  icon--twitter">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809
+                  c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="http://weibo.com/jolestar">
+              <span class="icon  icon--weibo">
+                <svg viewBox="0 0 1000 1235">
+                  <path fill="#828282" d="M0 672q0-161 184-347 117-116 236-162 56-23 97-23 45 0 72 27 26 26 26 72 0 31-12 72-4 14 3 17.5t16 .5l10-4q96-40 170-40t106 42q15 22 15 52 0 31-16 71-7 10-2.5 17t8 9 14.5 5q62 19 106 62t44 107q0 59-41 120.5t-111.5 112.5-178 84-228.5 33q-131 0-247.5-38.5t-193.5-115-77-174.5zm125 48q10 101 125 161 92 49 209 49 29 0 60-3 153-15 255-97 92-75 92-165 0-9-1-18-10-100-125-160-93-49-210-49-29 0-59 3-101 10-183 51t-126 101q-38 53-38 109 0 9 1 18zm160 62q-13-29-13-59 0-35 18-70 31-64 104-96 45-20 91-20 27 0 54 7 76 20 109 82 17 32 17 66 0 32-15 65-31 71-109 104-44 19-88 19-34 0-67-11-73-23-101-87zm56-19q6 25 30 35 13 6 27 6 12 0 24-4 28-9 43-33 10-16 10-32 0-7-3-15-6-24-30-34-13-5-26-5-12 0-25 4-27 9-41 32-11 16-11 33 0 7 2 13zm141-79q3 9 13 13 5 2 9.5 2t9.5-2q11-4 16-13t2-18-12-13q-9-3-19.5.5t-15.5 12.5q-3 6-3 12l0 6zm321-621q-1-5-1-10 0-13 8-25 10-16 29-21 34-7 68-7 51 0 100 15 83 27 143 93t78 153q7 35 7 68 0 51-16 98l0 1q-6 18-23 27-11 5-22 5-7 0-15-2-19-6-27-23-5-11-5-21 0-8 2-15l0-1q11-34 11-70 0-23-4-48-13-62-56-109t-102-66q-35-10-70-10-24 0-49 5-5 1-10 1-14 0-26-8-16-11-20-30zm40 157q-1-5-1-10 0-10 6-21 9-14 26-18 19-4 37-4 67 0 115 53 29 33 38 75 3 17 3 33 0 24-8 48-5 16-20 23-9 5-18 5-7 0-13-2-16-5-24-20-4-9-4-18 0-7 2-13 4-14 4-26 0-28-21-50-22-26-54-26-10 0-20 2-5 1-9 1-11 0-21-7-14-9-18-25z"/>
+                </svg>
+              </span>
+
+              <span class="username">jolestar</span>
+            </a>
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
+            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+        </div>
+        <script>
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+            ga('create', 'UA-1268034-7', 'auto');
+            ga('send', 'pageview');
+        </script>
+
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>
