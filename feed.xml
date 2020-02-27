@@ -6,9 +6,182 @@
 </description>
     <link>http://jolestar.com/</link>
     <atom:link href="http://jolestar.com/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Sat, 11 Jan 2020 11:42:22 +0800</pubDate>
-    <lastBuildDate>Sat, 11 Jan 2020 11:42:22 +0800</lastBuildDate>
+    <pubDate>Thu, 27 Feb 2020 15:25:53 +0800</pubDate>
+    <lastBuildDate>Thu, 27 Feb 2020 15:25:53 +0800</lastBuildDate>
     <generator>Jekyll v4.0.0</generator>
+    
+      <item>
+        <title>开启比特币智能合约的「三把锁」</title>
+        <description>&lt;p&gt;本文首发于币信研究院公众号，是李画和我的一个访谈文章，探讨比特币的智能合约。&lt;/p&gt;
+
+&lt;!--more--&gt;
+
+&lt;p&gt;&lt;em&gt;受访者：王渊命（微博：@jolestar）&lt;/em&gt;
+&lt;em&gt;采访 &amp;amp; 撰文：李画（币信研究院特约研究员）&lt;/em&gt;
+本文约5000字，阅读全文需约10分钟。&lt;/p&gt;
+
+&lt;p&gt;随着新的指令和算法的引入，比特币的多签功能正在变得强大。多签不仅是指多个人共同签名，保管一笔比特币资产；它还可以是多个条件「共同签名」，通过这些条件锁定和解锁比特币。&lt;/p&gt;
+
+&lt;p&gt;用条件决定资产的使用，其实就是合约的功能。当这个合约可以被代码表达并无需信任地自动执行时，我们称其为智能合约。因此前比特币核心主管维护人员Gavin Andresen说：比特币的多签功能已经可以完成以太坊上大部分有用的功能。&lt;/p&gt;
+
+&lt;p&gt;那么，比特币是如何实现智能合约的？比特币与以太坊的智能合约又有何区别？我们采访了对区块链和智能合约有着深刻认知的技术写作者王渊命。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/bitcoin-smart-contract/smart-contract.jpeg&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;一比特币是否需要智能合约&quot;&gt;一、比特币是否需要智能合约&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;Q：比特币需要智能合约吗？&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;A：需要。智能合约能够为比特币系统带来逻辑可扩展性，在不改变现有基础设施、基础架构的情况下，为系统增加新的功能，从而增强系统的能力。扩展性不只是指TPS、容量和存储等方面。&lt;/p&gt;
+
+&lt;p&gt;智能合约的另一个作用是它能实现具有约束力的合同功能。它是一个定义各方权利和义务关系的协议，只不过是数字化的，且它的执行机制不依赖于现有的法律体系。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Q：比特币作为一种加密货币，为什么需要合同功能？简单交易它不就可以吗？&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;A：并没有所谓的简单交易，你为什么给我转账？无论是购物，或者是发工资或其他，背后其实都依赖于一个合同。在现实生活中，这个合同的执行是依赖于司法体系的，一方违约，另外一方可以起诉。只有货币而没有司法体系的约束，是没办法完成任何交易的。&lt;/p&gt;
+
+&lt;p&gt;那么在全球化的加密货币世界里，该如何构建这种合同的约束力？依赖于智能合约。智能合约将规则/法律通过代码表达并执行，用代码构建出一套约束力体系。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Q：比特币需要DeFi吗？&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;A：广义来说，所有的加密货币都属于 DeFi 的应用领域，因为 DeFi 的第一步是有货币。有了货币后，可以围绕货币定义怎么跟其它资产或者货币交换，如何借贷等等，加密货币里的金融相对法币体系的金融还比较早期，可探索的路还很长。&lt;/p&gt;
+
+&lt;h3 id=&quot;二比特币如何实现智能合约&quot;&gt;二、比特币如何实现智能合约&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;Q：为什么说比特币系统是支持智能合约的？&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;A：合约就是当我跟你做一个交易时，它能保证这个交易达成，也就是说它能表达某种条件，当条件满足时我才给你付款。能把这个条件表达出来，就可以认为它有智能合约表达能力。比特币的脚本（Script）是有智能合约表达能力的，可以把比特币的脚本理解成是一种智能合约。&lt;/p&gt;
+
+&lt;p&gt;那为什么比特币要通过脚本而不是把功能固化在链上？因为如果固化在链上，当用户/开发者需要某个功能时，就需要比特币开发团队去实现，然后再发布，然后推动整个链的升级，但区块链升级是个复杂的事情，弄不好就分叉了。&lt;/p&gt;
+
+&lt;p&gt;所以比特币只提供最基础的一些素材，相当于给你提供面粉，但菜怎么做留给你自己，你可以利用这些素材，根据自己的场景组合出新的东西，不需要依赖于主链的升级。这也就是我前边讲过的通过智能合约来实现逻辑可扩展性。未来是不确定的，智能合约可以看成是一种应对不确定性的策略。&lt;/p&gt;
+
+&lt;p&gt;上边是比特币系统本身对智能合约的支持，它是通过脚本实现的；还有另一类支持/实现智能合约的方式，就是通过比特币系统的侧链，在侧链上实现智能合约的方法跟在以太坊上类似。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Q：比特币系统是如何通过脚本实现智能合约的？&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;A：以太坊上的智能合约是直接用代码表达清楚的，什么条件下执行 A，什么条件下执行 B 等等，比特币上的智能合约不像以太坊那样直白。&lt;/p&gt;
+
+&lt;p&gt;比特币上所有的智能合约都要被转换成加锁、解锁的机制来实现，也就是说在脚本中，通过「key」或者是「哈希条件」把资产锁定，再加上一个「时间锁」（TimeLock）。无论是闪电网络还是Arwen协议，都是这样的机制，比特币将会推出的Schnoor签名之类的，也都是为了更好地去表达这个机制。&lt;/p&gt;
+
+&lt;p&gt;因此，实现比特币智能合约的核心就是怎么去加锁和解锁资产。&lt;/p&gt;
+
+&lt;p&gt;如果合约中所有的条件都能转换成key、哈希条件、时间锁这三者来加锁和解锁，那么这个合约就可以用比特币系统实现。我把这三者分别称为签名锁，哈希锁，时间锁，比特币智能合约基本就是用这「三把锁」来实现的。&lt;/p&gt;
+
+&lt;p&gt;比如你从我这儿买一个音乐，这个音乐通过密码访问，那么在交易合约中，我把音乐的访问密码也变成其中的一个key，如果要达成交易，这个key必须让你知道；而一旦你知道（你拿到音乐），钱就支付给我了。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Q：哈希条件和key有什么不同？&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;A：你可以理解成一个东西，它们的作用是一样的。哈希条件是我知道一个value，把value哈希之后得到一个哈希结果。那么在合约中，就是设置一个条件，谁能在写交易的时候把这个哈希结果打进来，这钱就归谁。只要我有这个value，就有哈希结果，也可以理解成有一个key。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Q：简单而言，可不可以认为比特币的智能合约是通过多签加上时间锁来实现的？&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;A：可以，前边讲过用key、哈希条件、时间锁实现智能合约，哈希条件也可以当作多重签名中的一个key来看待；时间锁则是一个关于区块高度的条件。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Q：时间锁在实现智能合约中的重要性是什么？&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;A：时间锁很重要，如果没有时间约束的话，很多协议是没法实现的。正是因为现在有了哈希条件、时间锁，闪电网络这种合约才能跑起来。&lt;/p&gt;
+
+&lt;p&gt;比如说闪电网络，我们两个人共同出钱，把钱冻结到一个共管的账号里，然后在链下互相支付，当要去结算时一方不合作了怎么办？假设我们吵架了，你的钱你不要了，但我的钱我也拿不到。有了时间锁就好处理了，我设一个超时时间，过了超时时间钱就是我的，我就可以拿走了。&lt;/p&gt;
+
+&lt;h3 id=&quot;三比特币与以太坊智能合约的差别&quot;&gt;三、比特币与以太坊智能合约的差别&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;Q：对应于比特币用脚本实现智能合约，以太坊是用什么实现智能合约的？&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;A：以太坊有一个智能合约语言。其实比特币的脚本也可以理解成一种语言，只不过比较简单；比特币脚本执行也可以理解成有一个虚拟机，只不过虚拟机的实现比较简单。既然都是虚拟机执行指令，那么以太坊的改变在哪里？&lt;/p&gt;
+
+&lt;p&gt;我总结以太坊带来的主要改变有三点：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;以太坊虚拟机指令的表达能力更强。简单理解的话，可以认为以太坊提供的指令更低级，用低级的指令组合成高级指令，而比特币是直接提供高级指令，其指令是有限的。另外，以太坊支持跳转等指令，能表达出循环等逻辑，也就是大家常说的图灵完备。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;以太坊引入了 gas 机制。在以太坊上可以随意写合约逻辑，gas机制保证最后执行的时候有一个上限限制，这除了解决停机问题外，还能限制浪费资源，让脚本的执行成本跟付出的费用间有个关系。&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;以太坊上的合约有状态，而比特币上的合约不能有自己的状态。这代表着：第一，比特币上的合约是不能自己生成自己的状态的，比如说在这次脚本里输出一个东西，在下次脚本中使用是不行的，比特币的脚本都是一次性的，只对这个交易起作用；第二，比特币上的脚本是不能直接读取链上已有的状态的，比如时间锁依赖链上的区块高度，需要特殊指令支持，嵌入到脚本里的其他状态（通过 op_return 指令实现）更无法读取。&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;strong&gt;Q：图灵完备会带来什么差别？&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;A：其实以太坊也不是说真图灵完备，因为它有gas的限制，不可能用太复杂的逻辑。&lt;/p&gt;
+
+&lt;p&gt;图灵完备的好处是它的扩展能力更强，表达能力更强。因此以太坊提供的实验的自由度要远大于比特币，这也是以太坊上各种实验项目多的原因。&lt;/p&gt;
+
+&lt;p&gt;比特币是一种保守策略。我就这么多指令，我在别的地方先实验，实验好了，觉得需要支持这个指令，就增加这个指令。比如说为了支持原子交换以及支付通道，增加了哈希时间锁定协议，可以锁定一个时间段。&lt;/p&gt;
+
+&lt;p&gt;比特币为什么不扩充那么多指令？因为不同指令的资源消耗是不一样的，如果表达很复杂的脚本，执行这个交易的成本就会很高，会消耗资源、影响整个网络。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Q：合约状态会带来什么差别？&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;A：比特币的状态全是在链下生成的，就是说生成交易的时候就要把这个状态写好，链上只承载交易的数据，其它额外的数据写不进去。&lt;/p&gt;
+
+&lt;p&gt;比如你很难在比特币上发自己的币。在比特币上发的币都是染色币，染色币是在脚本里嵌入一些自己的数据结构，但脚本不能读嵌入的这个数据结构，所以也不能通过脚本对这个数据结构做验证，需要再做一个网络校验，看写进去的这个数据是不是合法的。&lt;/p&gt;
+
+&lt;p&gt;所有的染色币都是基于这个机制实现的，它不是像以太坊那样直接发一个token，然后通过合约来校验。&lt;/p&gt;
+
+&lt;p&gt;比特币之所以采用这种设计，本质在于它是不欢迎其他的数据写上去的，因为对比特币网络来说，承载额外的数据是有成本的，这种数据还得永久保存，而用户只付费一次。所以比特币不提供自定义状态的存储，这不是它的路线，通过 op_return 嵌入自定义数据可以理解为一种 hack 行为，并不是比特币提供 op_return  的本来目标。&lt;/p&gt;
+
+&lt;p&gt;其实这能够看出比特币和以太坊在设计思路上的区别：你可以把比特币理解成一个中立的银行，它只提供资产加锁、解锁的机制，谁有钥匙资产归谁，它对其他的条件都不关心；并且每一笔资产都是独立的锁，它也不关心资产之间的关系。比特币的智能合约并不是一段代码，而是一系列操作锁的协议。&lt;/p&gt;
+
+&lt;p&gt;而以太坊的的设计思路是任何合约都可以表现为一系列的交易，后面的交易和前置交易的状态是有关联的，所以它提供一种通用的追踪和更新历史状态的机制，而更新状态的逻辑和条件就由用户自己去创造。以太坊黄皮书里的世界状态的公式很好的表达了这种思路。&lt;/p&gt;
+
+&lt;p&gt;这两种思路其实各有优劣，和设计者的目标以及对世界的抽象有关系。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Q：比特币和以太坊的智能合约还有其他不同吗？&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;A：UTXO模型（未花费交易输出）与Account模型（账户）的不同，也会给两者智能合约的实现带来差异。&lt;/p&gt;
+
+&lt;p&gt;在 UTXO模型中，每一笔钱都有一个标记，使用的时候需要明确知道使用的是哪一笔钱；Account模型则相当于把用户所有的UTXO合并成一个大的UTXO，使用的是这个默认的UTXO。这带来几点不同：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;在Account模型下写合约比较简单，只需要说转多少钱，不需要指明转的是哪一笔钱；&lt;/li&gt;
+  &lt;li&gt;Account模型可以提前对未来的收益进行约束，也就说这笔钱还没到合约账户，但可以部署合约去约束它该怎么花；&lt;/li&gt;
+  &lt;li&gt;由于Account模型相当于合并 UTXO，所以转账时不能直接设置解锁条件，必须先部署一个合约。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;当然，UTXO模型和 Account 模型都是在演化的，有一些项目会对它们做出改变，有机会我会写文章详细分析。&lt;/p&gt;
+
+&lt;h3 id=&quot;四比特币智能合约案例&quot;&gt;四、比特币智能合约案例&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;Q：怎么理解闪电网络本身就是一种智能合约？&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;A：你可以说闪电网络是一个协议，也可以说它是比特币上的一种智能合约。闪电网络的合约主要解决两个人如何共同锁钱，以及如果一方作弊、不合作等等情况下怎么办的问题，它是通过前边说的三把锁来实现的。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Q：在闪电网络上实现智能合约又是怎样的一个过程？&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;A：闪电网络实际上是两个人之间的支付通道，现在只支持互相转账。我们尝试在支付通道之上嵌入了一个虚拟机，就可以执行比较完备的智能合约，比如游戏。（注：在闪电网络上实现的智能合约：https://github.com/westarlabs/thor）&lt;/p&gt;
+
+&lt;p&gt;通道双方可以压一笔 BTC，然后去玩游戏，赢的一方得BTC；如果玩的有分歧，可通过仲裁系统去仲裁。仲裁系统相当于一个法院，可以是一个侧链，或是一个双方信任的机构运行的节点，或者是仲裁者市场等等。仲裁系统保留了双方的解锁钥匙（哈希的 value），它仲裁之后把钥匙给赢的一方。&lt;/p&gt;
+
+&lt;p&gt;由于闪电网络的资产是定向的，所以仲裁者只能决定哪个用户得到BTC，但自己不能拿走用户的 BTC，即便是有联合作弊的可能，但作弊成本要比托管模式高。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Q：通过闪电网络实现智能合约，与通过类似Liquid的侧链实现智能合约，有什么不同？&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;A：闪电网络上的智能合约是通道双方的链下节点执行的，互相校验，产生分歧时需要有一个仲裁系统来仲裁。而侧链本身就有共识机制，有多个节点来执行和校验合约，所以两者在执行机制上是不一样的。&lt;/p&gt;
+
+&lt;p&gt;在侧链实现智能合约的方式与在以太坊上实现智能合约的方式类似，但当它与主链协同的时候，需要通过比特币的加锁、解锁的机制。&lt;/p&gt;
+
+&lt;h3 id=&quot;结束语&quot;&gt;结束语&lt;/h3&gt;
+
+&lt;p&gt;作为加密货币，比特币似乎有能力为DeFi的发展提供一个更好的空间，因为它凝聚了最多的共识，也承载着最高的价值和流动性，它是最受信任的加密资产。&lt;/p&gt;
+
+&lt;p&gt;那么作为一种系统，比特币是否支持DeFi的实施？在本文中我们探讨了比特币智能合约的实现机制，并把它与以太坊智能合约进行了一些比较。比特币上的DeFi不仅是可能的，而且会随着多签功能的强大变得更加完备。&lt;/p&gt;
+
+&lt;p&gt;也许我们可以期待以比特币为核心元素的去中心化金融服务的到来。&lt;/p&gt;
+</description>
+        <pubDate>Tue, 27 Aug 2019 00:00:00 +0800</pubDate>
+        <link>http://jolestar.com/bitcoin-smart-contract/</link>
+        <guid isPermaLink="true">http://jolestar.com/bitcoin-smart-contract/</guid>
+        
+        <category>bitcoin</category>
+        
+        <category>smart-contract</category>
+        
+        
+      </item>
     
       <item>
         <title>智能合约到底是什么？</title>
@@ -967,86 +1140,6 @@ Kubernetes 的 CRD 是它的声明式设计的优势集中体现，有了这种�
         <category>blockchain</category>
         
         <category>consensus</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>谈谈区块链的 UTXO 证明</title>
-        <description>&lt;p&gt;为什么需要UTXO证明，UTXO证明是为了解决什么问题&lt;/p&gt;
-
-&lt;!--more--&gt;
-
-&lt;p&gt;前一段时间 BCH 宣布要给区块增加 UTXO Commitments，并已经在测试网上线。&lt;/p&gt;
-
-&lt;p&gt;为了照顾不熟悉 UTXO 的朋友，先简单科普下 UTXO。Bitcoin 的区块上记录的是交易，每条交易都有一组 input 和 output，通过复式记账法记录 BTC 的交易，不熟悉的朋友可以简单理解成 Bitcoin 在转账的时候顺便把对账清算的事情也给做了。UTXO 的全称就是 ”unspent transaction output”，未花费的交易输出。所以 Bitcoin 上正真有价值的数据实际上就是 UTXO，相当于余额，已经花费的就是历史账单了。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://jolestar.com/images/blockchain/utxo1.jpg&quot; alt=&quot;图片来自精通比特币&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;但 UTXO 在区块上是记录在每个交易里面的，区块上的 Merkle hash 只能证明交易是否存在（具体参看 Bitcoin 的 SPV 机制），但不能证明该交易的 UTXO 是否被花费掉了。于是大家就讨论，是否有办法提供 UTXO 证明。&lt;/p&gt;
-
-&lt;p&gt;同时，另外一问题是，当前 Bitcoin 的所有区块已经有几百 G 大了，同步一次非常耗时，节点同步所有区块后，从区块中筛出来 UTXO，做新区块的校验，而总共的 UTXO 只有几个 G。所以大家想，那能不能只把 UTXO 同步过来呢？但这个方式带来的另外一个问题是，怎么证明同步过来的 UTXO 是对的，没被篡改？和上一个问题类似。&lt;/p&gt;
-
-&lt;p&gt;所以总结下，UTXO 证明实际上要解决两个问题：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;全节点的同步问题，可以让新的全节点快速启动。&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;提供 UTXO 证明，即满足上面 1 的验证需求，也可用在交易验证，轻钱包上。&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;Bitcoin 的邮件列表里讨论了三个方案（链接1）：&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;ECMH commitment&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;ECMH（Elliptic Curve Multiset Hash）是一种 hash 算法，它的特点是可以把多个数据的 hash 合并到一个 hash 中，但还可以支持删除。这样节点维护一个 UTXO 的根 hash 的成本就很低了，每次只需做增量修改。然后只需要把 UTXO 根 hash 记录到区块上，其他节点同步 UTXO 集合之后，就可以验证该集合是否被篡改了。但这个方案的缺点是只能做全量验证，没办法验证单独一个 UTXO 是否存在，所以不满足问题 2 的需求。&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;Bucketed ECMH commitment&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;这个方案和上面的类似，也用 ECMH，但要把每个 UTXO 的 hash 都保留着，维护一个分片的 Bucket 或者 Trie 结构，Bucket 或者 Trie 结构的每层都用 ECMH。 这样就有办法证明单个的 UTXO 了。&lt;/p&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;Commitment enabled UTXO storage&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;改造 UTXO 的存储，将它存储在一种 Merkle binary tree 结构中，每次新区块产生，进行 merge 只需要计算变更的一部分。这种方案可以满足上面两个需求，但实现复杂度比较高，并且需要对 binary tree 的实现做优化。&lt;/p&gt;
-
-&lt;p&gt;初步看起来 BCH 采用的是方案1。社区中很早实际上就有类似方案讨论，最早在 2012 年，Bitcoin 论坛中就有《Storing UTXOs in a Balanced Merkle Tree》的讨论（链接2），作者设计了一种红黑树来保存 UTXO。《Dietcoin: shortcutting the Bitcoin verification process for your smartphone》这篇论文里讨论了一种 UTXO 分片的办法来实现这个机制。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://jolestar.com/images/blockchain/utxo2.jpg&quot; alt=&quot;UTXO&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;个人认为，Bitcoin 实际上需要一种类似于 Ethereum 的 global state 的机制，只不过 Ethereum 中的 global state 维护的是 Account 的余额，而 Bitcoin 这样的 UTXO 机制的，需要维护的是用户的 UTXO，复杂度高些，不过 Ethereum 的 Merkel Patricia Trie 的实现是有借鉴意义的。&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;http://jolestar.com/images/weichat/qrcode_jolestar_blog2.png&quot; alt=&quot;qrcode_jolestar_blog2&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;相关链接&lt;/strong&gt;&lt;/p&gt;
-
-&lt;hr /&gt;
-
-&lt;ol&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;a href=&quot;https://lists.linuxfoundation.org/pipermail/bitcoin-ml/2018-March/000688.html&quot;&gt;https://lists.linuxfoundation.org/pipermail/bitcoin-ml/2018-March/000688.htm&lt;/a&gt;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;a href=&quot;https://bitcointalk.org/index.php?topic=101734.0&quot;&gt;Storing UTXOs in a Balanced Merkle Tree (zero-trust nodes with O(1)-storage)&lt;/a&gt;&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ol&gt;
-
-</description>
-        <pubDate>Thu, 28 Jun 2018 00:00:00 +0800</pubDate>
-        <link>http://jolestar.com/blockchain-utxo-proof/</link>
-        <guid isPermaLink="true">http://jolestar.com/blockchain-utxo-proof/</guid>
-        
-        <category>blockchain</category>
-        
-        <category>utxo</category>
         
         
       </item>

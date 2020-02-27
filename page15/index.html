@@ -92,6 +92,8 @@
           
         
           
+        
+          
          -->
         <a class="page-link" href="../about/">About</a>
       </div>
@@ -111,6 +113,26 @@
 <div class="home">
 
   <ul class="post-list">
+    
+        
+      <li>
+        <span class="post-meta">Apr 13, 2009</span>
+        <h2>
+            <a class="post-link" href="../1239564120000/">搜索引擎URI编码的处理</a>
+        </h2>
+        <div class="post_at_index">
+            <p>做一个站内搜索遇到一个问题:</p>
+
+<p>网站全站使用的是UTF-8编码，所以get请求的URL也用UTF-8编码，服务器端用UTF-8解码。这种情况下，用户直接在表单里输入提交过来搜索，是没有问题的。但如果用户直接在浏览器地址栏里把关键词给改了，提交过来，或者从浏览器地址栏的下拉提示列表里点击过来，URL编码就不确定了。这个和操作系统语言以及浏览器相关。</p>
+
+<p>ie默认情况下，对在地址栏里输入的URL路径里的中文是用utf-8编码的，但对get参数不会自动编码，会直接把原始字符串发过去。</p>
+
+<p>其他浏览器都会对地址栏里输入的get参数进行编码，编码方式和操作系统环境语言相关。</p>
+
+
+        <a href="../1239564120000/" rel="nofollow">Read more...</a>
+        </div>
+      </li>
     
         
       <li>
@@ -453,70 +475,6 @@ at net.sourceforge.jtds.jdbc.SQLDiagnostic.addDiagnostic(SQLDiagnostic.java:368)
         </div>
       </li>
     
-        
-      <li>
-        <span class="post-meta">Dec 4, 2008</span>
-        <h2>
-            <a class="post-link" href="../1228331400000/">Lucene范围查询(RangeQuery)的几个问题</a>
-        </h2>
-        <div class="post_at_index">
-            <p>对要进行范围查询(RangeQuery)的字段 创建索引的时候要按照 储存 不分词 的方式创建索引。</p>
-
-<p>new Field(name, value, Field.Store.YES, Field.Index.UN_TOKENIZED);</p>
-
-<p>1.数字的范围查询</p>
-
-<p>对数字进行范围查询，必须先把数字格式化为一样长度的字符串。位数不够的在前面补零。</p>
-
-<p>如:</p>
-
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>NumberFormat format = NumberFormat.getIntegerInstance();
-//设置数字的位数 由实际情况的最大数字决定
-format.setMinimumIntegerDigits(6);
-//是否按每三位隔开,如:1234567 将被格式化为 1,234,567。在这里选择 否
-format.setGroupingUsed(false);
-
-format.format(number);
-</code></pre></div></div>
-
-<p> </p>
-
-<p>这样 1 将被格式化为 000001</p>
-
-<p>查询的时候也必须补零。</p>
-
-<p>查询语法: fieldName:[000001 TO 000100]</p>
-
-<p>演示:<a href="http://so.1ting.com/singer.do?q=singerIdRange:[000001 TO 000100]&amp;sort=singerId">http://so.1ting.com/singer.do?q=singerIdRange:[000001 TO 000100]&amp;sort=singerId</a></p>
-
-<p> </p>
-
-<p>2:日期范围查询</p>
-
-<p>日期范围查询必须需要用lucene的时间转换工具类(<a href="http://lucene.apache.org/java/2_4_0/api/org/apache/lucene/document/DateTools.html">DateTools</a><br />
-)的</p>
-
-<p><code class="highlighter-rouge">static&amp;nbsp;String</code></p>
-
-<p><code class="highlighter-rouge">dateToString
-(Date&amp;nbsp;date,
-             DateTools.Resolution&amp;nbsp;resolution)</code><br />
-方法<br />
-，先把时间转换为字符串进行索引。</p>
-
-<p>查询语法: date:[6/1/2005 TO 6/4/2005]</p>
-
-<p>还可以overwrites<br />
-<code class="highlighter-rouge">QueryParser类的getRangeQuery(String, String, String, boolean)方法实现自定义的范围搜索。</code></p>
-
-<p> </p>
-
-<p> </p>
-
-        
-        </div>
-      </li>
-    
   </ul>
  
 <div class="pagination pagination-centered">
@@ -585,6 +543,9 @@ format.format(number);
             
         
             <li><a href="../page19">19</a></li>
+            
+        
+            <li><a href="../page20">20</a></li>
             
         
     

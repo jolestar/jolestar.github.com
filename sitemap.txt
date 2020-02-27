@@ -22,8 +22,10 @@ http://jolestar.com/page16/
 http://jolestar.com/page17/
 http://jolestar.com/page18/
 http://jolestar.com/page19/
+http://jolestar.com/page20/
 http://jolestar.com/css/main.css.map
 
+http://jolestar.com/bitcoin-smart-contract/
 http://jolestar.com/what-is-the-smart-contract/
 http://jolestar.com/talk-about-knowledge-as-valuable/
 http://jolestar.com/ofo-and-blockchain-layer2/

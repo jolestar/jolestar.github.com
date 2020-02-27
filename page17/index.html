@@ -92,6 +92,8 @@
           
         
           
+        
+          
          -->
         <a class="page-link" href="../about/">About</a>
       </div>
@@ -111,6 +113,140 @@
 <div class="home">
 
   <ul class="post-list">
+    
+        
+      <li>
+        <span class="post-meta">Mar 21, 2008</span>
+        <h2>
+            <a class="post-link" href="../1206037560000/">struts2的时间格式转换问题</a>
+        </h2>
+        <div class="post_at_index">
+            <p>struts2提供了一个时间标签:</p>
+
+<p> 但这个标签很只能在显示的时候用，但如果我想在输入框里显示时间，让用户直接修改时间，怎么弄？datepicker？选择太麻烦，我想让用户输入，并且<br />
+兼容多种日期格式。还有，如果用时间标签的话，每个地方都需要指定format，如果我想修改一下格式，所有的时间显示都变，怎么弄？</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>*  In some situations you may wish to apply a type converter globally.
+ *  This can be done by editing the file
+ * xwork-conversion.properties in the root of your class path
+ * (typically WEB-INF/classes) and providing a
+ * property in the form of the class name of the object you wish to convert
+ * on the left hand side and the class name of
+ * the type converter on the right hand side. For example, providing
+ * a type converter for all Point objects would mean
+ * adding the following entry:
+ *
+ * com.acme.Point = com.acme.PointConverter
+</code></pre></div></div>
+
+<p> XWorkConverter，先在classpath root下找xwork-conversion.properties文件，这个文件定义了全局转换。然后每遇到新的类需要转换，便查找是否有特殊的自定义转换配置。特殊自定义转换配置文件的路径是:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>className.replace('.', '/')   "-conversion.properties";
+</code></pre></div></div>
+
+<p> 比方com.acme.Point的转换配置就是classpath 下的/com/acme/Point-coversion.properties文件。</p>
+
+<p>ok，这个问题好解决了。</p>
+
+<p>我的xwork-coversion.properties文件:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>java.util.Date=cn.jolstar.struts.type.DateTypeConverter
+</code></pre></div></div>
+
+<p>  我的DateTypeConverter代码:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">/**</span>
+ <span class="p">*</span>
+ <span class="p">*/</span>
+<span class="k">package</span> <span class="n">cn</span><span class="p">.</span><span class="n">jolestar</span><span class="p">.</span><span class="n">struts</span><span class="p">.</span><span class="n">type</span><span class="p">;</span>
+
+<span class="n">import</span> <span class="n">java</span><span class="p">.</span><span class="n">text</span><span class="p">.</span><span class="n">DateFormat</span><span class="p">;</span>
+<span class="n">import</span> <span class="n">java</span><span class="p">.</span><span class="n">text</span><span class="p">.</span><span class="n">ParseException</span><span class="p">;</span>
+<span class="n">import</span> <span class="n">java</span><span class="p">.</span><span class="n">text</span><span class="p">.</span><span class="n">SimpleDateFormat</span><span class="p">;</span>
+<span class="n">import</span> <span class="n">java</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">Date</span><span class="p">;</span>
+<span class="n">import</span> <span class="n">java</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">Map</span><span class="p">;</span>
+
+<span class="n">import</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">log4j</span><span class="p">.</span><span class="n">Logger</span><span class="p">;</span>
+<span class="n">import</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">struts2</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">StrutsTypeConverter</span><span class="p">;</span>
+
+<span class="p">/**</span>
+ <span class="p">*</span> <span class="p">@</span><span class="n">author</span> <span class="n">jolestar</span>
+ <span class="p">*</span>
+ <span class="p">*/</span>
+<span class="k">public</span> <span class="n">class</span> <span class="n">DateTypeConverter</span> <span class="n">extends</span> <span class="n">StrutsTypeConverter</span> <span class="p">{</span>
+
+	<span class="n">private</span> <span class="n">static</span> <span class="n">final</span> <span class="n">Logger</span> <span class="nb">log</span> <span class="p">=</span> <span class="n">Logger</span><span class="p">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">DateTypeConverter</span><span class="p">.</span><span class="n">class</span><span class="p">);</span>
+	<span class="k">public</span> <span class="n">static</span> <span class="n">final</span> <span class="k">String</span> <span class="n">DEFAULT_DATE_FORMAT</span> <span class="p">=</span> <span class="s2">"yyyy-MM-dd"</span><span class="p">;</span>
+
+	<span class="p">//</span><span class="err">暂时只考虑这几种日期格式</span>
+	<span class="k">public</span> <span class="n">static</span> <span class="n">final</span> <span class="n">DateFormat</span><span class="p">[]</span> <span class="n">ACCEPT_DATE_FORMATS</span> <span class="p">=</span> <span class="p">{</span>
+			<span class="n">new</span> <span class="n">SimpleDateFormat</span><span class="p">(</span><span class="n">DEFAULT_DATE_FROMAT</span><span class="p">),</span>
+			<span class="n">new</span> <span class="n">SimpleDateFormat</span><span class="p">(</span><span class="s2">"yyyy年MM月dd日"</span><span class="p">),</span>
+			<span class="n">new</span> <span class="n">SimpleDateFormat</span><span class="p">(</span><span class="s2">"yyyy/MM/dd"</span><span class="p">)</span> <span class="p">};</span>
+
+	<span class="p">/**</span>
+	 <span class="p">*</span>
+	 <span class="p">*/</span>
+	<span class="k">public</span> <span class="n">DateTypeConverter</span><span class="p">()</span> <span class="p">{</span>
+	<span class="p">}</span>
+
+	<span class="p">/*</span>
+	 <span class="p">*</span> <span class="p">(</span><span class="n">non</span><span class="p">-</span><span class="n">Javadoc</span><span class="p">)</span>
+	 <span class="p">*</span>
+	 <span class="p">*</span> <span class="p">@</span><span class="n">see</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">struts2</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">StrutsTypeConverter</span><span class="p">#</span><span class="n">convertFromString</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">Map</span><span class="p">,</span>
+	 <span class="p">*</span>      <span class="n">java</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="k">String</span><span class="p">[],</span> <span class="n">java</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">Class</span><span class="p">)</span>
+	 <span class="p">*/</span>
+	<span class="p">@</span><span class="n">Override</span>
+	<span class="k">public</span> <span class="n">Object</span> <span class="n">convertFromString</span><span class="p">(</span><span class="n">Map</span> <span class="n">context</span><span class="p">,</span> <span class="k">String</span><span class="p">[]</span> <span class="n">values</span><span class="p">,</span> <span class="n">Class</span> <span class="n">toClass</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="m">0</span><span class="p">]</span> <span class="p">==</span> <span class="n">null</span> <span class="p">||</span> <span class="n">values</span><span class="p">[</span><span class="m">0</span><span class="p">].</span><span class="nf">trim</span><span class="p">().</span><span class="n">equals</span><span class="p">(</span><span class="s2">""</span><span class="p">))</span>
+			<span class="n">return</span> <span class="n">null</span><span class="p">;</span>
+		<span class="n">for</span> <span class="p">(</span><span class="n">DateFormat</span> <span class="n">format</span> <span class="p">:</span> <span class="n">ACCEPT_DATE_FORMATS</span><span class="p">)</span> <span class="p">{</span>
+			<span class="n">try</span> <span class="p">{</span>
+				<span class="n">return</span> <span class="n">format</span><span class="p">.</span><span class="n">parse</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="m">0</span><span class="p">]);</span>
+			<span class="p">}</span> <span class="n">catch</span> <span class="p">(</span><span class="n">ParseException</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+				<span class="n">continue</span><span class="p">;</span>
+			<span class="p">}</span> <span class="n">catch</span> <span class="p">(</span><span class="n">RuntimeException</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+				<span class="n">continue</span><span class="p">;</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+		<span class="nb">log</span><span class="p">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"can not format date string:"</span>   <span class="n">values</span><span class="p">[</span><span class="m">0</span><span class="p">]);</span>
+		<span class="n">return</span> <span class="n">null</span><span class="p">;</span>
+	<span class="p">}</span>
+
+	<span class="p">/*</span>
+	 <span class="p">*</span> <span class="p">(</span><span class="n">non</span><span class="p">-</span><span class="n">Javadoc</span><span class="p">)</span>
+	 <span class="p">*</span>
+	 <span class="p">*</span> <span class="p">@</span><span class="n">see</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">struts2</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">StrutsTypeConverter</span><span class="p">#</span><span class="n">convertToString</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">Map</span><span class="p">,</span>
+	 <span class="p">*</span>      <span class="n">java</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">Object</span><span class="p">)</span>
+	 <span class="p">*/</span>
+	<span class="p">@</span><span class="n">Override</span>
+	<span class="k">public</span> <span class="k">String</span> <span class="n">convertToString</span><span class="p">(</span><span class="n">Map</span> <span class="n">context</span><span class="p">,</span> <span class="n">Object</span> <span class="n">o</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">o</span> <span class="n">instanceof</span> <span class="n">Date</span><span class="p">)</span> <span class="p">{</span>
+			<span class="n">SimpleDateFormat</span> <span class="n">format</span> <span class="p">=</span> <span class="n">new</span> <span class="n">SimpleDateFormat</span><span class="p">(</span>
+					<span class="n">DEFAULT_DATE_FORMAT</span><span class="p">);</span>
+			<span class="n">try</span> <span class="p">{</span>
+				<span class="n">return</span> <span class="n">format</span><span class="p">.</span><span class="n">format</span><span class="p">((</span><span class="n">Date</span><span class="p">)</span> <span class="n">o</span><span class="p">);</span>
+			<span class="p">}</span> <span class="n">catch</span> <span class="p">(</span><span class="n">RuntimeException</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+				<span class="n">return</span> <span class="s2">""</span><span class="p">;</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+		<span class="n">return</span> <span class="s2">""</span><span class="p">;</span>
+	<span class="p">}</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p> </p>
+
+<p>这样，从字符串转换为日期对象的时候，会尝试上面列出的多种日期格式，但输出的时候，则会统一按照DEFAULT—DATE—FORMAT转换。 需要修改格式，只需要修改DEFAULT—DATE—FORMAT。当然，你也可以把它方在配置文件里，便于修改。</p>
+
+<p> </p>
+
+<p>了解了这一点，其实也就 明白了struts的类型转换模式。然后，无论是字符串id到持久化对象的转换，还是自定义的字符串到对象之间的转换，都容易了。</p>
+
+        
+        </div>
+      </li>
     
         
       <li>
@@ -496,223 +632,6 @@ struts2的iterator 标签里设置</p>
         </div>
       </li>
     
-        
-      <li>
-        <span class="post-meta">Jul 30, 2007</span>
-        <h2>
-            <a class="post-link" href="../1185733200000/">JavaFX尝鲜</a>
-        </h2>
-        <div class="post_at_index">
-            <p>     java6出来以后，其一大特色就是对脚本语言的支持。以前只是粗略看了一下，没感觉到有什么具体的用处。最近又对java的特有脚本语言javaFX了解一下，感觉挺有意思。</p>
-
-<p>**一.以下是几个相关网址: **<br />
-   1.sun javafx 官方网站:.<a href="http://www.sun.com/software/javafx/script/">www.sun.com/software/javafx/script/</a><br />
-   2.openjfx 网站:  <a href="https://openjfx.dev.java.net/">openjfx.dev.java.net/</a><br />
-   3.JavaFX: First Steps – “Hello OnJava” App  <a href="http://www.oreillynet.com/onjava/blog/2007/05/javafx_first_steps_hello_onjav_1.html">www.oreillynet.com/onjava/blog/2007/05/javafx_first_steps_hello_onjav_1.html</a><br />
-   4.<a href="https://openjfx.dev.java.net/JavaFX_Programming_Language.html">The JavaFX Script Programming Language Reference</a> (<a href="https://openjfx.dev.java.net/JavaFX_Programming_Language_CN.html">Chinese version</a>)</p>
-
-<p>hello world 式的程序，很简单，稍看一下文档就明白了。<br />
-<strong>二.我比较喜欢这个语言的下面几个特征:</strong><br />
- <br />
-     这个语言融合了javascript，php,actionscript,sql 等许多脚本语言的特征。</p>
-
-<p>    1.<strong>数组操作很有特色</strong><br />
-         var nums = [0..3];<br />
-         ..  是范围表达式，上面的语句相当于  var nums == [0,1,2,3];<br />
-         数组支持类似于sql语句一样的查询表达式。<br />
-        var nums = select n*n from n in [1..100];<br />
-        结果便是从1到100每个数字的平方组成的数组。</p>
-
-<p>     2.<strong>字符串</strong><br />
-        javaFX中的字符串支持嵌入表达式</p>
-
-<p> </p>
-
-<p> </p>
-
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var name = 'Joe';
- var s = "Hello {name}";
-System.out.println(s);
-</code></pre></div></div>
-
-<p> </p>
-
-<p>      程序在输出结果的时候会自动把字符串中的表达式 {} 算出来，替换成结果 。这段程序的输出结果是 : Hello Joe<br />
-       这个特点和php很相似。用在来做结果输出模板时很有用，不必用自己创造标签语法，输出的时候又得用正则分析，替换。</p>
-
-<p>    3.<strong>类与对象</strong><br />
-       对象声明可以用一种类似于json的语法进行。</p>
-
-<p> </p>
-
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>class Person {
- attribute name: String;
- attribute parent: Person inverse Person.children;
- attribute children: Person* inverse Person.parent;
- function getFamilyIncome(): Number;
- function getNumberOfChildren(): Number;
- operation marry(spouse: Person);
- }
-
-var chris = Person {
-name: "Chris"
-children:
-[Person {
-name: "Dee"
-},
-Person {
-name: "Candice"
-}]
-};
-</code></pre></div></div>
-
-<p> </p>
-
-<p> </p>
-
-<p>   4.<strong>很有特色的反射操作</strong><br />
-      javaFX的反射很奇妙，我都在想，为什么java的反射也不做成这样。</p>
-
-<p>  
-    import java.lang.System;</p>
-
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>     System.out.println(1.class.Name) // prints "Number"
-     System.out.println("Hello".class.Name); // prints "String" 
-</code></pre></div></div>
-
-<p> </p>
-
-<p>方便吧？<br />
-**<br />
-三.在web中的尝试。**<br />
-      看了说明，好像javaFX出现的目标是简化Swing的界面开发编程。一方面javaFX还没有一个好的所见即所得的ide支持，另外本人对web方面的编程比较感兴趣。所以进行了一个小实验。<br />
-     我的思路是用一个servlet拦截所有对fx的请求，根据requestURI,获得javafx文件的绝对路径，然后在servelt中调用java6的脚本引擎，解释执行。<br />
- FXServlet.java</p>
-
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import java.io.File;
- import java.io.FileInputStream;
- import java.io.IOException;
- import java.io.InputStreamReader;
- import javax.servlet.ServletException;
- import javax.servlet.http.HttpServlet;
- import javax.servlet.http.HttpServletRequest;
- import javax.servlet.http.HttpServletResponse;
-
-import javax.script.Bindings;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.SimpleScriptContext;
-
-public class FXServlet extends HttpServlet {
-
-private String realPath;
-
-public void doGet(HttpServletRequest request, HttpServletResponse response)
-throws ServletException, IOException {
-
-this.doWork(request, response);
-}
-
-public void doPost(HttpServletRequest request, HttpServletResponse response)
-throws ServletException, IOException {
-
-this.doWork(request, response);
-}
-
-public void doWork(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException{
-System.out.println("begin ....");
- try {
-ClassLoader loader = Thread.currentThread().getContextClassLoader();
-ScriptEngineManager manager = new ScriptEngineManager(loader);
-ScriptEngine engine = manager.getEngineByExtension("fx");
-
-Bindings bindings = engine.createBindings();
-//将request和response两个对象传递给脚本引擎。
-bindings.put("REQUEST:javax.servlet.http.HttpServletRequest",request);
-bindings.put("RESPONSE:javax.servlet.http.HttpServletResponse",response);
-
-ScriptContext context = new SimpleScriptContext();
-context.setBindings(bindings, ScriptContext.GLOBAL_SCOPE);
-context.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
-engine.setContext(context);
-String uri = request.getRequestURI();
-String contextPath = request.getContextPath();
-//将requestURI中的contextPath替换掉
-if(contextPath!=null&amp;&amp;contextPath.trim().length()&gt;0){
-uri = uri.replaceAll(contextPath,"");
-}
-//根据requestURI取得fx文件的绝对地址我们把fx文件放在站点的 WEB-INF下的 jfx目录下。
-String filePath = this.realPath   "WEB-INF"  File.separator  "jfx"   uri;
-File jfxFile =new File(filePath);
-
-if(!jfxFile.exists()){
-response.sendError(404);
-}else{
-InputStreamReader reader = new InputStreamReader(new FileInputStream(jfxFile));
-engine.eval(reader);
-reader.close();
-}
-} catch (Exception e) {
-e.printStackTrace();
-}
-System.out.println("... end");
-}
-
-public void init() throws ServletException {
-this.realPath = this.getServletContext().getRealPath("/");
-}
-
-}
-</code></pre></div></div>
-
-<p>web.xml</p>
-
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>       FXServlet
-       net.teamhot.jfxweb.FXServlet
-    
-
-    
-      FXServlet
-      *.fx
-</code></pre></div></div>
-
-<p> </p>
-
-<p>Hello.fx</p>
-
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import java.lang.System;
- import javax.servlet.http.HttpServlet;
- import javax.servlet.http.HttpServletRequest;
- import javax.servlet.http.HttpServletResponse;
- import java.io.PrintWriter;
-
- //接受从java中传递过来的参数
- var request:HttpServletRequest = REQUEST;
- var response:HttpServletResponse = RESPONSE;
-
-var name = request.getParameter("name");
-var out:PrintWriter = response.getWriter();
-
-var template = "Hello World!{if name ==null then 'guest' else name}";
-
-out.print(template);
-</code></pre></div></div>
-
-<p> </p>
-
-<p>运行:http://localhost:8080/jfx/Hello.fx<br />
-结果:Hello World!guest 
-运行:http://localhost:8080/jfx/Hello.fx?name=jolestar<br />
-结果:Hello World!jolestar</p>
-
-<p>注意:本程序需要tomcat在jdk6环境下运行，如果还是提示找不到javax.script.ScriptEngine，请将jdk6 lib 下面的rt.jar中的javax.script包抽取出来，重新打包后放到 tomcat  common lib 下面。 
-这个程序没有考虑效率问题。其实这样的事情应该由容器完成，本人只是做了个小小的实验。</p>
-
-        
-        </div>
-      </li>
-    
   </ul>
  
 <div class="pagination pagination-centered">
@@ -781,6 +700,9 @@ out.print(template);
             
         
             <li><a href="../page19">19</a></li>
+            
+        
+            <li><a href="../page20">20</a></li>
             
         
     

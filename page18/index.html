@@ -92,6 +92,8 @@
           
         
           
+        
+          
          -->
         <a class="page-link" href="../about/">About</a>
       </div>
@@ -111,6 +113,223 @@
 <div class="home">
 
   <ul class="post-list">
+    
+        
+      <li>
+        <span class="post-meta">Jul 30, 2007</span>
+        <h2>
+            <a class="post-link" href="../1185733200000/">JavaFX尝鲜</a>
+        </h2>
+        <div class="post_at_index">
+            <p>     java6出来以后，其一大特色就是对脚本语言的支持。以前只是粗略看了一下，没感觉到有什么具体的用处。最近又对java的特有脚本语言javaFX了解一下，感觉挺有意思。</p>
+
+<p>**一.以下是几个相关网址: **<br />
+   1.sun javafx 官方网站:.<a href="http://www.sun.com/software/javafx/script/">www.sun.com/software/javafx/script/</a><br />
+   2.openjfx 网站:  <a href="https://openjfx.dev.java.net/">openjfx.dev.java.net/</a><br />
+   3.JavaFX: First Steps – “Hello OnJava” App  <a href="http://www.oreillynet.com/onjava/blog/2007/05/javafx_first_steps_hello_onjav_1.html">www.oreillynet.com/onjava/blog/2007/05/javafx_first_steps_hello_onjav_1.html</a><br />
+   4.<a href="https://openjfx.dev.java.net/JavaFX_Programming_Language.html">The JavaFX Script Programming Language Reference</a> (<a href="https://openjfx.dev.java.net/JavaFX_Programming_Language_CN.html">Chinese version</a>)</p>
+
+<p>hello world 式的程序，很简单，稍看一下文档就明白了。<br />
+<strong>二.我比较喜欢这个语言的下面几个特征:</strong><br />
+ <br />
+     这个语言融合了javascript，php,actionscript,sql 等许多脚本语言的特征。</p>
+
+<p>    1.<strong>数组操作很有特色</strong><br />
+         var nums = [0..3];<br />
+         ..  是范围表达式，上面的语句相当于  var nums == [0,1,2,3];<br />
+         数组支持类似于sql语句一样的查询表达式。<br />
+        var nums = select n*n from n in [1..100];<br />
+        结果便是从1到100每个数字的平方组成的数组。</p>
+
+<p>     2.<strong>字符串</strong><br />
+        javaFX中的字符串支持嵌入表达式</p>
+
+<p> </p>
+
+<p> </p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var name = 'Joe';
+ var s = "Hello {name}";
+System.out.println(s);
+</code></pre></div></div>
+
+<p> </p>
+
+<p>      程序在输出结果的时候会自动把字符串中的表达式 {} 算出来，替换成结果 。这段程序的输出结果是 : Hello Joe<br />
+       这个特点和php很相似。用在来做结果输出模板时很有用，不必用自己创造标签语法，输出的时候又得用正则分析，替换。</p>
+
+<p>    3.<strong>类与对象</strong><br />
+       对象声明可以用一种类似于json的语法进行。</p>
+
+<p> </p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>class Person {
+ attribute name: String;
+ attribute parent: Person inverse Person.children;
+ attribute children: Person* inverse Person.parent;
+ function getFamilyIncome(): Number;
+ function getNumberOfChildren(): Number;
+ operation marry(spouse: Person);
+ }
+
+var chris = Person {
+name: "Chris"
+children:
+[Person {
+name: "Dee"
+},
+Person {
+name: "Candice"
+}]
+};
+</code></pre></div></div>
+
+<p> </p>
+
+<p> </p>
+
+<p>   4.<strong>很有特色的反射操作</strong><br />
+      javaFX的反射很奇妙，我都在想，为什么java的反射也不做成这样。</p>
+
+<p>  
+    import java.lang.System;</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>     System.out.println(1.class.Name) // prints "Number"
+     System.out.println("Hello".class.Name); // prints "String" 
+</code></pre></div></div>
+
+<p> </p>
+
+<p>方便吧？<br />
+**<br />
+三.在web中的尝试。**<br />
+      看了说明，好像javaFX出现的目标是简化Swing的界面开发编程。一方面javaFX还没有一个好的所见即所得的ide支持，另外本人对web方面的编程比较感兴趣。所以进行了一个小实验。<br />
+     我的思路是用一个servlet拦截所有对fx的请求，根据requestURI,获得javafx文件的绝对路径，然后在servelt中调用java6的脚本引擎，解释执行。<br />
+ FXServlet.java</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import java.io.File;
+ import java.io.FileInputStream;
+ import java.io.IOException;
+ import java.io.InputStreamReader;
+ import javax.servlet.ServletException;
+ import javax.servlet.http.HttpServlet;
+ import javax.servlet.http.HttpServletRequest;
+ import javax.servlet.http.HttpServletResponse;
+
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.SimpleScriptContext;
+
+public class FXServlet extends HttpServlet {
+
+private String realPath;
+
+public void doGet(HttpServletRequest request, HttpServletResponse response)
+throws ServletException, IOException {
+
+this.doWork(request, response);
+}
+
+public void doPost(HttpServletRequest request, HttpServletResponse response)
+throws ServletException, IOException {
+
+this.doWork(request, response);
+}
+
+public void doWork(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException{
+System.out.println("begin ....");
+ try {
+ClassLoader loader = Thread.currentThread().getContextClassLoader();
+ScriptEngineManager manager = new ScriptEngineManager(loader);
+ScriptEngine engine = manager.getEngineByExtension("fx");
+
+Bindings bindings = engine.createBindings();
+//将request和response两个对象传递给脚本引擎。
+bindings.put("REQUEST:javax.servlet.http.HttpServletRequest",request);
+bindings.put("RESPONSE:javax.servlet.http.HttpServletResponse",response);
+
+ScriptContext context = new SimpleScriptContext();
+context.setBindings(bindings, ScriptContext.GLOBAL_SCOPE);
+context.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
+engine.setContext(context);
+String uri = request.getRequestURI();
+String contextPath = request.getContextPath();
+//将requestURI中的contextPath替换掉
+if(contextPath!=null&amp;&amp;contextPath.trim().length()&gt;0){
+uri = uri.replaceAll(contextPath,"");
+}
+//根据requestURI取得fx文件的绝对地址我们把fx文件放在站点的 WEB-INF下的 jfx目录下。
+String filePath = this.realPath   "WEB-INF"  File.separator  "jfx"   uri;
+File jfxFile =new File(filePath);
+
+if(!jfxFile.exists()){
+response.sendError(404);
+}else{
+InputStreamReader reader = new InputStreamReader(new FileInputStream(jfxFile));
+engine.eval(reader);
+reader.close();
+}
+} catch (Exception e) {
+e.printStackTrace();
+}
+System.out.println("... end");
+}
+
+public void init() throws ServletException {
+this.realPath = this.getServletContext().getRealPath("/");
+}
+
+}
+</code></pre></div></div>
+
+<p>web.xml</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>       FXServlet
+       net.teamhot.jfxweb.FXServlet
+    
+
+    
+      FXServlet
+      *.fx
+</code></pre></div></div>
+
+<p> </p>
+
+<p>Hello.fx</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import java.lang.System;
+ import javax.servlet.http.HttpServlet;
+ import javax.servlet.http.HttpServletRequest;
+ import javax.servlet.http.HttpServletResponse;
+ import java.io.PrintWriter;
+
+ //接受从java中传递过来的参数
+ var request:HttpServletRequest = REQUEST;
+ var response:HttpServletResponse = RESPONSE;
+
+var name = request.getParameter("name");
+var out:PrintWriter = response.getWriter();
+
+var template = "Hello World!{if name ==null then 'guest' else name}";
+
+out.print(template);
+</code></pre></div></div>
+
+<p> </p>
+
+<p>运行:http://localhost:8080/jfx/Hello.fx<br />
+结果:Hello World!guest 
+运行:http://localhost:8080/jfx/Hello.fx?name=jolestar<br />
+结果:Hello World!jolestar</p>
+
+<p>注意:本程序需要tomcat在jdk6环境下运行，如果还是提示找不到javax.script.ScriptEngine，请将jdk6 lib 下面的rt.jar中的javax.script包抽取出来，重新打包后放到 tomcat  common lib 下面。 
+这个程序没有考虑效率问题。其实这样的事情应该由容器完成，本人只是做了个小小的实验。</p>
+
+        
+        </div>
+      </li>
     
         
       <li>
@@ -475,25 +694,6 @@ newField,newMethod,等等.但不知道参数具体是什么意思.但在google�
         </div>
       </li>
     
-        
-      <li>
-        <span class="post-meta">Mar 11, 2007</span>
-        <h2>
-            <a class="post-link" href="../1173610740000/">北京的风</a>
-        </h2>
-        <div class="post_at_index">
-            <p>    来北京这段时间里,别的不说,对北京的风感觉尤为深刻.堪与家乡的风媲烈.我家在西北沙漠边上,刮起风来飞沙走石,天昏地暗,绝不夸张.但北京的风也逊色不到哪儿,只是沙尘少点.但这边的风,在高楼之间迂回穿梭,来回碰撞,寻找出口,一旦找到缝隙,冲将出来,迎风而行的人都得拼命顶着,弄不好就被刮了回来.记得小自然课上学过风级的口决,好像说,七级迎风路难行.估计三四级的风被这些高楼构成的鼓风机一加工,也七级以上了.</p>
-
-<p>     <br />
-刚来北京没几天,就遇到了这样的风.租的宿舍窗户不严实,风从缝隙中吹进来,正对床头,趟在床上点烟都点不着.无奈之下开始想办法.最后在床下角落里发现了一个窗帘,翻腾出来.窗户上面挂窗帘的那个铁杆坏了,没有办法固定.又找不到工具.最后拿了一个饮料瓶硬是把它挤在里面.不过从此再没敢动过窗帘.这样,风才稍缓了缓.不过同学过来看见后,都笑我在窗户上挂个尿布干什么.也难怪,那东西在床下放了不知道多久,皱皱巴巴不说,颜色也泛黄.</p>
-
-<p>    <br />
-那天半夜做了个恶梦,好不容易从梦中挣扎出来,还没缓过劲来,只听见门外客厅里蟋蟋碎碎作响,如脚步,似人语,心里一整紧张,然后吱呀一声,我的这间卧室门开了.惊得忙起身坐了起来,半天才明白是风在捣鬼.原来是风从厨房那边的窗户缝穿进来,进过客厅,吹开了我的卧室门.主要原因还是我的这间卧室的门锁坏了.</p>
-
-        
-        </div>
-      </li>
-    
   </ul>
  
 <div class="pagination pagination-centered">
@@ -562,6 +762,9 @@ newField,newMethod,等等.但不知道参数具体是什么意思.但在google�
             
         
             <li><a href="../page19">19</a></li>
+            
+        
+            <li><a href="../page20">20</a></li>
             
         
     
