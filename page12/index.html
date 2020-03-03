@@ -116,6 +116,54 @@
     
         
       <li>
+        <span class="post-meta">Apr 5, 2010</span>
+        <h2>
+            <a class="post-link" href="../1241883360000/">终于在网上建了个家</a>
+        </h2>
+        <div class="post_at_index">
+            <p>记得我刚开始学网页就是一个简单的想法，给自己弄个个人站。</p>
+
+<p>于是开始学习<br />
+html，css，photoshop,dreamweaver,javascript,flash。然后又知道用静态html做出来的<br />
+网站很难维护，最好是用程序做成动态的。于是又学习asp，php，数据库,java，linux。结果这一下误入歧途，回不来了。法律专业也不搞了，转行写程序了。几年来给别人也做了好些网站程序，但自己最初的那个想法还没实现。本来是想抽空自己写个简单的个人博客用的，但这个想法一直处于构想当中。最<br />
+后还是找个现成的单用户blog程序吧。既然喜欢java，那也应该找个java的。找来找去，就找到了这个blog程序—pebble,官方网站<br />
+– 。咱买不起房子，但在网上给自己搭个家还行吧。</p>
+
+<p>pebble的数据采用xml方式储存，没有用数据库，搭建方便，功能也不错。</p>
+
+<p>对中文支持完全没问题。刚搭建之后，发现查询中文tag的时候会有乱码问题,它的url路径里出现中文了:http://jolestar.com/tags/开源项目/.但后来才发现那是我的mod_jk的配置问题。应该加上</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>JkOptions  ForwardURICompatUnparsed  ForwardDirectories
+</code></pre></div></div>
+
+<p>这两项。第一项是让apache不要解码，把url提交给tomcat处理。第二项是让apache把目录直接提交给tomcat处理。</p>
+
+<p>这样就没问题了。</p>
+
+<p>好了，开始转我的博客吧。但刚一转就发现，编辑器少个功能：插入代码。pebble默认是用FCKEditor编辑器，弄了一下，发现FCKEditor的插件体系不好，网上找到的FCKEditor的代码插入插件都不太好用，很多是直接把代码格式化成html的格式高亮。这种方式不好，因为这样格式化，用户复制代码的时候会很不方便，会复制上冗余的东西，以后编辑也不方便。好的方式就是用js动态实现高亮，而不是直接用html格式化。看了一下javaeye的代码插入功能，觉得不错。javaeye的编辑器用的是tiny_mce，于是就把博客的编辑器替换成了tiny_mce，又把javaeye的tiny_mce的代码插入插件搬了过来。嘿，还挺好用。在此感谢javaeye。</p>
+
+<p>代码插件有了，然后就是代码高亮。javaeye用的是SyntaxHighlighter, <a href="http://alexgorbatchev.com/">http://alexgorbatchev.com</a> ，但它好像用的是旧版本，或者是它的修改版本，不太好用。于是下载了最新的SyntaxHighlighter，实验了一下，嘿，效果不错。但又发现一个问题。新版本的SyntaxHighlighter把每种语言的高亮js都放在单独文件里，必须提前把需要用到的需要高亮的语言的js都加载进来。但页面模板里没法知道博客的内容会插入那些语言的代码，如果把所有的语言的js都加载进来，会严重影响页面加载速度。于是又写了个动态加载语言js的脚本。</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var syntaxhighlighter_url = "/scripts/syntaxhighlighter/";
+  var brushLibs = {js:"JScript",jscript:"JScript",javascript:"JScript",
+		  bash:"Bash",shell:"Bash",css:"Css",actionscript3:"AS3",as3:"AS3",cpp:"Cpp",c:"Cpp",
+		  csharp:"CSharp",groovy:"Groovy",java:"Java",javafx:"JavaFX",jfx:"JavaFX",
+		  perl:"Perl",pl:"Perl",php:"Php",text:"Plain",plain:"Plain",
+                 py:"Python",python:"Python",
+		  ruby:"Ruby",ror:"Ruby",rails:"Ruby",scala:"Scala",sql:"Sql",xml:"Xml",html:"Xml",
+                 xhtml:"Xml",xslt:"Xml"
+		  };
+  function loadBrushLibs(){
+	  var pres = document.getElementsByTagName("pre");
+	  for(var i=0;i
+</code></pre></div></div>
+
+        
+        </div>
+      </li>
+    
+        
+      <li>
         <span class="post-meta">Mar 28, 2010</span>
         <h2>
             <a class="post-link" href="../1269736980000/">第一次烫头发，谷歌搬家了，脑袋烧坏了，西游记还可以这样读等若干流水帐
@@ -262,41 +310,6 @@
 <p>[![opensuse][2]][2]</p>
 
 <p>[]: http://jolestar.com/images/desktop/opensuse11.2.jpeg</p>
-
-        
-        </div>
-      </li>
-    
-        
-      <li>
-        <span class="post-meta">Nov 3, 2009</span>
-        <h2>
-            <a class="post-link" href="../1257258951311/">Java App Store  即将发布</a>
-        </h2>
-        <div class="post_at_index">
-            <p>   Danny Coward 在其blog中宣称 “<a href="http://blogs.sun.com/theplanetarium/entry/java_store_readying_to_open">Java Store in final stages before open</a>“。</p>
-
-<p>   和 Apple Store相似，Java Store是一个让开发人员发布基于Java和Javafx应用的平台。Sun想吸引全球大约600万的java开发人员在上面发布软件，利用Java Store建立了一个强大的分销渠道,直接将8.00亿全球台式机Java用户和开发人员连接起来。消费者可以在广泛的应用选择中找到满足自己需要或者商业需要的Java应用，开发者也可以省去许多软件推广宣传费用。</p>
-
-<p>   Java Store 现在只针对美国用户开放，其他国家用户大约要等到2010年初。</p>
-
-<p>不过让人郁闷的是Java Store 开始只支持Windows XP<br />
-,  
-Vista<br />
-, </p>
-
-<p>Macintosh OS X系统。</p>
-
-<p> Java Store 后端使用的是 <a href="http://java.sun.com/warehouse/">Java Warehouse</a> 仓库，它的目标比较远大，不仅仅针对桌面系统，未来将对手机，TV等系统提供服务。</p>
-
-<p>Java在桌面一向不太受欢迎，除了几个IDE开发工具，很少见到广泛使用的Java桌面应用。这点上连linux上的mono都不及。不知道Java Store能否为java的桌面应用带来新的曙光.</p>
-
-<p>拭目以待…</p>
-
-<p> </p>
-
-<p>下面是一些相关地址:</p>
-
 
         
         </div>

@@ -116,6 +116,45 @@
     
         
       <li>
+        <span class="post-meta">Dec 18, 2008</span>
+        <h2>
+            <a class="post-link" href="../1229541120000/">Spring自动装配(autowire)导致quartz不能运行</a>
+        </h2>
+        <div class="post_at_index">
+            <p>在spring中配置了一个简单的quartz任务，结果报错：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Failure obtaining db row lock: 第 1 行: 只有 DECLARE CURSOR 才允许使用 FOR UPDATE 子句。
+
+只有 DECLARE CURSOR 才允许使用 FOR UPDATE 子句
+
+at net.sourceforge.jtds.jdbc.SQLDiagnostic.addDiagnostic(SQLDiagnostic.java:368)
+	at net.sourceforge.jtds.jdbc.TdsCore.tdsErrorToken(TdsCore.java:2816)
+	at net.sourceforge.jtds.jdbc.TdsCore.nextToken(TdsCore.java:2254)
+	at net.sourceforge.jtds.jdbc.TdsCore.getMoreResults(TdsCore.java:631)
+	at net.sourceforge.jtds.jdbc.JtdsStatement.executeSQLQuery(JtdsStatement.java:477)
+	at net.sourceforge.jtds.jdbc.JtdsPreparedStatement.executeQuery(JtdsPreparedStatement.java:777)
+	at org.apache.commons.dbcp.DelegatingPreparedStatement.executeQuery(DelegatingPreparedStatement.java:91)
+	at org.quartz.impl.jdbcjobstore.StdRowLockSemaphore.executeSQL(StdRowLockSemaphore.java:92)
+</code></pre></div></div>
+
+<p> </p>
+
+<p>很郁闷，以为是事务控制的问题。</p>
+
+<p>结果最后发现是自动配置(quartz)的问题。</p>
+
+<p>spring的SchedulerFactoryBean中有个dataSource属性。如果这个属性不为空，则用数据库来持久化储存quartz的任务。结果正好我的spring中的DataSource的名字就叫dataSource，结果就导致了上面的错误。</p>
+
+<p>这个哥们也遇到了同样的问题:</p>
+
+<p>所以spring的autowire还是尽量少用为好。</p>
+
+        
+        </div>
+      </li>
+    
+        
+      <li>
         <span class="post-meta">Dec 4, 2008</span>
         <h2>
             <a class="post-link" href="../1228331400000/">Lucene范围查询(RangeQuery)的几个问题</a>
@@ -983,74 +1022,6 @@ lost found下面，ls了一下，等了半天才显示出来结果。原来所�
 <p> </p>
 
 <p>平时自己本地用linux，服务器管理经验不多，让老鸟看了笑话。吃一堑长一智，我这也算长了一智。</p>
-
-        
-        </div>
-      </li>
-    
-        
-      <li>
-        <span class="post-meta">Mar 29, 2008</span>
-        <h2>
-            <a class="post-link" href="../1206729180000/">一个纯java的H.264播放器&#8211;Onavia Video Player</a>
-        </h2>
-        <div class="post_at_index">
-            <p>在网上闲逛，遇到一个纯java的H.264播放器，看了它的官方网站上的applet，效果确实不错。</p>
-
-<p> </p>
-
-<p>支持以下几种格式：</p>
-
-<ul>
-  <li><strong>.mp4</strong> standard H.264 file format</li>
-  <li><strong>.mpeg</strong> standard H.264 file format</li>
-  <li><strong>.h264</strong> standard H.264 file format</li>
-  <li><strong>.avi</strong> generic video file extension</li>
-</ul>
-
-<p>有以下特征：</p>
-
-<p> </p>
-
-<p> </p>
-
-<ul>
-  <li><strong>High definition video.</strong> The Onavia H.264 Java Video<br />
-Player plays the standard resolution and high definition video files<br />
-that conform to the latest H.264 video compression standard.</li>
-  <li><strong>End-user controls.</strong> The player has all end-user<br />
-functions including: play, pause, rewind, fast forward, video duration,<br />
-elapsed time, clickable progress bar.</li>
-  <li><strong>Open APIs.</strong> Video publishers and web developers can<br />
-customize the entire player (e.g. look &amp; feel, colors, borders,<br />
-window size, video resolution, streaming bandwidth, end-user controls).<br />
-The player is fully customizable, and allows a publisher not only to<br />
-control the end user experience, but also gives flexibility to rapidly<br />
-change the end user experience to keep their website and video viewing<br />
-experience fresh. It also allows a publisher to create different end<br />
-user viewing experiences for different websites or within different<br />
-sections of the same website.</li>
-  <li><strong>Cost-effective delivery of high quality video.</strong><br />
-Enables publishers and web developers to implement H.264 quality video<br />
-into a website without the need to implement costly Flash servers.</li>
-  <li>Can pull a video file from multiple domains/servers</li>
-  <li><strong>Platform independence.</strong> It works on PCs, Macs, and all popular browser (Internet Explorer, Mozzilla, Firefox)</li>
-  <li><strong>Device independence.</strong> Onavia H.264 Java Video<br />
-Player can be easily ported to a variety of mobile devices and<br />
-environments. The only requirement is that a device supports Java.</li>
-  <li><strong>Automatic Bandwidth detection.</strong> The player<br />
-automatically senses the available bandwidth at the end user device and<br />
-adjusts the buffering and streaming to deliver the best possible<br />
-viewing experience.</li>
-</ul>
-
-<p> </p>
-
-<p>官方网站：</p>
-
-<p> </p>
-
-<p>java在多媒体方面很让人失望，那个JMF框架架构不错，但就是功能太弱。这个播放器的出现，至少说明了java在这方面还是有能力的，只是没发挥出来。</p>
 
         
         </div>

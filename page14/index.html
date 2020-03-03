@@ -116,6 +116,51 @@
     
         
       <li>
+        <span class="post-meta">Aug 21, 2009</span>
+        <h2>
+            <a class="post-link" href="../1247655240000/">在PC上体验google android 操作系统</a>
+        </h2>
+        <div class="post_at_index">
+            <p><img src="/images/android/desktop.png" alt="android desktop" /></p>
+
+<p>Android的桌面</p>
+
+<p> </p>
+
+<p><img src="/images/android/fullwebpage.png" alt="用android访问html网页" /></p>
+
+<p> </p>
+
+<p>用Android访问本站的效果。竟然连javascript效果都支持，和pc上的浏览器基本没有差距。</p>
+
+<p><img src="/images/android/zoomwebpage.png" alt="用android访问html网页 放大镜效果" /></p>
+
+<p>Android访问网页的放大镜效果。</p>
+
+<p><img src="/images/android/emaillist.png" alt="" /></p>
+
+<p>用Android接受邮件。</p>
+
+<p><img src="/images/android/reademail.png" alt="Android阅读邮件" /></p>
+
+<p>用Android阅读邮件。</p>
+
+<p>是不是心动了？也想体验一下？</p>
+
+<p><a href="http://code.google.com/p/live-android/" title="http://code.google.com/p/live-android/">http://code.google.com/p/live-android/</a></p>
+
+<p>下载livecd iso文件，然后刻录成光盘，用它启动电脑就可以啦。</p>
+
+<p>如果不方便刻录的话可以用虚拟机虚拟，我就是这样做的。</p>
+
+<p> </p>
+
+        
+        </div>
+      </li>
+    
+        
+      <li>
         <span class="post-meta">Jul 27, 2009</span>
         <h2>
             <a class="post-link" href="../1243400340000/">回乡杂记</a>
@@ -436,125 +481,6 @@ dante也可以做socks服务端，这里就不介绍了，具体参看官方网�
 VM,好像是在j2me上又加了一层，可以让Android上的应用运行在支持j2me的手机上。一个叫<br />
 ikoto，Android上的模拟中国古琴的软件，从屏幕上划过的时候就发出琴弦被拨动的声音，挺好玩。还有一个叫Droidget,运行在<br />
 Android上的桌面小控件程序，可以用javascript写控件。</p>
-
-        
-        </div>
-      </li>
-    
-        
-      <li>
-        <span class="post-meta">May 14, 2009</span>
-        <h2>
-            <a class="post-link" href="../1242283440000/">javascript库的延迟加载</a>
-        </h2>
-        <div class="post_at_index">
-            <p>如果只是简单的让js延迟加载，那只需要在页面尾部加上这样的代码:</p>
-
-<p> </p>
-
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var oHead = document.getElementsByTagName('HEAD').item(0);
-	  var oScript= document.createElement("script");
-	  oScript.id = id;
-	  oScript.type = "text/javascript";
-	  oScript.src=src;
-	  oHead.appendChild(oScript); 
-</code></pre></div></div>
-
-<p> </p>
-
-<p> 但这样加载有个问题，如果我立刻在后面调用这个延迟加载的js里面的方法或者变量就会报错，因为新加载的js还没执行完呢。并且document的onload方法不会等待这样的延迟js加载成功。</p>
-
-<p>还有就是这样加载的js不能保证顺序。也就是不能保证先append的js先执行。如果后面的js依赖于前面的js，而前面的js比较大，加载延迟，则后面的js执行的时候就可能报错。</p>
-
-<p>我在修改这个高亮代码的脚本的时候就遇到了这样的问题。</p>
-
-<p>并不是所有的文章都有代码，并且每篇文章可能出现的代码语言不一样，需要根据内容加载不同的库。</p>
-
-<p>shCore.js是核心js，需要先加载。然后是各个语言的js，具体取决于文章内容中出现的代码语言。如  shBrushJava.js,shBrushBash.js等。</p>
-
-<p>后面这些js都依赖于shCore.js。当所有的js都加载完的时候，才能调用：</p>
-
-<p>SyntaxHighlighter.highlight();</p>
-
-<p>高亮代码。</p>
-
-<p>参考了一些文章，终于弄出一个解决方案:</p>
-
-<p> </p>
-
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>if(!window.BrushUtils) var BrushUtils = (function(){
-	var ut = {
-		baseurl:"",
-		resources:[],
-		brushMap : {js:"JScript",jscript:"JScript",javascript:"JScript",
-					  bash:"Bash",shell:"Bash",css:"Css",actionscript3:"AS3",as3:"AS3",cpp:"Cpp",c:"Cpp",
-					  csharp:"CSharp",groovy:"Groovy",java:"Java",javafx:"JavaFX",jfx:"JavaFX",
-					  perl:"Perl",pl:"Perl",php:"Php",text:"Plain",plain:"Plain",py:"Python",python:"Python",
-					  ruby:"Ruby",ror:"Ruby",rails:"Ruby",scala:"Scala",sql:"Sql",xml:"Xml",html:"Xml",xhtml:"Xml",xslt:"Xml"
-		},
-		parseBrush :function(){
-			  var pres = document.getElementsByTagName("pre");
-			  var brushs = new Array();
-			  for(var i=0;i0?function(){ut.loadNext();}:function(){SyntaxHighlighter.config.clipboardSwf = ut.baseurl 'scripts/clipboard.swf';SyntaxHighlighter.highlight();};
-				if(resource.type=='js'){
-					ut.loadJs(resource.url,callback);
-				}else if(resource.type='css'){
-					ut.loadStyle(resource.url,callback);
-				}
-			}
-		},
-		loadJs : function(src,callback){
-				  var scriptTags = document.getElementsByTagName('script');
-				  var oHead = document.getElementsByTagName('HEAD').item(0);
-				  var script= document.createElement("script");
-				  script.type = "text/javascript";
-				  script.src=src;
-				  script.onreadystatechange= function () {
-							if (this.readyState == 'loaded' || this.readyState == 'complete') {
-								callback();
-							}
-						}
-				  script.onload= callback;
-				  oHead.appendChild(script);
-			   },
-		 loadStyle : function(url){
-				   var oHead = document.getElementsByTagName('HEAD').item(0);
-					var style= document.createElement("link");
-					style.type = "text/css";
-					style.rel="stylesheet";
-					style.href=url;
-				   oHead.appendChild(style);
-		  }
-		};
-	return ut;
-	})();
-</code></pre></div></div>
-
-<p> </p>
-
-<p> </p>
-
-<p>调用：</p>
-
-<p> </p>
-
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var syntaxhighlighter_url = "/scripts/syntaxhighlighter/";
-   BrushUtils.loadLibs(syntaxhighlighter_url);
-</code></pre></div></div>
-
-<p> </p>
-
-<p> </p>
-
-<p>主要在于对script的加载成功事件的监听。ie的事件是onreadystatechange，firefox的是onload.把需要加载的js放在一个队列里，当前一个加载完成时候，从队列里取出下一个js，继续加载。</p>
-
-<p>经过测试，这个方法在ie,firefox,opera上都可以使用。但据说Safari上是没这个事件的（未测试）。</p>
-
-<p>本来想给样式表也加上事件监听，结果发现样式表加载成功在firefox下是不触发事件的，ie下可以。</p>
-
-<p>参考网址:</p>
-
-<p>http://unixpapa.com/js/dyna.html</p>
 
         
         </div>

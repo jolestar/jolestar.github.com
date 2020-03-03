@@ -118,6 +118,30 @@
       <li>
         <span class="post-meta">Nov 29, 2010</span>
         <h2>
+            <a class="post-link" href="../opensuse-gnome-pulseaudio-nvalid-argument-bug/">opensuse 下 pulseaudio 的一个bug</a>
+        </h2>
+        <div class="post_at_index">
+            <p>查看了下系统messages日志（/var/log/messages）</p>
+
+<p>结果发现每几秒钟就报错：</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pulseaudio[3046]: sap.c: sendmsg() failed: Invalid argument
+</code></pre></div></div>
+
+<p>搜索了一下，应该是一个bug</p>
+
+<p><a href="https://bugs.launchpad.net/ubuntu/source/pulseaudio/bug/187963">https://bugs.launchpad.net/ubuntu/source/pulseaudio/bug/187963</a></p>
+
+<p>修改一下 pulseaudio Local Sound Server 的设置，Multicast/RTP 选项，把下面两个复选框(Enable Multicast/RTP  sender,Enable Multicast/RTP  receiver)都给禁用了,就没这个错误了。</p>
+
+        
+        </div>
+      </li>
+    
+        
+      <li>
+        <span class="post-meta">Nov 29, 2010</span>
+        <h2>
             <a class="post-link" href="../libnautilus-dropbox-nautilus-crash/">Dropbox的nautilus插件导致 nautilus 不能启动的问题</a>
         </h2>
         <div class="post_at_index">
@@ -222,24 +246,6 @@ libnautilus-dropbox.so 报错 undefined symbol: g_malloc_n</p>
 
 
         
-        </div>
-      </li>
-    
-        
-      <li>
-        <span class="post-meta">Jul 26, 2010</span>
-        <h2>
-            <a class="post-link" href="../1280075220000/">设计让生活更美好</a>
-        </h2>
-        <div class="post_at_index">
-            <p>    设计让生活更美好–套用下SB会的口号。</p>
-
-<p> </p>
-
-<p><img src="http://img2.douban.com/lpic/s4230854.jpg" alt="设计心理学" /></p>
-
-
-        <a href="../1280075220000/" rel="nofollow">Read more...</a>
         </div>
       </li>
     

@@ -116,6 +116,72 @@
     
         
       <li>
+        <span class="post-meta">Mar 19, 2007</span>
+        <h2>
+            <a class="post-link" href="../1174302600000/">用ReflectionFactory实现不调用构造参数创建对象</a>
+        </h2>
+        <div class="post_at_index">
+            <p>  那天在sun的论坛上漂着,不经意发现了一篇帖子,大概意思是想构造一个对象,但又不想或不能调用其构造方法.我把代码整理了一下,如下:</p>
+
+<p> </p>
+
+<p> </p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>//Test.java
+ import java.io.Serializable;
+
+public class Test implements Serializable {
+     private Test() {
+         System.out.println("Test");
+     }
+     public void say()
+     {
+       System.out.println("Hello!");
+     }
+
+ }
+</code></pre></div></div>
+
+<p> </p>
+
+<p> </p>
+
+<p> </p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>//Main.java
+ import java.lang.reflect.Constructor;
+ import java.security.AccessController;
+ import sun.reflect.ReflectionFactory;
+
+public class Main {
+    private static final ReflectionFactory reflectionFactory = (ReflectionFactory) AccessController
+             .doPrivileged(new ReflectionFactory.GetReflectionFactoryAction());
+
+     public static void main(String[] args) throws Exception {
+        Constructor constr = reflectionFactory  
+                 .newConstructorForSerialization(Test.class, Object.class
+                        .getConstructor(new Class[0]));
+         Test test = (Test) constr.newInstance(new Object[0]);
+        test.say();
+    }
+ }
+</code></pre></div></div>
+
+<p> </p>
+
+<p> </p>
+
+<p>   由于Test类的构造方法是private的,因此在Main类中无法调用其构造方法创建对象.用ReflectionFactory可以给Test类动态创建一个构造方法,然后调用这个构造方法的newInstance方法创建对象.运行后我们可以发现,屏幕上打印出了”Hello”,但并没有打印出 “Test”.说明Test的原来的构造方法确实没被调用. 
+    是不是挺有意思的?<br />
+    然后用eclipse查看了一下ReflectionFactory类中的方法,发现有许多有意思的方法.如:<br />
+newField,newMethod,等等.但不知道参数具体是什么意思.但在google上,搜了半天,终于还是没有找到sun.reflect这个类库的api,或者相关说明.实在搞不明白,sun搞出来这么个类库,并且和java核心类库放在一起,但没有任何说明,不知道是让谁用的.</p>
+
+        
+        </div>
+      </li>
+    
+        
+      <li>
         <span class="post-meta">Mar 11, 2007</span>
         <h2>
             <a class="post-link" href="../1173610740000/">北京的风</a>
@@ -226,36 +292,6 @@ http://www.nvidia.com/object/linux_display_ia32_1.0-9746.html</p>
 <p>http://www.opensuse.org.cn/index.php/Xgl_问题解决</p>
 
 <p>配置好suse的3D桌面后给用xp或windows2003的同事们炫了一下,一同事看了问了句超经典的:”这系统看A片会不会有3D效果?”.</p>
-
-        
-        </div>
-      </li>
-    
-        
-      <li>
-        <span class="post-meta">Feb 16, 2007</span>
-        <h2>
-            <a class="post-link" href="../1171622460000/">linux内核编译</a>
-        </h2>
-        <div class="post_at_index">
-            <p>自己也是第一次尝试，参考了以下文章。</p>
-
-<p>以下两篇是英文的，第一篇介绍编译流程，第二篇是详细文档。</p>
-
-<p>http://www.digitalhermit.com/linux/Kernel-Build-HOWTO.html</p>
-
-<p>http://www.linuxdocs.org/HOWTOs/Kernel-HOWTO.html</p>
-
-<p>以下两篇是中文的，第一篇对内核配置文件有比较详细的说明。</p>
-
-<p>http://tristones.viaspeip.com/archives/000209.html</p>
-
-<p>http://www.chinaunix.net/jh/4/165519.html</p>
-
-<p>这一篇比较详细，适合像我这样的新手。<br />
-   http://fedora.linuxsir.org/main/?q=node/66</p>
-
-<p>  其实内核编译很简单，但难的是完全了解自己的硬件配置，规划好哪些编译进内核，哪些编译成模块，做到最优配置。</p>
 
         
         </div>

@@ -25,6 +25,7 @@ http://jolestar.com/page19/
 http://jolestar.com/page20/
 http://jolestar.com/css/main.css.map
 
+http://jolestar.com/libra-move/
 http://jolestar.com/bitcoin-smart-contract/
 http://jolestar.com/what-is-the-smart-contract/
 http://jolestar.com/talk-about-knowledge-as-valuable/
