@@ -91,6 +91,10 @@
           
         
           
+        
+          
+        
+          
          -->
         <a class="page-link" href="../about/">About</a>
       </div>
@@ -111,7 +115,7 @@
   </header>
 
   <article class="post-content">
-    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>mysqldump -u root -ppassword --no-create-db --no-create-info --complete-insert --compatible=mssql
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>mysqldump -u root -ppassword --no-create-db --no-create-info --complete-insert --compatible=mssql
  --default-character-set=utf8 --skip-opt --compact  --extended-insert=false
  dbname tablename|sed "s/\'/''/g"&gt;tablename.sql
 </code></pre></div></div>
@@ -147,7 +151,7 @@ sqlserver不识别。</p>
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sed "s/\'/''/g"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sed "s/\'/''/g"
 </code></pre></div></div>
 
 <p> </p>
@@ -222,8 +226,10 @@ sqlserver不识别。</p>
       </div>
 
       <div class="footer-col  footer-col-3">
-         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
-            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+         <div>
+            Jolestar 的个人博客<br/>
+            Channel:<a href="https://t.me/jolestarblog">https://t.me/jolestarblog</a>
+            <br/><br/>
         </div>
         <script>
             (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

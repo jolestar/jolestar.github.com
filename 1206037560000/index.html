@@ -91,6 +91,10 @@
           
         
           
+        
+          
+        
+          
          -->
         <a class="page-link" href="../about/">About</a>
       </div>
@@ -116,7 +120,7 @@
 <p> 但这个标签很只能在显示的时候用，但如果我想在输入框里显示时间，让用户直接修改时间，怎么弄？datepicker？选择太麻烦，我想让用户输入，并且<br />
 兼容多种日期格式。还有，如果用时间标签的话，每个地方都需要指定format，如果我想修改一下格式，所有的时间显示都变，怎么弄？</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>*  In some situations you may wish to apply a type converter globally.
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>*  In some situations you may wish to apply a type converter globally.
  *  This can be done by editing the file
  * xwork-conversion.properties in the root of your class path
  * (typically WEB-INF/classes) and providing a
@@ -131,7 +135,7 @@
 
 <p> XWorkConverter，先在classpath root下找xwork-conversion.properties文件，这个文件定义了全局转换。然后每遇到新的类需要转换，便查找是否有特殊的自定义转换配置。特殊自定义转换配置文件的路径是:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>className.replace('.', '/')   "-conversion.properties";
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>className.replace('.', '/')   "-conversion.properties";
 </code></pre></div></div>
 
 <p> 比方com.acme.Point的转换配置就是classpath 下的/com/acme/Point-coversion.properties文件。</p>
@@ -140,90 +144,90 @@
 
 <p>我的xwork-coversion.properties文件:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>java.util.Date=cn.jolstar.struts.type.DateTypeConverter
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>java.util.Date=cn.jolstar.struts.type.DateTypeConverter
 </code></pre></div></div>
 
 <p>  我的DateTypeConverter代码:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">/**</span>
- <span class="p">*</span>
- <span class="p">*/</span>
-<span class="k">package</span> <span class="n">cn</span><span class="p">.</span><span class="n">jolestar</span><span class="p">.</span><span class="n">struts</span><span class="p">.</span><span class="n">type</span><span class="p">;</span>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/**
+ *
+ */
+package cn.jolestar.struts.type;
 
-<span class="n">import</span> <span class="n">java</span><span class="p">.</span><span class="n">text</span><span class="p">.</span><span class="n">DateFormat</span><span class="p">;</span>
-<span class="n">import</span> <span class="n">java</span><span class="p">.</span><span class="n">text</span><span class="p">.</span><span class="n">ParseException</span><span class="p">;</span>
-<span class="n">import</span> <span class="n">java</span><span class="p">.</span><span class="n">text</span><span class="p">.</span><span class="n">SimpleDateFormat</span><span class="p">;</span>
-<span class="n">import</span> <span class="n">java</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">Date</span><span class="p">;</span>
-<span class="n">import</span> <span class="n">java</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">Map</span><span class="p">;</span>
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Map;
 
-<span class="n">import</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">log4j</span><span class="p">.</span><span class="n">Logger</span><span class="p">;</span>
-<span class="n">import</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">struts2</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">StrutsTypeConverter</span><span class="p">;</span>
+import org.apache.log4j.Logger;
+import org.apache.struts2.util.StrutsTypeConverter;
 
-<span class="p">/**</span>
- <span class="p">*</span> <span class="p">@</span><span class="n">author</span> <span class="n">jolestar</span>
- <span class="p">*</span>
- <span class="p">*/</span>
-<span class="k">public</span> <span class="n">class</span> <span class="n">DateTypeConverter</span> <span class="n">extends</span> <span class="n">StrutsTypeConverter</span> <span class="p">{</span>
+/**
+ * @author jolestar
+ *
+ */
+public class DateTypeConverter extends StrutsTypeConverter {
 
-	<span class="n">private</span> <span class="n">static</span> <span class="n">final</span> <span class="n">Logger</span> <span class="nb">log</span> <span class="p">=</span> <span class="n">Logger</span><span class="p">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">DateTypeConverter</span><span class="p">.</span><span class="n">class</span><span class="p">);</span>
-	<span class="k">public</span> <span class="n">static</span> <span class="n">final</span> <span class="k">String</span> <span class="n">DEFAULT_DATE_FORMAT</span> <span class="p">=</span> <span class="s2">"yyyy-MM-dd"</span><span class="p">;</span>
+	private static final Logger log = Logger.getLogger(DateTypeConverter.class);
+	public static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
 
-	<span class="p">//</span><span class="err">暂时只考虑这几种日期格式</span>
-	<span class="k">public</span> <span class="n">static</span> <span class="n">final</span> <span class="n">DateFormat</span><span class="p">[]</span> <span class="n">ACCEPT_DATE_FORMATS</span> <span class="p">=</span> <span class="p">{</span>
-			<span class="n">new</span> <span class="n">SimpleDateFormat</span><span class="p">(</span><span class="n">DEFAULT_DATE_FROMAT</span><span class="p">),</span>
-			<span class="n">new</span> <span class="n">SimpleDateFormat</span><span class="p">(</span><span class="s2">"yyyy年MM月dd日"</span><span class="p">),</span>
-			<span class="n">new</span> <span class="n">SimpleDateFormat</span><span class="p">(</span><span class="s2">"yyyy/MM/dd"</span><span class="p">)</span> <span class="p">};</span>
+	//暂时只考虑这几种日期格式
+	public static final DateFormat[] ACCEPT_DATE_FORMATS = {
+			new SimpleDateFormat(DEFAULT_DATE_FROMAT),
+			new SimpleDateFormat("yyyy年MM月dd日"),
+			new SimpleDateFormat("yyyy/MM/dd") };
 
-	<span class="p">/**</span>
-	 <span class="p">*</span>
-	 <span class="p">*/</span>
-	<span class="k">public</span> <span class="n">DateTypeConverter</span><span class="p">()</span> <span class="p">{</span>
-	<span class="p">}</span>
+	/**
+	 *
+	 */
+	public DateTypeConverter() {
+	}
 
-	<span class="p">/*</span>
-	 <span class="p">*</span> <span class="p">(</span><span class="n">non</span><span class="p">-</span><span class="n">Javadoc</span><span class="p">)</span>
-	 <span class="p">*</span>
-	 <span class="p">*</span> <span class="p">@</span><span class="n">see</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">struts2</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">StrutsTypeConverter</span><span class="p">#</span><span class="n">convertFromString</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">Map</span><span class="p">,</span>
-	 <span class="p">*</span>      <span class="n">java</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="k">String</span><span class="p">[],</span> <span class="n">java</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">Class</span><span class="p">)</span>
-	 <span class="p">*/</span>
-	<span class="p">@</span><span class="n">Override</span>
-	<span class="k">public</span> <span class="n">Object</span> <span class="n">convertFromString</span><span class="p">(</span><span class="n">Map</span> <span class="n">context</span><span class="p">,</span> <span class="k">String</span><span class="p">[]</span> <span class="n">values</span><span class="p">,</span> <span class="n">Class</span> <span class="n">toClass</span><span class="p">)</span> <span class="p">{</span>
-		<span class="k">if</span> <span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="m">0</span><span class="p">]</span> <span class="p">==</span> <span class="n">null</span> <span class="p">||</span> <span class="n">values</span><span class="p">[</span><span class="m">0</span><span class="p">].</span><span class="nf">trim</span><span class="p">().</span><span class="n">equals</span><span class="p">(</span><span class="s2">""</span><span class="p">))</span>
-			<span class="n">return</span> <span class="n">null</span><span class="p">;</span>
-		<span class="n">for</span> <span class="p">(</span><span class="n">DateFormat</span> <span class="n">format</span> <span class="p">:</span> <span class="n">ACCEPT_DATE_FORMATS</span><span class="p">)</span> <span class="p">{</span>
-			<span class="n">try</span> <span class="p">{</span>
-				<span class="n">return</span> <span class="n">format</span><span class="p">.</span><span class="n">parse</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="m">0</span><span class="p">]);</span>
-			<span class="p">}</span> <span class="n">catch</span> <span class="p">(</span><span class="n">ParseException</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
-				<span class="n">continue</span><span class="p">;</span>
-			<span class="p">}</span> <span class="n">catch</span> <span class="p">(</span><span class="n">RuntimeException</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
-				<span class="n">continue</span><span class="p">;</span>
-			<span class="p">}</span>
-		<span class="p">}</span>
-		<span class="nb">log</span><span class="p">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"can not format date string:"</span>   <span class="n">values</span><span class="p">[</span><span class="m">0</span><span class="p">]);</span>
-		<span class="n">return</span> <span class="n">null</span><span class="p">;</span>
-	<span class="p">}</span>
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.apache.struts2.util.StrutsTypeConverter#convertFromString(java.util.Map,
+	 *      java.lang.String[], java.lang.Class)
+	 */
+	@Override
+	public Object convertFromString(Map context, String[] values, Class toClass) {
+		if (values[0] == null || values[0].trim().equals(""))
+			return null;
+		for (DateFormat format : ACCEPT_DATE_FORMATS) {
+			try {
+				return format.parse(values[0]);
+			} catch (ParseException e) {
+				continue;
+			} catch (RuntimeException e) {
+				continue;
+			}
+		}
+		log.debug("can not format date string:"   values[0]);
+		return null;
+	}
 
-	<span class="p">/*</span>
-	 <span class="p">*</span> <span class="p">(</span><span class="n">non</span><span class="p">-</span><span class="n">Javadoc</span><span class="p">)</span>
-	 <span class="p">*</span>
-	 <span class="p">*</span> <span class="p">@</span><span class="n">see</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">struts2</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">StrutsTypeConverter</span><span class="p">#</span><span class="n">convertToString</span><span class="p">(</span><span class="n">java</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="n">Map</span><span class="p">,</span>
-	 <span class="p">*</span>      <span class="n">java</span><span class="p">.</span><span class="n">lang</span><span class="p">.</span><span class="n">Object</span><span class="p">)</span>
-	 <span class="p">*/</span>
-	<span class="p">@</span><span class="n">Override</span>
-	<span class="k">public</span> <span class="k">String</span> <span class="n">convertToString</span><span class="p">(</span><span class="n">Map</span> <span class="n">context</span><span class="p">,</span> <span class="n">Object</span> <span class="n">o</span><span class="p">)</span> <span class="p">{</span>
-		<span class="k">if</span> <span class="p">(</span><span class="n">o</span> <span class="n">instanceof</span> <span class="n">Date</span><span class="p">)</span> <span class="p">{</span>
-			<span class="n">SimpleDateFormat</span> <span class="n">format</span> <span class="p">=</span> <span class="n">new</span> <span class="n">SimpleDateFormat</span><span class="p">(</span>
-					<span class="n">DEFAULT_DATE_FORMAT</span><span class="p">);</span>
-			<span class="n">try</span> <span class="p">{</span>
-				<span class="n">return</span> <span class="n">format</span><span class="p">.</span><span class="n">format</span><span class="p">((</span><span class="n">Date</span><span class="p">)</span> <span class="n">o</span><span class="p">);</span>
-			<span class="p">}</span> <span class="n">catch</span> <span class="p">(</span><span class="n">RuntimeException</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
-				<span class="n">return</span> <span class="s2">""</span><span class="p">;</span>
-			<span class="p">}</span>
-		<span class="p">}</span>
-		<span class="n">return</span> <span class="s2">""</span><span class="p">;</span>
-	<span class="p">}</span>
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.apache.struts2.util.StrutsTypeConverter#convertToString(java.util.Map,
+	 *      java.lang.Object)
+	 */
+	@Override
+	public String convertToString(Map context, Object o) {
+		if (o instanceof Date) {
+			SimpleDateFormat format = new SimpleDateFormat(
+					DEFAULT_DATE_FORMAT);
+			try {
+				return format.format((Date) o);
+			} catch (RuntimeException e) {
+				return "";
+			}
+		}
+		return "";
+	}
 
-<span class="p">}</span>
+}
 </code></pre></div></div>
 
 <p> </p>
@@ -304,8 +308,10 @@
       </div>
 
       <div class="footer-col  footer-col-3">
-         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
-            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+         <div>
+            Jolestar 的个人博客<br/>
+            Channel:<a href="https://t.me/jolestarblog">https://t.me/jolestarblog</a>
+            <br/><br/>
         </div>
         <script>
             (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

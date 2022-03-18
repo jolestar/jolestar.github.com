@@ -4,6 +4,8 @@ http://jolestar.com/feed.xml
 http://jolestar.com/
 http://jolestar.com/css/main.css
 http://jolestar.com/sitemap.txt
+http://jolestar.com/assets/css/style.css
+http://jolestar.com/theme-doc
 http://jolestar.com/page2/
 http://jolestar.com/page3/
 http://jolestar.com/page4/
@@ -23,7 +25,6 @@ http://jolestar.com/page17/
 http://jolestar.com/page18/
 http://jolestar.com/page19/
 http://jolestar.com/page20/
-http://jolestar.com/css/main.css.map
 
 http://jolestar.com/libra-move/
 http://jolestar.com/bitcoin-smart-contract/

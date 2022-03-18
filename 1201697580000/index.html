@@ -91,6 +91,10 @@
           
         
           
+        
+          
+        
+          
          -->
         <a class="page-link" href="../about/">About</a>
       </div>
@@ -113,65 +117,65 @@
   <article class="post-content">
     <p>下面是java对象。</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span> <span class="n">cn</span><span class="p">.</span><span class="n">jolestar</span><span class="p">.</span><span class="n">struts</span><span class="p">;</span>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>package cn.jolestar.struts;
 
-<span class="p">/**</span>
- <span class="p">*</span> <span class="p">@</span><span class="n">author</span> <span class="n">jolestar</span>
- <span class="p">*</span>
- <span class="p">*/</span>
-<span class="k">public</span> <span class="n">class</span> <span class="n">Language</span> <span class="p">{</span>
+/**
+ * @author jolestar
+ *
+ */
+public class Language {
 
-	<span class="n">private</span> <span class="n">Long</span> <span class="n">id</span><span class="p">;</span>
-	<span class="n">private</span> <span class="k">String</span> <span class="n">name</span><span class="p">;</span>
+	private Long id;
+	private String name;
 
-	<span class="p">/**</span>
-	 <span class="p">*</span>
-	 <span class="p">*/</span>
-	<span class="k">public</span> <span class="n">Language</span><span class="p">()</span> <span class="p">{</span>
-	<span class="p">}</span>
+	/**
+	 *
+	 */
+	public Language() {
+	}
 
-	<span class="k">public</span> <span class="n">Long</span> <span class="nf">getId</span><span class="p">()</span> <span class="p">{</span>
-		<span class="n">return</span> <span class="n">id</span><span class="p">;</span>
-	<span class="p">}</span>
+	public Long getId() {
+		return id;
+	}
 
-	<span class="k">public</span> <span class="n">void</span> <span class="n">setId</span><span class="p">(</span><span class="n">Long</span> <span class="n">id</span><span class="p">)</span> <span class="p">{</span>
-		<span class="n">this</span><span class="p">.</span><span class="n">id</span> <span class="p">=</span> <span class="n">id</span><span class="p">;</span>
-	<span class="p">}</span>
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-	<span class="k">public</span> <span class="k">String</span> <span class="n">getName</span><span class="p">()</span> <span class="p">{</span>
-		<span class="n">return</span> <span class="n">name</span><span class="p">;</span>
-	<span class="p">}</span>
+	public String getName() {
+		return name;
+	}
 
-	<span class="k">public</span> <span class="n">void</span> <span class="n">setName</span><span class="p">(</span><span class="k">String</span> <span class="n">name</span><span class="p">)</span> <span class="p">{</span>
-		<span class="n">this</span><span class="p">.</span><span class="n">name</span> <span class="p">=</span> <span class="n">name</span><span class="p">;</span>
-	<span class="p">}</span>
+	public void setName(String name) {
+		this.name = name;
+	}
 
-	<span class="p">@</span><span class="n">Override</span>
-	<span class="k">public</span> <span class="n">int</span> <span class="n">hashCode</span><span class="p">()</span> <span class="p">{</span>
-		<span class="n">final</span> <span class="n">int</span> <span class="n">prime</span> <span class="p">=</span> <span class="m">31</span><span class="p">;</span>
-		<span class="n">int</span> <span class="n">result</span> <span class="p">=</span> <span class="m">1</span><span class="p">;</span>
-		<span class="n">result</span> <span class="p">=</span> <span class="n">prime</span> <span class="p">*</span> <span class="n">result</span>   <span class="p">((</span><span class="n">id</span> <span class="p">==</span> <span class="n">null</span><span class="p">)</span> <span class="p">?</span> <span class="m">0</span> <span class="p">:</span> <span class="n">id</span><span class="p">.</span><span class="n">hashCode</span><span class="p">());</span>
-		<span class="n">return</span> <span class="n">result</span><span class="p">;</span>
-	<span class="p">}</span>
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result   ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
 
-	<span class="p">@</span><span class="n">Override</span>
-	<span class="k">public</span> <span class="k">boolean</span> <span class="n">equals</span><span class="p">(</span><span class="n">Object</span> <span class="n">obj</span><span class="p">)</span> <span class="p">{</span>
-		<span class="k">if</span> <span class="p">(</span><span class="n">this</span> <span class="p">==</span> <span class="n">obj</span><span class="p">)</span>
-			<span class="n">return</span> <span class="nb">true</span><span class="p">;</span>
-		<span class="k">if</span> <span class="p">(</span><span class="n">obj</span> <span class="p">==</span> <span class="n">null</span><span class="p">)</span>
-			<span class="n">return</span> <span class="nb">false</span><span class="p">;</span>
-		<span class="k">if</span> <span class="p">(</span><span class="nf">getClass</span><span class="p">()</span> <span class="c1">!= obj.getClass())
-</span>			<span class="n">return</span> <span class="nb">false</span><span class="p">;</span>
-		<span class="n">final</span> <span class="n">Language</span> <span class="n">other</span> <span class="p">=</span> <span class="p">(</span><span class="n">Language</span><span class="p">)</span> <span class="n">obj</span><span class="p">;</span>
-		<span class="k">if</span> <span class="p">(</span><span class="n">id</span> <span class="p">==</span> <span class="n">null</span><span class="p">)</span> <span class="p">{</span>
-			<span class="k">if</span> <span class="p">(</span><span class="n">other</span><span class="p">.</span><span class="n">id</span> <span class="c1">!= null)
-</span>				<span class="n">return</span> <span class="nb">false</span><span class="p">;</span>
-		<span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="c1">!id.equals(other.id))
-</span>			<span class="n">return</span> <span class="nb">false</span><span class="p">;</span>
-		<span class="n">return</span> <span class="nb">true</span><span class="p">;</span>
-	<span class="p">}</span>
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		final Language other = (Language) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
+	}
 
-<span class="p">}</span>
+}
 </code></pre></div></div>
 
 <p> </p>
@@ -180,32 +184,32 @@
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span> <span class="n">cn</span><span class="p">.</span><span class="n">jolestar</span><span class="p">.</span><span class="n">struts</span><span class="p">;</span>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>package cn.jolestar.struts;
 
-<span class="n">import</span> <span class="n">java</span><span class="p">.</span><span class="n">util</span><span class="p">.</span><span class="k">List</span><span class="p">;</span>
+import java.util.List;
 
-<span class="p">/**</span>
- <span class="p">*</span> <span class="p">@</span><span class="n">author</span> <span class="n">jolestar</span>
- <span class="p">*</span>
- <span class="p">*/</span>
-<span class="k">public</span> <span class="n">class</span> <span class="n">Album</span> <span class="p">{</span>
+/**
+ * @author jolestar
+ *
+ */
+public class Album {
 
-	<span class="n">private</span> <span class="n">Long</span> <span class="n">id</span><span class="p">;</span>
-	<span class="n">private</span> <span class="k">String</span> <span class="n">name</span><span class="p">;</span>
-	<span class="n">private</span> <span class="k">List</span> <span class="n">languages</span><span class="p">;</span>
-	<span class="p">/**</span>
-	 <span class="p">*</span>
-	 <span class="p">*/</span>
-	<span class="k">public</span> <span class="n">Album</span><span class="p">()</span> <span class="p">{</span>
-	<span class="p">}</span>
-	<span class="k">public</span> <span class="k">List</span> <span class="n">getLanguages</span><span class="p">()</span> <span class="p">{</span>
-		<span class="n">return</span> <span class="n">languages</span><span class="p">;</span>
-	<span class="p">}</span>
-	<span class="k">public</span> <span class="n">void</span> <span class="n">setLanguages</span><span class="p">(</span><span class="k">List</span> <span class="n">languages</span><span class="p">)</span> <span class="p">{</span>
-		<span class="n">this</span><span class="p">.</span><span class="n">languages</span> <span class="p">=</span> <span class="n">languages</span><span class="p">;</span>
-	<span class="p">}</span>
+	private Long id;
+	private String name;
+	private List languages;
+	/**
+	 *
+	 */
+	public Album() {
+	}
+	public List getLanguages() {
+		return languages;
+	}
+	public void setLanguages(List languages) {
+		this.languages = languages;
+	}
 
-<span class="p">}</span>
+}
 </code></pre></div></div>
 
 <p> </p>
@@ -228,7 +232,7 @@
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>${itemValue?html}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>${itemValue?html}
     
 
   &amp;nbsp;
@@ -242,7 +246,7 @@ org.apache.struts2.util.ContainUtil中的这个方法：</p>
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public static boolean contains(Object obj1, Object obj2) {
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public static boolean contains(Object obj1, Object obj2) {
         if ((obj1 == null) || (obj2 == null)) {
             //log.debug("obj1 or obj2 are null.");
             return false;
@@ -297,7 +301,7 @@ struts2却在其中查找itemKey–就是Language的id,当然就无法查找到�
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>${itemValue?html}
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>${itemValue?html}
 	
 
   &amp;nbsp;
@@ -387,8 +391,10 @@ struts2的iterator 标签里设置</p>
       </div>
 
       <div class="footer-col  footer-col-3">
-         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
-            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+         <div>
+            Jolestar 的个人博客<br/>
+            Channel:<a href="https://t.me/jolestarblog">https://t.me/jolestarblog</a>
+            <br/><br/>
         </div>
         <script>
             (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

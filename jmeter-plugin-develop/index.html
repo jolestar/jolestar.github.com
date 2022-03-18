@@ -91,6 +91,10 @@
           
         
           
+        
+          
+        
+          
          -->
         <a class="page-link" href="../about/">About</a>
       </div>
@@ -134,7 +138,7 @@
 
 <p>JMeter加载插件的机制比较简单，扫描扩展下的的所有实现了JMeterGUIComponent和TestBean接口的类，然后进行初始化。</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ClassFinder.findClassesThatExtend(
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ClassFinder.findClassesThatExtend(
 	JMeterUtils.getSearchPaths(), 
 	new Class[] {JMeterGUIComponent.class, TestBean.class }
 </code></pre></div></div>
@@ -149,7 +153,7 @@ JMeter内部有两种GUI框架</p>
   <li>
     <p>直接继承JMeterGUIComponent接口的抽象实现类:</p>
 
-    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  org.apache.jmeter.config.gui.AbstractConfigGui
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  org.apache.jmeter.config.gui.AbstractConfigGui
   org.apache.jmeter.assertions.gui.AbstractAssertionGui
   org.apache.jmeter.control.gui.AbstractControllerGui
   org.apache.jmeter.timers.gui.AbstractTimerGui
@@ -263,8 +267,10 @@ JMeter内部有两种GUI框架</p>
       </div>
 
       <div class="footer-col  footer-col-3">
-         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
-            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+         <div>
+            Jolestar 的个人博客<br/>
+            Channel:<a href="https://t.me/jolestarblog">https://t.me/jolestarblog</a>
+            <br/><br/>
         </div>
         <script>
             (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

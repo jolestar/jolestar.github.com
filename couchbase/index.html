@@ -91,6 +91,10 @@
           
         
           
+        
+          
+        
+          
          -->
         <a class="page-link" href="../about/">About</a>
       </div>
@@ -127,7 +131,7 @@
 
 <p>横向扩展最简单的方式就是分片,无论存储还是缓存.分片最简单的方式就是</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>node=nodes[hash(key)/%nodes.length]
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>node=nodes[hash(key)/%nodes.length]
 </code></pre></div></div>
 
 <p>n表示机器的节点数.但这样的方式用在缓存上有个问题,当新增加节点或者减少节点的时候,n变化基本上会导致所有的key对应的节点都发生变化,造成缓存震荡.这个大多数应用都是不可接受的.</p>
@@ -142,7 +146,7 @@
 
 <p>一般的实现方式是(代码仅是示例,做了部分精简):</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>//构造hash环,一般用二叉树(java中TreeMap是红黑树)实现,便于便于增删节点
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>//构造hash环,一般用二叉树(java中TreeMap是红黑树)实现,便于便于增删节点
 TreeMap&lt;Long, Node&gt; nodeMap = new TreeMap&lt;Long, Node&gt;();
 for (Node node : nodes) {
     for (int i = 0; i &lt; numReps; i++) {
@@ -313,8 +317,10 @@ Memcached代理,主要提供给不支持smartclient的编程语言应用使用,�
       </div>
 
       <div class="footer-col  footer-col-3">
-         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
-            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+         <div>
+            Jolestar 的个人博客<br/>
+            Channel:<a href="https://t.me/jolestarblog">https://t.me/jolestarblog</a>
+            <br/><br/>
         </div>
         <script>
             (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

@@ -91,6 +91,10 @@
           
         
           
+        
+          
+        
+          
          -->
         <a class="page-link" href="../about/">About</a>
       </div>
@@ -153,7 +157,7 @@
 
     <p>gradle打包docker的配置例子:</p>
 
-    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker {
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker {
  	useApi true
  	hostUrl "${docker_host}"
  	baseImage "${base_image}"
@@ -206,7 +210,7 @@
     <p>我们的集成测试是直接用java写的，放到单元测试的目录里。不同环境的集成测试通过环境变量进行控制。直接通过gradle的task调用进行集成测试。
  下面是gradle的集成测试task例子：</p>
 
-    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> task testTestEnv(type: Test) {  
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> task testTestEnv(type: Test) {  
      systemProperty "ums.env", "test"  
  }  
 </code></pre></div>    </div>
@@ -428,8 +432,10 @@
       </div>
 
       <div class="footer-col  footer-col-3">
-         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
-            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+         <div>
+            Jolestar 的个人博客<br/>
+            Channel:<a href="https://t.me/jolestarblog">https://t.me/jolestarblog</a>
+            <br/><br/>
         </div>
         <script>
             (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

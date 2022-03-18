@@ -94,6 +94,8 @@
           
         
           
+        
+          
          -->
         <a class="page-link" href="../about/">About</a>
       </div>
@@ -190,7 +192,7 @@
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var name = 'Joe';
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var name = 'Joe';
  var s = "Hello {name}";
 System.out.println(s);
 </code></pre></div></div>
@@ -205,7 +207,7 @@ System.out.println(s);
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>class Person {
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>class Person {
  attribute name: String;
  attribute parent: Person inverse Person.children;
  attribute children: Person* inverse Person.parent;
@@ -236,7 +238,7 @@ name: "Candice"
 <p>  
     import java.lang.System;</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>     System.out.println(1.class.Name) // prints "Number"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>     System.out.println(1.class.Name) // prints "Number"
      System.out.println("Hello".class.Name); // prints "String" 
 </code></pre></div></div>
 
@@ -249,7 +251,7 @@ name: "Candice"
      我的思路是用一个servlet拦截所有对fx的请求，根据requestURI,获得javafx文件的绝对路径，然后在servelt中调用java6的脚本引擎，解释执行。<br />
  FXServlet.java</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import java.io.File;
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import java.io.File;
  import java.io.FileInputStream;
  import java.io.IOException;
  import java.io.InputStreamReader;
@@ -328,7 +330,7 @@ this.realPath = this.getServletContext().getRealPath("/");
 
 <p>web.xml</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>       FXServlet
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>       FXServlet
        net.teamhot.jfxweb.FXServlet
     
 
@@ -341,7 +343,7 @@ this.realPath = this.getServletContext().getRealPath("/");
 
 <p>Hello.fx</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import java.lang.System;
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import java.lang.System;
  import javax.servlet.http.HttpServlet;
  import javax.servlet.http.HttpServletRequest;
  import javax.servlet.http.HttpServletResponse;
@@ -442,7 +444,7 @@ database load.<br />
 
 <p>java 代码</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import com.danga.MemCached.MemCachedClient;
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import com.danga.MemCached.MemCachedClient;
  import com.danga.MemCached.SockIOPool;
 
  public class MemcacheTest {
@@ -524,7 +526,7 @@ output();
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import java.io.Serializable;
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>import java.io.Serializable;
 
  public class TestObj implements Serializable {
 
@@ -821,8 +823,10 @@ King的演讲还能听听，毕竟对这方面比较了解并且有代码配合�
       </div>
 
       <div class="footer-col  footer-col-3">
-         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
-            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+         <div>
+            Jolestar 的个人博客<br/>
+            Channel:<a href="https://t.me/jolestarblog">https://t.me/jolestarblog</a>
+            <br/><br/>
         </div>
         <script>
             (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

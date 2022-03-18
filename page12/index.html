@@ -94,6 +94,8 @@
           
         
           
+        
+          
          -->
         <a class="page-link" href="../about/">About</a>
       </div>
@@ -133,7 +135,7 @@ html，css，photoshop,dreamweaver,javascript,flash。然后又知道用静态ht
 
 <p>对中文支持完全没问题。刚搭建之后，发现查询中文tag的时候会有乱码问题,它的url路径里出现中文了:http://jolestar.com/tags/开源项目/.但后来才发现那是我的mod_jk的配置问题。应该加上</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>JkOptions  ForwardURICompatUnparsed  ForwardDirectories
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>JkOptions  ForwardURICompatUnparsed  ForwardDirectories
 </code></pre></div></div>
 
 <p>这两项。第一项是让apache不要解码，把url提交给tomcat处理。第二项是让apache把目录直接提交给tomcat处理。</p>
@@ -144,7 +146,7 @@ html，css，photoshop,dreamweaver,javascript,flash。然后又知道用静态ht
 
 <p>代码插件有了，然后就是代码高亮。javaeye用的是SyntaxHighlighter, <a href="http://alexgorbatchev.com/">http://alexgorbatchev.com</a> ，但它好像用的是旧版本，或者是它的修改版本，不太好用。于是下载了最新的SyntaxHighlighter，实验了一下，嘿，效果不错。但又发现一个问题。新版本的SyntaxHighlighter把每种语言的高亮js都放在单独文件里，必须提前把需要用到的需要高亮的语言的js都加载进来。但页面模板里没法知道博客的内容会插入那些语言的代码，如果把所有的语言的js都加载进来，会严重影响页面加载速度。于是又写了个动态加载语言js的脚本。</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var syntaxhighlighter_url = "/scripts/syntaxhighlighter/";
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var syntaxhighlighter_url = "/scripts/syntaxhighlighter/";
   var brushLibs = {js:"JScript",jscript:"JScript",javascript:"JScript",
 		  bash:"Bash",shell:"Bash",css:"Css",actionscript3:"AS3",as3:"AS3",cpp:"Cpp",c:"Cpp",
 		  csharp:"CSharp",groovy:"Groovy",java:"Java",javafx:"JavaFX",jfx:"JavaFX",
@@ -228,7 +230,7 @@ html，css，photoshop,dreamweaver,javascript,flash。然后又知道用静态ht
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GDK_NATIVE_WINDOWS=true
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GDK_NATIVE_WINDOWS=true
 </code></pre></div></div>
 
 <p> </p>
@@ -273,7 +275,7 @@ html，css，photoshop,dreamweaver,javascript,flash。然后又知道用静态ht
 
 <p>2.在地址栏里输入下面这段js,回车运行。</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>javascript:void(document.cookie="PREF=ID=20b6e4c2f44943bb:U=4bf292d46faad806:TM=1249677602:LM=1257919388:S=odm0Ys-53ZueXfZG;path=/; domain=.google.com");
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>javascript:void(document.cookie="PREF=ID=20b6e4c2f44943bb:U=4bf292d46faad806:TM=1249677602:LM=1257919388:S=odm0Ys-53ZueXfZG;path=/; domain=.google.com");
 </code></pre></div></div>
 
 <p> </p>
@@ -466,8 +468,10 @@ html，css，photoshop,dreamweaver,javascript,flash。然后又知道用静态ht
       </div>
 
       <div class="footer-col  footer-col-3">
-         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
-            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+         <div>
+            Jolestar 的个人博客<br/>
+            Channel:<a href="https://t.me/jolestarblog">https://t.me/jolestarblog</a>
+            <br/><br/>
         </div>
         <script>
             (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

@@ -91,6 +91,10 @@
           
         
           
+        
+          
+        
+          
          -->
         <a class="page-link" href="../about/">About</a>
       </div>
@@ -120,7 +124,7 @@
 <p>安装jekyll非常容易
 安装ruby后，使用gem一行命令搞定</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gem install jekyll
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gem install jekyll
 </code></pre></div></div>
 
 <p>具体参看:</p>
@@ -129,7 +133,7 @@
 
 <p>但安装rdiscount的时候遇到了问题,rdiscount 在ruby 1.9.2版本上有个bug <a href="https://github.com/rtomayko/rdiscount/issues/48">https://github.com/rtomayko/rdiscount/issues/48</a>.我是升级到 1.9.3才解决的。</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo gem install rdiscount
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo gem install rdiscount
 </code></pre></div></div>
 
 <p>推荐使用rdiscount作为Markdown语法解析工具，速度快，兼容性强。</p>
@@ -138,7 +142,7 @@
 
 <p>使用起来很简单。按照 jekyll的标准设置目录，修改_config.yml配置文件，然后用</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>jekyll --server
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>jekyll --server
 </code></pre></div></div>
 
 <p>启动即可。
@@ -173,7 +177,7 @@
 
     <p>_plugins/more.rb:</p>
 
-    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> module More
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> module More
      def more(input, type)
          if input.include? "&lt;!--more--&gt;"
              if type == "excerpt"
@@ -194,7 +198,7 @@
 
     <p>博客中增加标记</p>
 
-    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> ---
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> ---
  layout: post
  title: "Your post title"
  published: true
@@ -206,7 +210,7 @@
 
     <p>获取摘要方法</p>
 
-    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> &lt;summary&gt;&lt;/summary&gt;  获取全文
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> &lt;summary&gt;&lt;/summary&gt;  获取全文
 
  &lt;article&gt;&lt;/article&gt;		
 </code></pre></div>    </div>
@@ -221,7 +225,7 @@
 
     <p>在文档中增加特殊的标记。</p>
 
-    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> ---
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> ---
  title: some post
  layout: post
  ---
@@ -248,7 +252,7 @@
 
     <p>参考方案3，我的解决方案更简单:</p>
 
-    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> ---	
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> ---	
  title: some post
  layout: post
  ---
@@ -259,7 +263,7 @@
 
     <p>然后用split方法截取第一部分显示</p>
 
-    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> post.content | split:'&lt;!--more--&gt;' |first
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> post.content | split:'&lt;!--more--&gt;' |first
 </code></pre></div>    </div>
   </li>
 </ol>
@@ -278,7 +282,7 @@
 
     <p>有名的有,<a href="http://google-code-prettify.googlecode.com/" title="google-code-prettify">google-code-prettify</a>和 <a href="http://alexgorbatchev.com/SyntaxHighlighter/" title="SyntaxHighlighter">SyntaxHighlighter</a>。后者功能比较强大，但也比较臃肿,最后选择了 <a href="http://google-code-prettify.googlecode.com/" title="google-code-prettify">google-code-prettify</a></p>
 
-    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> &lt;script type="text/javascript" src="/js/jquery-1.9.1.min.js"&gt;&lt;/script&gt;
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> &lt;script type="text/javascript" src="/js/jquery-1.9.1.min.js"&gt;&lt;/script&gt;
  &lt;script type="text/javascript"&gt;
      $(function() {
          $('pre').addClass('prettyprint').attr('style', 'overflow:auto');
@@ -305,44 +309,44 @@
 
 <p>post-merge</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
-<span class="nv">workspace</span><span class="o">=</span><span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span><span class="p">;</span>
-<span class="nb">exec </span>sh <span class="nv">$GIT_DIR</span>/hooks/jekyll.sh <span class="nv">$workspace</span> <span class="o">&gt;</span> 	<span class="nv">$GIT_DIR</span>/jekyll.log
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#!/bin/bash
+workspace=`pwd`;
+exec sh $GIT_DIR/hooks/jekyll.sh $workspace &gt; 	$GIT_DIR/jekyll.log
 </code></pre></div></div>
 
 <p>jekyll.sh</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#!/bin/bash
 
-<span class="nv">workspace</span><span class="o">=</span><span class="nv">$1</span>
+workspace=$1
 
-send_email_and_exit<span class="o">()</span> <span class="o">{</span>
-  <span class="nv">recipient</span><span class="o">=</span><span class="nv">$1</span>
-  <span class="nv">message</span><span class="o">=</span><span class="nv">$2</span>
+send_email_and_exit() {
+  recipient=$1
+  message=$2
 
-  <span class="nb">echo</span> <span class="s2">"Sending email and exiting due to error"</span>
-  <span class="nb">echo</span> <span class="nv">$message</span>
-  mail <span class="nt">-s</span> <span class="s2">"Blog generation failure"</span> <span class="s2">"</span><span class="k">${</span><span class="nv">recipient</span><span class="k">}</span><span class="s2">"</span> <span class="o">&lt;&lt;</span> <span class="no">EOF</span><span class="sh">
-</span><span class="k">${</span><span class="nv">message</span><span class="k">}</span><span class="sh">
-</span><span class="no">EOF
+  echo "Sending email and exiting due to error"
+  echo $message
+  mail -s "Blog generation failure" "${recipient}" &lt;&lt; EOF
+${message}
+EOF
 
-</span>  <span class="nb">exit </span>1
-<span class="o">}</span>
+  exit 1
+}
 
-<span class="nb">echo</span> <span class="s2">"Running at "</span><span class="sb">`</span><span class="nb">date</span><span class="sb">`</span>
+echo "Running at "`date`
 
-<span class="nv">emailto</span><span class="o">=</span><span class="s2">"youremail@xxx.com"</span>
+emailto="youremail@xxx.com"
 
-<span class="nb">echo</span> <span class="nv">$workspace</span>
-<span class="nb">cd</span> <span class="nv">$workspace</span>
+echo $workspace
+cd $workspace
 
-jekyll <span class="nt">--no-auto</span>  <span class="nt">--no-safe</span>
+jekyll --no-auto  --no-safe
 
-<span class="nv">exitCode</span><span class="o">=</span><span class="nv">$?</span>
+exitCode=$?
 
-<span class="k">if</span> <span class="o">[</span> <span class="k">${</span><span class="nv">exitCode</span><span class="k">}</span> <span class="o">!=</span> <span class="s2">"0"</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
-  </span>send_email_and_exit <span class="s2">"</span><span class="k">${</span><span class="nv">emailto</span><span class="k">}</span><span class="s2">"</span> <span class="s2">"Jekyll failed with exit code </span><span class="k">${</span><span class="nv">exitCode</span><span class="k">}</span><span class="s2">"</span>
-<span class="k">fi</span>
+if [ ${exitCode} != "0" ]; then
+  send_email_and_exit "${emailto}" "Jekyll failed with exit code ${exitCode}"
+fi
 </code></pre></div></div>
 
 <p>将这两个文件放置到服务器的git workspace路径下的.git/hooks中，然后设置定时任务定时从仓库pull源码，如果有更新则会重新生成页面。默认的路径在 workspace/_site 目录下，将ngnix的web路径指向到该目录即可。</p>
@@ -428,8 +432,10 @@ jekyll <span class="nt">--no-auto</span>  <span class="nt">--no-safe</span>
       </div>
 
       <div class="footer-col  footer-col-3">
-         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
-            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+         <div>
+            Jolestar 的个人博客<br/>
+            Channel:<a href="https://t.me/jolestarblog">https://t.me/jolestarblog</a>
+            <br/><br/>
         </div>
         <script>
             (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

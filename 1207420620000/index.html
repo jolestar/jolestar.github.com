@@ -91,6 +91,10 @@
           
         
           
+        
+          
+        
+          
          -->
         <a class="page-link" href="../about/">About</a>
       </div>
@@ -123,7 +127,7 @@
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var="Hello"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var="Hello"
 var=Hello
 var='Hello'
 </code></pre></div></div>
@@ -142,7 +146,7 @@ var='Hello'
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var="Hello World"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var="Hello World"
 </code></pre></div></div>
 
 <p> 这时候就需要用引号。</p>
@@ -151,7 +155,7 @@ var='Hello'
 
 <p>3.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var=
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var=
 </code></pre></div></div>
 
 <p> 这样的语句也是合法的，表示var的值为空。</p>
@@ -164,7 +168,7 @@ var='Hello'
 
 <p>如:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>echo $var
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>echo $var
 </code></pre></div></div>
 
 <p> </p>
@@ -173,7 +177,7 @@ var='Hello'
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>echo var
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>echo var
 </code></pre></div></div>
 
 <p> </p>
@@ -184,7 +188,7 @@ var='Hello'
 
 <p>如：</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var=World
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var=World
 var2="$var World"
 echo $var2
 </code></pre></div></div>
@@ -201,7 +205,7 @@ echo $var2
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var=World
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var=World
 var2='$var World'
 echo $var2
 </code></pre></div></div>
@@ -222,7 +226,7 @@ echo $var2
 
 <p>3.if语句</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>if [ condition ]
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>if [ condition ]
 then
     action
 elif [ condition2 ]
@@ -250,7 +254,7 @@ fi
 
 <p>3.for循环</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var="one two three four"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var="one two three four"
 for x in $var
 do
      echo $x
@@ -265,7 +269,7 @@ done
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>while [ condition ]
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>while [ condition ]
  do
      statements
  done
@@ -273,7 +277,7 @@ done
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>until [ condition ]
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>until [ condition ]
  do
      statements
  done
@@ -291,7 +295,7 @@ done
 
 <p>如:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gender="boy"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gender="boy"
 if [ "$gender" = "girl" ]
 then
       echo 'Welcome!'
@@ -316,7 +320,7 @@ operator expected.错误。因为变量为空的话，条件语句少了一边�
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>算术比较运算符
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>算术比较运算符
 
 num1-eq num2 	等于	[ 3 -eq $mynum ]
 num1-ne num2 	不等于	[ 3 -ne $mynum ]
@@ -328,7 +332,7 @@ num1-ge num2 	大于或等于	[ 3 -ge $mynum ]
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>字符串比较运算符
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>字符串比较运算符
 
 -z string 	如果 string长度为零，则为真 	[ -z "$myvar" ]
 -n string 	如果 string长度非零，则为真 	[ -n "$myvar" ]
@@ -338,7 +342,7 @@ string1!= string2 	如果 string1与 string2不同，则为真 	[ "$myvar" != "o
 
 <p>6.case 语句</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gender="boy"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gender="boy"
 case "$gender" in
       boy)
             echo "We only welcome girl."
@@ -366,7 +370,7 @@ case "$gender" in
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>echo 1 1
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>echo 1 1
 </code></pre></div></div>
 
 <p> </p>
@@ -376,7 +380,7 @@ case "$gender" in
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>echo $((1 1))
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>echo $((1 1))
 </code></pre></div></div>
 
 <p> </p>
@@ -387,7 +391,7 @@ case "$gender" in
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>add(){
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>add(){
     result=0
     for n in $*
     do
@@ -399,7 +403,7 @@ case "$gender" in
 
 <p> 执行:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>add 1 2 3
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>add 1 2 3
 echo $?
 echo $result
 </code></pre></div></div>
@@ -423,7 +427,7 @@ shell中的变量默认都是全局的，除非你在前面加了local修饰符�
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>文件比较运算符
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>文件比较运算符
 
 -e filename 	如果 filename存在，则为真 	[ -e /var/log/syslog ]
 -d filename 	如果 filename为目录，则为真 	[ -d /tmp/mydir ]
@@ -442,7 +446,7 @@ filename1-ot filename2 	如果 filename1比 filename2旧，则为真 	[ /boot/bz
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>for file in /home/*
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>for file in /home/*
 do
    if [ -d "$file" ]
    then
@@ -457,7 +461,7 @@ done
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>for user in `awk -F":" '{ print $1 }' /etc/passwd`
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>for user in `awk -F":" '{ print $1 }' /etc/passwd`
 do
     echo find user $user
 done
@@ -559,8 +563,10 @@ done
       </div>
 
       <div class="footer-col  footer-col-3">
-         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
-            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+         <div>
+            Jolestar 的个人博客<br/>
+            Channel:<a href="https://t.me/jolestarblog">https://t.me/jolestarblog</a>
+            <br/><br/>
         </div>
         <script>
             (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

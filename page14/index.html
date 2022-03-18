@@ -94,6 +94,8 @@
           
         
           
+        
+          
          -->
         <a class="page-link" href="../about/">About</a>
       </div>
@@ -243,7 +245,7 @@ windows下的很多ssh客户端，比方putty，等都内置了socks功能，设
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>route {
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>route {
        from: 0.0.0.0/0   to: 0.0.0.0/0   via: yoursocksserver port = socksserverport
        protocol: tcp udp
        proxyprotocol: socks_v4 socks_v5
@@ -257,7 +259,7 @@ windows下的很多ssh客户端，比方putty，等都内置了socks功能，设
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>export SOCKS_USERNAME=yoursocksusername
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>export SOCKS_USERNAME=yoursocksusername
 </code></pre></div></div>
 
 <p> </p>
@@ -268,7 +270,7 @@ windows下的很多ssh客户端，比方putty，等都内置了socks功能，设
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>socksify ssh root@yoursshserverip
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>socksify ssh root@yoursshserverip
 </code></pre></div></div>
 
 <p> </p>
@@ -277,7 +279,7 @@ windows下的很多ssh客户端，比方putty，等都内置了socks功能，设
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#debug: 1           # uncomment to enable debugging
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#debug: 1           # uncomment to enable debugging
 
 #logoutput: stdout  # users usually don't want to be bothered with that.
 </code></pre></div></div>
@@ -293,7 +295,7 @@ windows下的很多ssh客户端，比方putty，等都内置了socks功能，设
 <p>我又找到一个很有用的工具expect(如果不存在这个命令请先从源上安装)。这个工具是专门来让这样的交互式程序自动化的。<br />
 写一个脚本:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#!/usr/bin/expect
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#!/usr/bin/expect
 set sockspasswd "yoursockspassword"
 set sshpasswd "yoursshpassword"
 spawn socksify ssh root@yoursshserverip "[lindex $argv 0]";
@@ -355,7 +357,7 @@ dante也可以做socks服务端，这里就不介绍了，具体参看官方网�
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>CATALINA_OPTS="-Dcom.sun.management.jmxremote
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>CATALINA_OPTS="-Dcom.sun.management.jmxremote
     -Dcom.sun.management.jmxremote.port=$my.jmx.port
     -Dcom.sun.management.jmxremote.ssl=false
     -Dcom.sun.management.jmxremote.authenticate=false
@@ -637,8 +639,10 @@ Android上的桌面小控件程序，可以用javascript写控件。</p>
       </div>
 
       <div class="footer-col  footer-col-3">
-         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
-            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+         <div>
+            Jolestar 的个人博客<br/>
+            Channel:<a href="https://t.me/jolestarblog">https://t.me/jolestarblog</a>
+            <br/><br/>
         </div>
         <script>
             (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

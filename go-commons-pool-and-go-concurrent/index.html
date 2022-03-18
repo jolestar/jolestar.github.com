@@ -91,6 +91,10 @@
           
         
           
+        
+          
+        
+          
          -->
         <a class="page-link" href="../about/">About</a>
       </div>
@@ -122,7 +126,7 @@
     <p>sync.Pool<br />
  sync.Pool 使用很简单，只需要传递一个创建对象的func即可。</p>
 
-    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> var objPool = sync.Pool{
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> var objPool = sync.Pool{
  New: func() interface{} {
  return NewObject()}}
  p := objPool.Get().(*Object)
@@ -153,7 +157,7 @@
 <h3 id="递归锁或者叫可重入锁recursive-lock">递归锁或者叫可重入锁(Recursive Lock)</h3>
 <p>Java中的synchronized关键词以及LinkedBlockingDequeu中用到的ReentrantLock，都是可重入的。而Golang中的sync.Mutex是不可重入的。表现出来就是:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ReentrantLock lock;
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ReentrantLock lock;
 
 public void a(){
     lock.lock();
@@ -180,7 +184,7 @@ public void all(){
 
 <p>上例all方法中嵌套调用a方法，虽然调用a方法的时候也需要锁，但因为all已经申请锁，并且该锁可重入，所以不会导致死锁。而同样的代码在Golang中是会导致死锁的：</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var lock sync.Mutex
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var lock sync.Mutex
 
 func a() {
     lock.Lock()
@@ -207,7 +211,7 @@ func all() {
 
 <p>只能重构为下面这样的(命名不规范请忽略，只是demo)</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var lock sync.Mutex
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var lock sync.Mutex
 
 func a() {
     lock.Lock()
@@ -245,7 +249,7 @@ func all() {
 <h3 id="锁等待超时机制">锁等待超时机制</h3>
 <p>Golang的 sync.Cond 只有Wait，没有如Java中的Condition的超时等待方法await(long time, TimeUnit unit)。这样就没法实现LinkBlockingDeque的 pollFirst(long timeout, TimeUnit unit) 这样的方法。有人提了issue，但被拒绝了 <a href="https://github.com/golang/go/issues/9578">sync: add WaitTimeout method to Cond</a>。 所以只能通过channel的机制模拟了一个超时等待的Cond。完整源码参看 <a href="https://github.com/jolestar/go-commons-pool/blob/master/concurrent/cond.go">go-commons-pool/concurrent/cond.go</a>。</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>type TimeoutCond struct {
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>type TimeoutCond struct {
     L      sync.Locker
     signal chan int
 }
@@ -282,7 +286,7 @@ func (this *TimeoutCond) WaitWithTimeout(timeout time.Duration) (time.Duration, 
 
 <p>也就是说key中不能包含不可比较的值，比如 slice, map, and function。而我们的key是用户自定义的对象，没办法进行约束。于是借鉴Java的IdentityHashMap的思路，将key转换成对象的指针地址，实际上map中保存的是key对象的指针地址。</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>type SyncIdentityMap struct {
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>type SyncIdentityMap struct {
     sync.RWMutex
     m map[uintptr]interface{}
 }
@@ -384,8 +388,10 @@ func genKey(key interface{}) uintptr {
       </div>
 
       <div class="footer-col  footer-col-3">
-         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
-            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+         <div>
+            Jolestar 的个人博客<br/>
+            Channel:<a href="https://t.me/jolestarblog">https://t.me/jolestarblog</a>
+            <br/><br/>
         </div>
         <script>
             (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

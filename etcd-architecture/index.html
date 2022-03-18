@@ -91,6 +91,10 @@
           
         
           
+        
+          
+        
+          
          -->
         <a class="page-link" href="../about/">About</a>
       </div>
@@ -173,7 +177,7 @@
 
 <p>Etcd v2 是个纯内存的实现，并未实时将数据写入到磁盘，持久化机制很简单，就是将store整合序列化成json写入文件。数据在内存中是一个简单的树结构。比如以下数据存储到 Etcd 中的结构就如图所示。</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/nodes/1/name  node1  
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/nodes/1/name  node1  
 /nodes/1/ip    192.168.1.1 
 </code></pre></div></div>
 
@@ -208,7 +212,7 @@
 <p>举个例子：
 用etcdctl通过批量接口写入两条记录：</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>etcdctl txn &lt;&lt;&lt;' 
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>etcdctl txn &lt;&lt;&lt;' 
 put key1 "v1" 
 put key2 "v2" 
 
@@ -217,7 +221,7 @@ put key2 "v2"
 
 <p>再通过批量接口更新这两条记录：</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>etcdctl txn &lt;&lt;&lt;' 
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>etcdctl txn &lt;&lt;&lt;' 
 put key1 "v12" 
 put key2 "v22" 
 
@@ -226,7 +230,7 @@ put key2 "v22"
 
 <p>boltdb中其实有了4条数据：</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>rev={3 0}, key=key1, value="v1" 
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>rev={3 0}, key=key1, value="v1" 
 rev={3 1}, key=key2, value="v2" 
 rev={4 0}, key=key1, value="v12" 
 rev={4 1}, key=key2, value="v22" 
@@ -447,8 +451,10 @@ Etcd 和 Zookeeper 提供的能力非常相似，都是通用的一致性元信�
       </div>
 
       <div class="footer-col  footer-col-3">
-         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
-            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+         <div>
+            Jolestar 的个人博客<br/>
+            Channel:<a href="https://t.me/jolestarblog">https://t.me/jolestarblog</a>
+            <br/><br/>
         </div>
         <script>
             (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

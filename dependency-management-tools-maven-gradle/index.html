@@ -91,6 +91,10 @@
           
         
           
+        
+          
+        
+          
          -->
         <a class="page-link" href="../about/">About</a>
       </div>
@@ -152,7 +156,7 @@
 
 <p>Maven的习惯是通过 groupID（一般是组织的域名倒写，遵循Java package的命名习惯）+ artifactId（库本身的名称） + version（版本）来定义坐标，通过xml来做配置文件，提供了中心仓库（repo.maven.org）以及本地工具（mvn）。</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>依赖定义：
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>依赖定义：
 
 &lt;dependency&gt;
     &lt;groupId&gt;com.google.guava&lt;/groupId&gt;
@@ -206,7 +210,7 @@ repo定义：
 
 <p>Maven定义为项目管理工具，包含了项目从源码到发布的整个生命周期：</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>validate → generate-sources → process-sources
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>validate → generate-sources → process-sources
 → generate-resources → process-resources → compile 
 → process-classes → generate-test-sources
 → process-test-sources → generate-test-resources
@@ -271,13 +275,13 @@ repo定义：
     <p><strong>依赖管理更为灵活</strong><br />
  Maven对依赖管理比较严格，依赖必须是源码仓库的坐标。虽然也支持system scope的本地路径配置，但还是有许多不方便之处（system scope的依赖，打包的时候不包含进来）。如果世界上所有的库都通过Maven发布，当然没有问题，但现实往往不是这样的。这里要吐槽一下国内的各大厂发布的sdk之类的库，几乎都不提供仓库地址，就给个压缩包放一堆jar包进来，让用户自己搞定依赖管理问题。而Gradle在这方面比较灵活，比如支持：</p>
 
-    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> compile fileTree(dir: 'libs', include: '*.jar')  
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> compile fileTree(dir: 'libs', include: '*.jar')  
 </code></pre></div>    </div>
 
     <p>这样的配置规则。<br />
  另外由于Gradle本身是一种语言，可以用编程的方式来管理依赖。比如大多数子项目都依赖某个库，除了个别几个，就可以这样写：</p>
 
-    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> configure(subprojects.findAll {it.name != 'xxx1’ &amp;&amp; it.name != ‘xxx2’}) {  
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> configure(subprojects.findAll {it.name != 'xxx1’ &amp;&amp; it.name != ‘xxx2’}) {  
      dependencies {  
          compile("com.google.guava:guava:18.0”)  
      }  
@@ -398,8 +402,10 @@ repo定义：
       </div>
 
       <div class="footer-col  footer-col-3">
-         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
-            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+         <div>
+            Jolestar 的个人博客<br/>
+            Channel:<a href="https://t.me/jolestarblog">https://t.me/jolestarblog</a>
+            <br/><br/>
         </div>
         <script>
             (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

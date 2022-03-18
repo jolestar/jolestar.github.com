@@ -91,6 +91,10 @@
           
         
           
+        
+          
+        
+          
          -->
         <a class="page-link" href="../about/">About</a>
       </div>
@@ -113,7 +117,7 @@
   <article class="post-content">
     <p>写了个cache服务器的抽象层，如果cache中不存在该对象，我就让它返回null。</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public Person fetch(String name){
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public Person fetch(String name){
     //do some thing.can not find the Person.
     return null;
 }
@@ -123,7 +127,7 @@
 
 <p>头说这么不对，专家建议方法尽量不返回null,让我设置一个常量代替null,这叫 Null Object模式，于是又改成下面这样：</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public Person fetch(String name){
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public Person fetch(String name){
      //can not find the Person
      return Person.EMPTY_PERSON;
 }
@@ -148,7 +152,7 @@ Person的父亲，person.getParent()，返回什么？还是返回EMPTY_PERSON�
 <p>于是我又搜索了一下相关文章,发现Null Object 模式用在下面两个场景里确实有作用：<br />
 1。一种是返回集合的时候。如果返回集合时返回null，我们就必须多做一步判断：</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>List persons = personCache.fetchAll();
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>List persons = personCache.fetchAll();
 if(persons!=null){
     for(Person p:persons){
         p.doSometing();
@@ -163,7 +167,7 @@ if(persons!=null){
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public interface KillSkill{
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public interface KillSkill{
     public void kill(Person p);
 }
 //降龙十八掌
@@ -309,8 +313,10 @@ Person me = new Person(100,new NullSkill());
       </div>
 
       <div class="footer-col  footer-col-3">
-         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
-            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+         <div>
+            Jolestar 的个人博客<br/>
+            Channel:<a href="https://t.me/jolestarblog">https://t.me/jolestarblog</a>
+            <br/><br/>
         </div>
         <script>
             (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

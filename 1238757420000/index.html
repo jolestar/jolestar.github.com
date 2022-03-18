@@ -91,6 +91,10 @@
           
         
           
+        
+          
+        
+          
          -->
         <a class="page-link" href="../about/">About</a>
       </div>
@@ -115,7 +119,7 @@
 
 <p>      如：</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>function TestObj(){
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>function TestObj(){
     this.property = "test";
     this.called = function(){
        alert(this.property);
@@ -137,7 +141,7 @@ test.setTimeCall(),this.property就为空了。因为这里的this成浏览器�
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>function TestObj(){
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>function TestObj(){
    this.property = "test";
    this.called = function(){
        alert(this.property);
@@ -154,7 +158,7 @@ test.setTimeCall();
 
 <p> 之所以说这样做糟糕，是因为在定义TestObj时，就必须提前知道TestObj被创建时的变量名。后来在IBM社区看到一篇探讨javascript有限状态机的文章，用了一个很巧妙的办法避免这个问题。</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>function TestObj(){
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>function TestObj(){
     this.property = "test";
     var self = this;
      this.called = function(){
@@ -183,7 +187,7 @@ test.setTimeCall();
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>function TestObj(){
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>function TestObj(){
 
     this.called = function(){
         alert("OK");
@@ -267,8 +271,10 @@ test.setTimeCall();
       </div>
 
       <div class="footer-col  footer-col-3">
-         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
-            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+         <div>
+            Jolestar 的个人博客<br/>
+            Channel:<a href="https://t.me/jolestarblog">https://t.me/jolestarblog</a>
+            <br/><br/>
         </div>
         <script>
             (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

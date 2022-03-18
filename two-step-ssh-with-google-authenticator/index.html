@@ -91,6 +91,10 @@
           
         
           
+        
+          
+        
+          
          -->
         <a class="page-link" href="../about/">About</a>
       </div>
@@ -124,7 +128,7 @@
 
 <p>先安装pam的devel包: apt系列的是 libpam0g-dev，yum系列的是 pam-devel</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://code.google.com/p/google-authenticator/
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://code.google.com/p/google-authenticator/
 cd google-authenticator/libpam
 make
 make install
@@ -134,19 +138,19 @@ make install
 
 <p>在开始部分增加:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>auth required pam_google_authenticator.so
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>auth required pam_google_authenticator.so
 </code></pre></div></div>
 
 <p>修改/etc/ssh/sshd_config 开启 ChallengeResponseAuthentication</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ChallengeResponseAuthentication yes
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ChallengeResponseAuthentication yes
 </code></pre></div></div>
 
 <h2 id="设置服务器">设置服务器</h2>
 
 <p>切换到需要启用 google-authenticator 的用户执行google-authenticator</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ google-authenticator 
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ google-authenticator 
 
 Do you want authentication tokens to be time-based (y/n) y
 https://www.google.com//chart?chs=200x200&amp;chld=M|0&amp;cht=qr&amp;chl=otpauth://totp/jolestar@xxxxx%3Fsecret%xxxxxxxx
@@ -185,7 +189,7 @@ Do you want to enable rate-limiting (y/n) y
 <p>可以看到token已经在定时变化。
 尝试登陆一下，可以看到登陆方式已经变更了。</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssh xxxx.com 
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssh xxxx.com 
 Verification code: 
 Password: 
 </code></pre></div></div>
@@ -266,8 +270,10 @@ Password:
       </div>
 
       <div class="footer-col  footer-col-3">
-         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
-            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+         <div>
+            Jolestar 的个人博客<br/>
+            Channel:<a href="https://t.me/jolestarblog">https://t.me/jolestarblog</a>
+            <br/><br/>
         </div>
         <script>
             (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

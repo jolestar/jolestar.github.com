@@ -91,6 +91,10 @@
           
         
           
+        
+          
+        
+          
          -->
         <a class="page-link" href="../about/">About</a>
       </div>
@@ -125,7 +129,7 @@
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public boolean equals (Object arg) {
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public boolean equals (Object arg) {
   if (! (arg instanceof Range)) return false;
   Range other = (Range) arg;
   return start.equals(other.start) &amp;&amp; end.equals(other.end);
@@ -157,7 +161,7 @@ end，突然凭空而出，想一下才知道这应该是字段。当然，这�
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public boolean equals (Object aOther) {
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public boolean equals (Object aOther) {
   if (! (aOther instanceof Range)) return false;
   Range other = (Range) aOther;
   return fStart.equals(other.fStart) &amp;&amp; fEnd.equals(other.fEnd);
@@ -213,10 +217,10 @@ perfect notation.”<br />
 <p> </p>
 
 <ul>
-  <li><code class="highlighter-rouge">com.blah.action</code></li>
-  <li><code class="highlighter-rouge">com.blah.dao</code></li>
-  <li><code class="highlighter-rouge">com.blah.model</code></li>
-  <li><code class="highlighter-rouge">com.blah.util</code></li>
+  <li><code class="language-plaintext highlighter-rouge">com.blah.action</code></li>
+  <li><code class="language-plaintext highlighter-rouge">com.blah.dao</code></li>
+  <li><code class="language-plaintext highlighter-rouge">com.blah.model</code></li>
+  <li><code class="language-plaintext highlighter-rouge">com.blah.util</code></li>
 </ul>
 
 <p>我们已经习惯了按照层次分类或者叫按照行为分类，model一个包，dao一个包，service一个包，action一个包。这样就把具有同样特<br />
@@ -230,16 +234,16 @@ perfect notation.”<br />
 <p>下面的包命名方式是按照特征划分命名:</p>
 
 <ul>
-  <li><code class="highlighter-rouge">com.blah.painting</code></li>
-  <li><code class="highlighter-rouge">com.blah.buyer</code></li>
-  <li><code class="highlighter-rouge">com.blah.seller</code></li>
-  <li><code class="highlighter-rouge">com.blah.auction</code></li>
-  <li><code class="highlighter-rouge">com.blah.webmaster</code></li>
-  <li><code class="highlighter-rouge">com.blah.useraccess</code></li>
-  <li><code class="highlighter-rouge">com.blah.util</code></li>
+  <li><code class="language-plaintext highlighter-rouge">com.blah.painting</code></li>
+  <li><code class="language-plaintext highlighter-rouge">com.blah.buyer</code></li>
+  <li><code class="language-plaintext highlighter-rouge">com.blah.seller</code></li>
+  <li><code class="language-plaintext highlighter-rouge">com.blah.auction</code></li>
+  <li><code class="language-plaintext highlighter-rouge">com.blah.webmaster</code></li>
+  <li><code class="language-plaintext highlighter-rouge">com.blah.useraccess</code></li>
+  <li><code class="language-plaintext highlighter-rouge">com.blah.util</code></li>
 </ul>
 
-<p>举个例子，在一个web应用中，<code class="highlighter-rouge">com.blah.painting包可能包含下面的成员:</code></p>
+<p>举个例子，在一个web应用中，<code class="language-plaintext highlighter-rouge">com.blah.painting包可能包含下面的成员:</code></p>
 
 <ul>
   <li>Painting.java: model对象</li>
@@ -330,7 +334,7 @@ have anything to say about events and listeners.(不太明白作者的意思)</p
 
 <p> </p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public class OilWell implements EnergySource {
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public class OilWell implements EnergySource {
    private Long id;
    private String name;
    private String location;
@@ -481,8 +485,10 @@ have anything to say about events and listeners.(不太明白作者的意思)</p
       </div>
 
       <div class="footer-col  footer-col-3">
-         <div style="background:url('/images/weichat/qrcode_jolestar_blog.jpg') right no-repeat;background-size:66px 66px">
-            Jolestar 的个人博客，<br/>微信公众号 午夜咖啡<br/><br/><br/>
+         <div>
+            Jolestar 的个人博客<br/>
+            Channel:<a href="https://t.me/jolestarblog">https://t.me/jolestarblog</a>
+            <br/><br/>
         </div>
         <script>
             (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
