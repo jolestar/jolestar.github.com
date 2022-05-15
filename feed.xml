@@ -6,8 +6,8 @@
 </description>
     <link>http://jolestar.com/</link>
     <atom:link href="http://jolestar.com/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Sun, 15 May 2022 12:25:42 +0800</pubDate>
-    <lastBuildDate>Sun, 15 May 2022 12:25:42 +0800</lastBuildDate>
+    <pubDate>Sun, 15 May 2022 12:29:29 +0800</pubDate>
+    <lastBuildDate>Sun, 15 May 2022 12:29:29 +0800</lastBuildDate>
     <generator>Jekyll v3.9.0</generator>
     
       <item>
@@ -356,16 +356,7 @@ Move 在编程语言内部实现了状态隔离，同时也给这个领域的解
   &lt;li&gt;&lt;a href=&quot;https://github.com/move-language/move&quot;&gt;https://github.com/move-language/move&lt;/a&gt; Move 项目的新仓库&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;https://github.com/MystenLabs/awesome-move&quot;&gt;awesome-move: Code and content from the Move community&lt;/a&gt;  一个 Move 相关项目的资源集合，包括公链以及 Move 实现的库&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;https://vitalik.ca/general/2022/01/26/soulbound.html&quot;&gt;Soulbound (vitalik.ca)&lt;/a&gt; Vitalik 关于 NFT 灵魂绑定的文章&lt;/li&gt;
-  &lt;li&gt;
-    &lt;table&gt;
-      &lt;tbody&gt;
-        &lt;tr&gt;
-          &lt;td&gt;[[SIP22] NFT&lt;/td&gt;
-          &lt;td&gt;Starcoin](https://starcoin.org/zh/developer/sips/sip-22/) Starcoin 的 NFT 标准，包括 IdentifierNFT 的说明&lt;/td&gt;
-        &lt;/tr&gt;
-      &lt;/tbody&gt;
-    &lt;/table&gt;
-  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://starcoin.org/zh/developer/sips/sip-22/&quot;&gt;SIP22 NFT&lt;/a&gt; Starcoin 的 NFT 标准，包括 IdentifierNFT 的说明&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;https://jolestar.com/bitcoin-smart-contract/&quot;&gt;开启比特币智能合约的「三把锁」 (jolestar.com)&lt;/a&gt;&lt;/li&gt;
 &lt;/ol&gt;
 
