@@ -118,6 +118,56 @@
     
         
       <li>
+        <span class="post-meta">Apr 6, 2008</span>
+        <h2>
+            <a class="post-link" href="../1207420560000/">一次linux服务器管理的惨痛教训</a>
+        </h2>
+        <div class="post_at_index">
+            <p>系统用的是fedroa8,机房给装系统的时候，分区按默认方式，用lvm管理。</p>
+
+<p>后来一次机房给拔了一下电，估计文件系统哪儿出问题<br />
+了，磁盘全部变成只读。然后我想检查一下磁盘，运行了一下fsck，结果检查失败，而文件系统又被卸载掉了，所有命令都用不了。只好让机房给重启一下，然<br />
+后系统就起不来了。怀疑机房重启系统的时候发现系统没反应，多起了几下，导致系统检查硬盘的过程被中断。</p>
+
+<p>为了保存数据，我只好重新加了块硬盘，把系统装在新硬盘上，挂上旧硬盘，我慢慢恢复数据。</p>
+
+<p>先是遇到lvm的分区挂载问题，这东西不能像别的分区一样直接挂在。网上查了一下：</p>
+
+<p>先用vgscan，找到虚拟卷，然后用 vgchange -ay 激活虚拟卷，/dev下就有了虚拟卷设备。  默认是/dev/VolGroup00/LogVol00 /dev/VolGroup00/LogVol01这样的。</p>
+
+<p>用<br />
+mount  /dev/VolGroup00/LogVol00 /root/vg0 挂载，结果报错：mount: you must specify the filesystem type</p>
+
+<p>用<br />
+fdisk查看<br />
+了一下，发现虚拟卷识别出来了，但就是分区表被破坏了，系统识别不出分区格式。只好再用fsck修复。不停提示，开始还看，后来烦了，加了个   <br />
+fsck<br />
+-y。好，一路顺利，检查完了。mount上虚拟卷，进入目录，傻眼了，分区下只剩下一个lost found文件夹，别的啥都没了。进到<br />
+lost found下面，ls了一下，等了半天才显示出来结果。原来所有文件都被移到这个文件下了，并且都重命名为以#开头，一串数字结尾的文件，好几<br />
+万文件。欲哭无泪啊。</p>
+
+<p>无奈间，试着grep了一下，发现还好，有的文件夹名字变了但结构还在。赶忙写了个shell脚本恢复数据。幸运的是，主要数据基本上都恢复了。</p>
+
+<p>总结了一下教训：</p>
+
+<p>1。fsck不能乱用。先要把文件系统umount掉，然后检查。最好启动到单用户模式下fsck。</p>
+
+<p>2。<br />
+不必要的时候不要用lvm。真不知道fedora为什么默认用lvm，为了实验技术？这个鬼东西把硬盘弄成一块，要坏全坏，还影响磁盘io性能。网上看到<br />
+还有把boot文件夹也放到lvm下的，这样系统起不来的时候，你想手动加载一下内核地址，你都不知道内核地址应该怎么表示。</p>
+
+<p>3。分区和备份太重要了。数据库的datadir要手动指定到放数据的分区下，这样重装系统的时候，数据不会丢失。etc目录下的配置文件要备份，不然系统重装后，重新配置一边也够受的。</p>
+
+<p> </p>
+
+<p>平时自己本地用linux，服务器管理经验不多，让老鸟看了笑话。吃一堑长一智，我这也算长了一智。</p>
+
+        
+        </div>
+      </li>
+    
+        
+      <li>
         <span class="post-meta">Mar 29, 2008</span>
         <h2>
             <a class="post-link" href="../1206729180000/">一个纯java的H.264播放器&#8211;Onavia Video Player</a>
@@ -609,52 +659,6 @@ struts2的iterator 标签里设置</p>
 <p><img src="/images/desktop/0a5925c0-cfd6-3f5e-b4b6-595394990acb.jpg" alt="" /></p>
 
 <p> </p>
-
-        
-        </div>
-      </li>
-    
-        
-      <li>
-        <span class="post-meta">Aug 21, 2007</span>
-        <h2>
-            <a class="post-link" href="../1187697600000/">javascript获取网页元素的最终样式</a>
-        </h2>
-        <div class="post_at_index">
-            <p>    今天遇到个问题，用js获取网页元素的样式，如果直接用 document.getElementById(“idname”).style<br />
-获取的话，只能获取该元素的专有样式，即在该元素上直接用style=“”指定的样式，而无法获取由class设置的和从上级元素继承来的样式，也就是浏<br />
-览器生成dom后最终的样式，所以很头痛。网上搜索了一下，找到一个办法。</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   　　
-   　　
-   　　div.special{
-   　　 background-color:red;
-   　　 height:50px;
-   　　 width:50px;
-   　　 margin:10px;
-   　　}
-  　　
-  　　
-  　　function getBackgroundColor()
-  　　{
-  　　 var oDiv=document.getElementById("div1");
-  　　 alert(oDiv.currentStyle.backgroundColor||document.defaultView.getComputedStyle(oDiv,null).backgroundColor);
-  　　}
-  　　
-  　　
-  　　
-  　　
-  　　
-      
-  　　
-  　　  
-</code></pre></div></div>
-
-<p> </p>
-
-<p>注意：oDiv.currentStyle.backgroundColor是IE使用的方法，document.defaultView.getComputedStyle(oDiv,null).backgroundColor是DOM使用的方法。</p>
-
-<p>       内容来源：http://blog.tianya.cn/blogger/post_show.asp?BlogID=666817&amp;PostID=7224874&amp;idWriter=0&amp;Key=0</p>
 
         
         </div>

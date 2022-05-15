@@ -118,6 +118,51 @@
     
         
       <li>
+        <span class="post-meta">Jul 4, 2010</span>
+        <h2>
+            <a class="post-link" href="../1278185678455/">linux kde 声音问题</a>
+        </h2>
+        <div class="post_at_index">
+            <p>升级了一下kde，然后系统声音就时好时坏，老出现 “phonon 回放设备不工作 “的提示,很是郁闷。</p>
+
+<p>查了下网上，说是要设置下 多媒体的回放设备</p>
+
+<p>但点击 系统设置-&gt;多媒体(System Setting-&gt;Multimedia)，设置窗口立刻崩溃(crash).</p>
+
+<p>显示错误: kcm_phonon.so: undefined symbol: _ZNK6Phonon12GlobalConfig19hideAdvancedDevicesEv</p>
+
+<p>amarok不能播放音乐。</p>
+
+<p>网上查了一下，应该是<em>Phonon</em>的问题<em>。</em></p>
+
+<p><em>Phonon</em>是什么？Qt从4.4版本开始提供的一套多媒体框架，提供多媒体<em>回放</em>的功能。（phonon的图解说明:<a href="http://c-home.appspot.com/2009/03/2/phonon_pic.html" title="http://c-home.appspot.com/2009/03/2/phonon_pic.html">http://c-home.appspot.com/2009/03/2/phonon_pic.html</a>）</p>
+
+<p>检查了下系统 <em>Phonon  *的版本，发现 Phonon的版本与kde不兼容。升级了下phonon，这个问题就不存在了。</em><br />
+*</p>
+
+<p>如果声音还有问题，根据下面这篇文档设置下ALSA：</p>
+
+<p><a href="http://wiki.archlinux.org/index.php/Advanced_Linux_Sound_Architecture" title="http://wiki.archlinux.org/index.php/Advanced_Linux_Sound_Architecture">http://wiki.archlinux.org/index.php/Advanced_Linux_Sound_Architecture</a></p>
+
+<p>最后还有一个问题：flash没有声音，无论用什么浏览器。</p>
+
+<p>搜索了一下，是PulseAudio的问题。</p>
+
+<p><strong><em>PulseAudio</em></strong> is a sound server for POSIX and Win32 systems</p>
+
+<p>参考下面两篇文档的设置：</p>
+
+<p><a href="http://developer.novell.com/wiki/index.php/Feisty/HOWTO:_PulseAudio" title="http://developer.novell.com/wiki/index.php/Feisty/HOWTO:_PulseAudio">http://developer.novell.com/wiki/index.php/Feisty/HOWTO:_PulseAudio</a></p>
+
+<p><a href="http://ubuntuforums.org/showthread.php?t=789578" title="http://ubuntuforums.org/showthread.php?t=789578">http://ubuntuforums.org/showthread.php?t=789578</a></p>
+
+
+        
+        </div>
+      </li>
+    
+        
+      <li>
         <span class="post-meta">Apr 5, 2010</span>
         <h2>
             <a class="post-link" href="../1241883360000/">终于在网上建了个家</a>
@@ -289,29 +334,6 @@ html，css，photoshop,dreamweaver,javascript,flash。然后又知道用静态ht
 <p>[![google new search page][3]][3]</p>
 
 <p>[]: http://jolestar.com/images/desktop/google.jpeg “google new search page”</p>
-
-        
-        </div>
-      </li>
-    
-        
-      <li>
-        <span class="post-meta">Nov 13, 2009</span>
-        <h2>
-            <a class="post-link" href="../1258074840000/">OpenSuse 11.2 正式发布</a>
-        </h2>
-        <div class="post_at_index">
-            <p>OpenSuse11.2 将 KDE 4.3作为默认桌面</p>
-
-<p>内核使用最新的2.6.31。 2.6.31后，桌面速度确实快了许多，启动速度也快了许多。</p>
-
-<p> </p>
-
-<p>本人的桌面截图:</p>
-
-<p>[![opensuse][2]][2]</p>
-
-<p>[]: http://jolestar.com/images/desktop/opensuse11.2.jpeg</p>
 
         
         </div>
