@@ -363,7 +363,7 @@
 
 <p>然后我们可以把上层封装设想成不同容器，不同的容器有不同的行为。比如 NFT 放在个人展览馆里的时候，是可以拿出来的，但一旦放一些特殊容器中，想要拿出来则需要有其他规则限制，这就实现了“绑定”。</p>
 
-<p>比如 Starcoin 的 NFT 标准实现了一种灵魂绑定 NFT 的容器叫做 <code class="language-plaintext highlighter-rouge">IdentiferNFT</code> ：</p>
+<p>比如 Starcoin 的 NFT 标准实现了一种灵魂绑定 NFT 的容器叫做 <code class="language-plaintext highlighter-rouge">IdentifierNFT</code> ：</p>
 
 <div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">/// IdentifierNFT 中包含了一个 Option 的 NFT，默认是空的，相当于一个可以容纳 NFT 的箱子</span>
 <span class="k">struct</span> <span class="n">IdentifierNFT</span><span class="o">&lt;</span><span class="n">NFTMeta</span><span class="p">:</span> <span class="k">copy</span> <span class="o">+</span> <span class="n">store</span> <span class="o">+</span> <span class="k">drop</span><span class="p">,</span> <span class="n">NFTBody</span><span class="p">:</span> <span class="n">store</span><span class="o">&gt;</span> <span class="n">has</span> <span class="n">key</span> <span class="p">{</span>
