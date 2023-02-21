@@ -118,6 +118,36 @@
     
         
       <li>
+        <span class="post-meta">Jan 16, 2008</span>
+        <h2>
+            <a class="post-link" href="../1200484980000/">SUSE10.3的桌面</a>
+        </h2>
+        <div class="post_at_index">
+            <p> </p>
+
+<p>   虽然认识linux也有三年多了，但这三年多里，从windows到linux，不习惯，再换到windows，兴趣来了，再换过来。翻来覆去，折<br />
+腾了好多遍。终于在半年前完全抛弃了windows，转移到linux下来。linux和windows是两种不同的思维方式，思维方式换了，别的就都习<br />
+惯了。最近把我的笔记本的系统升级到suse10.3，贴几张桌面截图。</p>
+
+<p>   我的笔记本是联想F40A，装上suse之后，除了声卡需要特别配置，别的都完全正常使用，包括无线网卡以及蓝牙。因为声卡用了一个微软的啥UAA技术，windows下安装声卡驱动都要先装那个UAA驱动。<br />
+当然，那些鸡肋似的按钮是没办法用了。所以建议打算买本装linux的朋友们优先考虑预装linux的笔记本。</p>
+
+<p><img src="/images/desktop/84288ddb-64ec-3b9d-885a-a0418adcb20d.jpg" alt="" /></p>
+
+<p><img src="/images/desktop/6d5b7416-6e22-3b1a-9893-bae059987f46.jpg" alt="" /></p>
+
+<p> </p>
+
+<p><img src="/images/desktop/0a5925c0-cfd6-3f5e-b4b6-595394990acb.jpg" alt="" /></p>
+
+<p> </p>
+
+        
+        </div>
+      </li>
+    
+        
+      <li>
         <span class="post-meta">Aug 21, 2007</span>
         <h2>
             <a class="post-link" href="../1187697600000/">javascript获取网页元素的最终样式</a>
@@ -620,65 +650,6 @@ id:1;name:test</p>
    如果连接不成功请用telent测试服务器端口是否能连接通。连不通请更改服务器的防火墙设置，或者干脆把防火墙关闭了。</p>
 
 <p>   /etc/init.d/iptables stop</p>
-
-        
-        </div>
-      </li>
-    
-        
-      <li>
-        <span class="post-meta">May 10, 2007</span>
-        <h2>
-            <a class="post-link" href="../1178795040000/">一个基于词库的中文分词程序-ThesaurusAnalyzer</a>
-        </h2>
-        <div class="post_at_index">
-            <p>前一段时间用lucene做一个搜索程序,找了好长时间的中文分词程序,都没找到合适的,最后自己弄了一个.现在共享出来.希望对大家有用.<br />
-      分词算法:    基于词库的正向最大匹配算法.<br />
-      分词词库用的是网上一个叫 segmenter 的分词程序使用的词库.<br />
-      地址:<a href="http://www.mandarintools.com/segmenter.html">www.mandarintools.com/segmenter.html</a>  </p>
-
-<p>     <br />
-这个segmenter分词程序是把文件按行读取出来,然后把一行假设为一个词,从库中匹配,如果匹配不成功,则去掉一个字,再继续匹配.这样的分词程<br />
-序,其一,不便在lucene中使用,因为lucene的analyzer是通过Tokenizer分词的,而Tokenizer中一般是对字符流进行处<br />
-理,每次next返回一个Token,并不是一次性把内容读取进来,处理后再返回结果.其二,按行读取会有个缺点,就是如果文本中恰好把一个词用换行符隔<br />
-开了,这样这个词也就被切开了,没有被当作一个词处理.<br />
-   <br />
-     我的程序实现方式:把词库读进内存后构建一个词语树.树的每个节点包含一个字. 比方  中国   中国人  中华民族  中华人民共和国  几个词,构成的树的结构:<br />
-  <br />
-                 中<br />
-           国^    华<br />
-      人^        人    民<br />
-                   民       族^<br />
-                   共<br />
-                   和<br />
-                   国^</p>
-
-<p>      <br />
-懒得上传图片,所以将就着这样表示了.^表示该节点可以构成一个词.分词的过程类似于输入法的联想功能.读取一个字,然后联想,直到联想到不能为止.如果<br />
-当前可以构成词,便返回一个Token.如果当前不能构成词语,便回溯到最近的可以构成词语的节点,返回.最差的情况就是返回第一个单字.然后从返回结果<br />
-的下一个字重新开始联想.</p>
-
-<p>      lucene自带的几个分词程序中,ChineseAnalyzer是按字分的,与StandardAnalyzer对中文的分词没有大的区别.CJKAnalyzer是按两字切分的,比较武断,并且会产生垃圾Token,影响索引大小.<br />
- <br />
-     本分词程序的效果取决与词库.您可以用自己的词库替换程序自带的词库.词库是一个文本文件,名称为word.txt. 每一行一个词语,以#开头表示跳过改行.最后保存为UTF-8的文本.</p>
-
-<p>    程序的缺陷:<br />
-        没有加入识别人名和地名的功能</p>
-
-<p>该分词的一个应用案例:http://www.cyonline.net
-    
-     这个网站是我给学校做的,用lucene对pdf ,word,excel,html等多种格式的文档进行解析,索引,提供全文搜索,并实现摘要高亮.这个网站在教育网上,公网用户可能访问起来比较慢.
-    </p>
-
-<p>      附件1为分词程序的jar包</p>
-
-<p>     附件2为分词程序的源码,需要lucene-core.jar,一个比较Analyzer的测试类还需要lucene-analyzers.jar.</p>
-
-<p>注:
-本文最早发表在javaeye上  <a href="http://jolestar.iteye.com/blog/58701">http://jolestar.iteye.com/blog/58701</a>
-源码仓库几经辗转，现在在：<a href="https://github.com/jolestar/yaya-analyzer">https://github.com/jolestar/yaya-analyzer</a>
-  </p>
-
 
         
         </div>

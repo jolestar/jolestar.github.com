@@ -118,6 +118,65 @@
     
         
       <li>
+        <span class="post-meta">May 10, 2007</span>
+        <h2>
+            <a class="post-link" href="../1178795040000/">一个基于词库的中文分词程序-ThesaurusAnalyzer</a>
+        </h2>
+        <div class="post_at_index">
+            <p>前一段时间用lucene做一个搜索程序,找了好长时间的中文分词程序,都没找到合适的,最后自己弄了一个.现在共享出来.希望对大家有用.<br />
+      分词算法:    基于词库的正向最大匹配算法.<br />
+      分词词库用的是网上一个叫 segmenter 的分词程序使用的词库.<br />
+      地址:<a href="http://www.mandarintools.com/segmenter.html">www.mandarintools.com/segmenter.html</a>  </p>
+
+<p>     <br />
+这个segmenter分词程序是把文件按行读取出来,然后把一行假设为一个词,从库中匹配,如果匹配不成功,则去掉一个字,再继续匹配.这样的分词程<br />
+序,其一,不便在lucene中使用,因为lucene的analyzer是通过Tokenizer分词的,而Tokenizer中一般是对字符流进行处<br />
+理,每次next返回一个Token,并不是一次性把内容读取进来,处理后再返回结果.其二,按行读取会有个缺点,就是如果文本中恰好把一个词用换行符隔<br />
+开了,这样这个词也就被切开了,没有被当作一个词处理.<br />
+   <br />
+     我的程序实现方式:把词库读进内存后构建一个词语树.树的每个节点包含一个字. 比方  中国   中国人  中华民族  中华人民共和国  几个词,构成的树的结构:<br />
+  <br />
+                 中<br />
+           国^    华<br />
+      人^        人    民<br />
+                   民       族^<br />
+                   共<br />
+                   和<br />
+                   国^</p>
+
+<p>      <br />
+懒得上传图片,所以将就着这样表示了.^表示该节点可以构成一个词.分词的过程类似于输入法的联想功能.读取一个字,然后联想,直到联想到不能为止.如果<br />
+当前可以构成词,便返回一个Token.如果当前不能构成词语,便回溯到最近的可以构成词语的节点,返回.最差的情况就是返回第一个单字.然后从返回结果<br />
+的下一个字重新开始联想.</p>
+
+<p>      lucene自带的几个分词程序中,ChineseAnalyzer是按字分的,与StandardAnalyzer对中文的分词没有大的区别.CJKAnalyzer是按两字切分的,比较武断,并且会产生垃圾Token,影响索引大小.<br />
+ <br />
+     本分词程序的效果取决与词库.您可以用自己的词库替换程序自带的词库.词库是一个文本文件,名称为word.txt. 每一行一个词语,以#开头表示跳过改行.最后保存为UTF-8的文本.</p>
+
+<p>    程序的缺陷:<br />
+        没有加入识别人名和地名的功能</p>
+
+<p>该分词的一个应用案例:http://www.cyonline.net
+    
+     这个网站是我给学校做的,用lucene对pdf ,word,excel,html等多种格式的文档进行解析,索引,提供全文搜索,并实现摘要高亮.这个网站在教育网上,公网用户可能访问起来比较慢.
+    </p>
+
+<p>      附件1为分词程序的jar包</p>
+
+<p>     附件2为分词程序的源码,需要lucene-core.jar,一个比较Analyzer的测试类还需要lucene-analyzers.jar.</p>
+
+<p>注:
+本文最早发表在javaeye上  <a href="http://jolestar.iteye.com/blog/58701">http://jolestar.iteye.com/blog/58701</a>
+源码仓库几经辗转，现在在：<a href="https://github.com/jolestar/yaya-analyzer">https://github.com/jolestar/yaya-analyzer</a>
+  </p>
+
+
+        
+        </div>
+      </li>
+    
+        
+      <li>
         <span class="post-meta">Apr 18, 2007</span>
         <h2>
             <a class="post-link" href="../1176895440000/">瞻仰了一下Gavin King的风采</a>
@@ -276,27 +335,6 @@ SEVERE: Error configuring application listener of class listeners.ContextListene
 java.lang.ClassFormatError: Extra bytes at the end of class file listeners/ContextListener</p>
 
 <p>这个是tomcat5.5 的 windows 安装文件的bug.下载zip格式的文件,解压后用复制其中的webapps目录覆盖当前的webapps目录即可.</p>
-
-        
-        </div>
-      </li>
-    
-        
-      <li>
-        <span class="post-meta">Mar 7, 2007</span>
-        <h2>
-            <a class="post-link" href="../1173264780000/">关于JMS的几篇文章</a>
-        </h2>
-        <div class="post_at_index">
-            <p>Geronimo 中 JMS、MDB 和 ActiveMQ 的使用技巧<br />
-<a href="http://www.ibm.com/developerworks/cn/opensource/os-ag-jmsbeans/">www.ibm.com/developerworks/cn/opensource/os-ag-jmsbeans/</a> 
-tomcat下应用JMS</p>
-
-<p>使用Spring JMS轻松实现异步消息传递 
-<a href="http://dev2dev.bea.com.cn/techdoc/20060511782.html">dev2dev.bea.com.cn/techdoc/20060511782.html</a></p>
-
-<p>javaeye activeMQ 专题</p>
-
 
         
         </div>

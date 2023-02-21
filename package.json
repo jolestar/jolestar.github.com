@@ -1,0 +1,10 @@
+{
+  "name": "jolestar_blog",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "bundle exec jekyll serve",
+    "build": "bundle exec jekyll build"
+  }
+}
+

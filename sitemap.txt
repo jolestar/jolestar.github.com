@@ -26,6 +26,7 @@ http://jolestar.com/page18/
 http://jolestar.com/page19/
 http://jolestar.com/page20/
 
+http://jolestar.com/the-modular-evolution-of-rollup-layer2/
 http://jolestar.com/why-move-1/
 http://jolestar.com/libra-move/
 http://jolestar.com/bitcoin-smart-contract/
